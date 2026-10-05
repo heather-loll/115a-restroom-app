@@ -1,0 +1,44 @@
+# dependencies
+client/node_modules/
+
+# Expo
+client/.expo/
+client/dist/
+client/web-build/
+client/expo-env.d.ts
+
+# Native
+client/.kotlin/
+client/*.orig.*
+client/*.jks
+client/*.p8
+client/*.p12
+client/*.key
+client/*.mobileprovision
+
+# Metro
+client/.metro-health-check*
+
+# debug
+client/npm-debug.*
+client/yarn-debug.*
+client/yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env.*
+client/.env
+client/.env.*
+
+# typescript
+client/*.tsbuildinfo
+
+example
+
+# generated native folders
+client/ios
+client/android
