@@ -2,10 +2,10 @@
 
 ## Run Frontend Locally
 
-1. [https://nodejs.org/en/download](Install Node.js)
+1. [Install Node.js](https://nodejs.org/en/download)
 1. `cd client`
 1. `npm install`
-1. Install [https://expo.dev/go](Expo Go) on your phone
+1. Install [Expo Go](https://expo.dev/go) on your phone
 1. Create an Expo account and log in on the app
 1. Additionally, run `npx expo login` to log in on your terminal
 1. Run `npm run start` while still in the `client` directory
