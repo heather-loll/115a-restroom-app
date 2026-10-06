@@ -1,22 +1,28 @@
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { Plus } from 'lucide-react-native';
 
 export default function Index() {
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={{
-        latitude: 36.974943496456206,
-        longitude: -122.02797529604096,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: 36.974943496456206,
+          longitude: -122.02797529604096,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+        showsPointsOfInterests={false}
+        appleLogoInsets={{ left: 10, top: 10, right: 0, bottom: 0 }}
+        legalLabelInsets={{ left: 10, top: 10, right: 0, bottom: 0 }}
+        toolbarEnabled={false}
       >
         <Marker
           coordinate={{ latitude: 36.97326466616349, longitude: -122.02507860065315 }}
           pinColor="#009966"
         >
-          <Callout>
+          <Callout onPress={() => { Alert.alert("Callout pressed!") } }>
             <View>
               <Text>This is a restroom.</Text>
             </View>
