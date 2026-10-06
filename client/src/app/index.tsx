@@ -1,5 +1,6 @@
-import { View, StyleSheet, Platform } from "react-native";
-import MapView, { Marker } from 'react-native-maps';
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import MapView, { Marker, Callout } from 'react-native-maps';
+import { Plus } from 'lucide-react-native';
 
 export default function Index() {
   return (
@@ -13,10 +14,23 @@ export default function Index() {
       >
         <Marker
           coordinate={{ latitude: 36.97326466616349, longitude: -122.02507860065315 }}
-          title="First restroom!"
-          description="This is a description"
-        />
+          pinColor="#009966"
+        >
+          <Callout>
+            <View>
+              <Text>This is a restroom.</Text>
+            </View>
+          </Callout>
+        </Marker>
       </MapView>
+
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.8}
+      >
+        <Plus color="#fff" size={24} />
+        <Text style={styles.fabText}>Add Restroom</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -30,5 +44,29 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  fab: {
+    position: 'absolute',
+    height: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 20,
+    bottom: 40,
+    backgroundColor: '#009966',
+    borderRadius: 32,
+    elevation: 8, // Shadows for Android
+    shadowColor: '#000', // Shadows for iOS
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    paddingInline: 16,
+    gap: 8
+  },
+  fabText: {
+    fontSize: 16,
+    color: 'white',
+    textTransform: 'uppercase',
+    fontWeight: 600
   }
 });
