@@ -1,7 +1,7 @@
 import { useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import MapView, { Marker, MapMarker} from 'react-native-maps';
-import { Plus } from 'lucide-react-native';
+import { Plus, Settings, ListFilter } from 'lucide-react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
@@ -52,13 +52,27 @@ export default function Index() {
         />
       </MapView>
 
-      <TouchableOpacity
-        style={styles.fab}
-        activeOpacity={0.8}
-      >
-        <Plus color="#fff" size={24} />
-        <Text style={styles.fabText}>Add Restroom</Text>
-      </TouchableOpacity>
+      <View style={styles.fabContainer}>
+        <TouchableOpacity
+          style={styles.fabSettings}
+          activeOpacity={0.8}
+        >
+          <Settings color="#fff" size={24} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.fabFilter}
+          activeOpacity={0.8}
+        >
+          <ListFilter color="#fff" size={20} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.fabAdd}
+          activeOpacity={0.8}
+        >
+          <Plus color="#fff" size={24} />
+          <Text style={styles.fabText}>Add Restroom</Text>
+        </TouchableOpacity>
+      </View>
 
       <BottomSheet
         ref={bottomSheetRef}
@@ -88,14 +102,37 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  fab: {
+  fabContainer: {
     position: 'absolute',
-    height: 64,
+    bottom: 30,
+    paddingInline: 20,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 14
+  },
+  fabSettings: {
+    height: 52,
+    width: 52,
+    display: 'flex',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "gray",
+    borderRadius: 26
+  },
+  fabFilter: {
+    height: 52,
+    width: 52,
+    display: 'flex',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: '#009966',
+    borderRadius: 26
+  },
+  fabAdd: {
+    height: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    right: 20,
-    bottom: 40,
     backgroundColor: '#009966',
     borderRadius: 32,
     elevation: 8, // Shadows for Android
