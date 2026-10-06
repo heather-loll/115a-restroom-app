@@ -1,11 +1,33 @@
-import { View, StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
-import MapView, { Marker, Callout } from 'react-native-maps';
+import { useRef } from 'react';
+import { StyleSheet, TouchableOpacity, Text } from "react-native";
+import MapView, { Marker, MapMarker} from 'react-native-maps';
 import { Plus } from 'lucide-react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 export default function Index() {
+  const mapRef = useRef<MapView>(null);
+  const markerRef = useRef<MapMarker>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const handleSheetChange = (index: number) => {
+    if (index === -1) {
+      markerRef.current?.hideCallout();
+    }
+  }
+
+  const handleMarkerPress = () => {
+    bottomSheetRef.current?.snapToIndex(0);
+  };
+
+  const handleMarkerDismiss = () => {
+    bottomSheetRef.current?.close();
+  };
+
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={{
           latitude: 36.974943496456206,
@@ -17,17 +39,17 @@ export default function Index() {
         appleLogoInsets={{ left: 10, top: 10, right: 0, bottom: 0 }}
         legalLabelInsets={{ left: 10, top: 10, right: 0, bottom: 0 }}
         toolbarEnabled={false}
+        onPress={handleMarkerDismiss}
       >
         <Marker
+          ref={markerRef}
           coordinate={{ latitude: 36.97326466616349, longitude: -122.02507860065315 }}
           pinColor="#009966"
-        >
-          <Callout onPress={() => { Alert.alert("Callout pressed!") } }>
-            <View>
-              <Text>This is a restroom.</Text>
-            </View>
-          </Callout>
-        </Marker>
+          onPress={(e) => {
+            e.stopPropagation();
+            handleMarkerPress();
+          }}
+        />
       </MapView>
 
       <TouchableOpacity
@@ -37,7 +59,22 @@ export default function Index() {
         <Plus color="#fff" size={24} />
         <Text style={styles.fabText}>Add Restroom</Text>
       </TouchableOpacity>
-    </View>
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={[150, '35%', '95%']}
+        enablePanDownToClose={true}
+        onChange={handleSheetChange}
+        index={-1}
+      >
+        <BottomSheetView
+          style={styles.sheetContainer}
+        >
+          <Text style={styles.sheetHeader}>Front & Soquel Restrooms</Text>
+          <Text style={styles.sheetSubHeader}>153 Soquel Ave, Santa Cruz, CA</Text>
+        </BottomSheetView>
+      </BottomSheet>
+    </GestureHandlerRootView>
   );
 }
 
@@ -74,5 +111,19 @@ const styles = StyleSheet.create({
     color: 'white',
     textTransform: 'uppercase',
     fontWeight: 600
-  }
+  },
+  sheetContainer: {
+    flex: 1,
+    paddingInline: 24,
+    paddingBottom: 36
+  },
+  sheetHeader: {
+    fontWeight: 800,
+    fontSize: 24,
+    marginBottom: 4
+  },
+  sheetSubHeader: {
+    color: 'gray',
+    fontSize: 14
+  },
 });
