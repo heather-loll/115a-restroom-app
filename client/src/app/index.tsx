@@ -1,9 +1,10 @@
 import { useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
-import MapView, { Marker, MapMarker} from 'react-native-maps';
-import { Plus, Settings, ListFilter } from 'lucide-react-native';
+import { StyleSheet, Text } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import MapView, { Marker, MapMarker} from 'react-native-maps';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+
+import BottomNav from "./BottomNav"
 
 export default function Index() {
   const mapRef = useRef<MapView>(null);
@@ -17,7 +18,7 @@ export default function Index() {
   }
 
   const handleMarkerPress = () => {
-    bottomSheetRef.current?.snapToIndex(0);
+    bottomSheetRef.current?.snapToIndex(2);
   };
 
   const handleMarkerDismiss = () => {
@@ -52,31 +53,11 @@ export default function Index() {
         />
       </MapView>
 
-      <View style={styles.fabContainer}>
-        <TouchableOpacity
-          style={styles.fabSettings}
-          activeOpacity={0.8}
-        >
-          <Settings color="#fff" size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.fabFilter}
-          activeOpacity={0.8}
-        >
-          <ListFilter color="#fff" size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.fabAdd}
-          activeOpacity={0.8}
-        >
-          <Plus color="#fff" size={24} />
-          <Text style={styles.fabText}>Add Restroom</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNav />
 
       <BottomSheet
         ref={bottomSheetRef}
-        snapPoints={[150, '35%', '95%']}
+        snapPoints={[250, '35%', '95%']}
         enablePanDownToClose={true}
         onChange={handleSheetChange}
         index={-1}
@@ -102,57 +83,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  fabContainer: {
-    position: 'absolute',
-    bottom: 30,
-    paddingInline: 20,
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 14
-  },
-  fabSettings: {
-    height: 52,
-    width: 52,
-    display: 'flex',
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "gray",
-    borderRadius: 26
-  },
-  fabFilter: {
-    height: 52,
-    width: 52,
-    display: 'flex',
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: '#009966',
-    borderRadius: 26
-  },
-  fabAdd: {
-    height: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#009966',
-    borderRadius: 32,
-    elevation: 8, // Shadows for Android
-    shadowColor: '#000', // Shadows for iOS
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-    paddingInline: 16,
-    gap: 8
-  },
-  fabText: {
-    fontSize: 16,
-    color: 'white',
-    textTransform: 'uppercase',
-    fontWeight: 600
-  },
   sheetContainer: {
     flex: 1,
     paddingInline: 24,
-    paddingBottom: 36
+    paddingBottom: 36,
   },
   sheetHeader: {
     fontWeight: 800,
