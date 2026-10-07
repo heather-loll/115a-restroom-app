@@ -37,8 +37,8 @@ export default function Index() {
           longitudeDelta: 0.0421,
         }}
         showsPointsOfInterests={false}
-        appleLogoInsets={{ left: 10, top: 10, right: 0, bottom: 0 }}
-        legalLabelInsets={{ left: 10, top: 10, right: 0, bottom: 0 }}
+        appleLogoInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
+        legalLabelInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
         toolbarEnabled={false}
         onPress={handleMarkerDismiss}
       >
@@ -57,7 +57,7 @@ export default function Index() {
 
       <BottomSheet
         ref={bottomSheetRef}
-        snapPoints={[250, '35%', '95%']}
+        snapPoints={[250, '35%', '93%']}
         enablePanDownToClose={true}
         onChange={handleSheetChange}
         index={-1}
