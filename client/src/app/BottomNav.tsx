@@ -1,30 +1,81 @@
+import { useRef, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { Plus, Settings, ListFilter } from 'lucide-react-native';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+
+import AddRestroomSheet from './AddRestroomSheet';
+
+function SettingsSheet() {
+  const settingsSheetRef = useRef<BottomSheet>(null);
+
+  return (
+    <BottomSheet
+      ref={settingsSheetRef}
+      snapPoints={['93%']}
+      index={1}
+    >
+      <BottomSheetView
+        style={styles.sheetContainer}
+      >
+        <Text>Settings</Text>
+      </BottomSheetView>
+    </BottomSheet>
+  )
+}
+
+function FilterSheet() {
+  const filterSheetRef = useRef<BottomSheet>(null);
+
+  return (
+    <BottomSheet
+      ref={filterSheetRef}
+      snapPoints={['35%']}
+      index={1}
+    >
+      <BottomSheetView
+        style={styles.sheetContainer}
+      >
+        <Text>Filers</Text>
+      </BottomSheetView>
+    </BottomSheet>
+  )
+}
 
 export default function Fab() {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [addRestroomSheetOpen, setAddRestroomSheetOpen] = useState(false);
+
   return (
     <>
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.settings}
           activeOpacity={0.8}
+          onPress={() => setSettingsOpen(true)}
         >
           <Settings color="#fff" size={24} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.filter}
           activeOpacity={0.8}
+          onPress={() => setFilterSheetOpen(true)}
         >
           <ListFilter color="#fff" size={20} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.add}
           activeOpacity={0.8}
+          onPress={() => {setAddRestroomSheetOpen(true)}}
         >
           <Plus color="#fff" size={24} />
           <Text style={styles.addText}>Add Restroom</Text>
         </TouchableOpacity>
       </View>
+
+      { settingsOpen ? <SettingsSheet /> : <></>}
+      { filterSheetOpen ? <FilterSheet /> : <></>}
+      { addRestroomSheetOpen ? <AddRestroomSheet /> : <></>}
     </>
   )
 }
@@ -76,5 +127,10 @@ const styles = StyleSheet.create({
     color: 'white',
     textTransform: 'uppercase',
     fontWeight: 600
+  },
+  sheetContainer: {
+    flex: 1,
+    paddingInline: 24,
+    paddingBottom: 36,
   },
 });
