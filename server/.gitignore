@@ -1,0 +1,6 @@
+# A virtual environment is created locally for the Flask server.
+.venv/
+
+# Python creates these cache files while the server and tests run.
+__pycache__/
+*.py[cod]
