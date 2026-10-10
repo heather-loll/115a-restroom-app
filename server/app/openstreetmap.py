@@ -53,8 +53,22 @@ def element_coordinates(element):
     # ignore incomplete OpenStreetMap records.
     return None
 
+
+def optional_boolean(osm_value):
+    """ convert known OpenStreetMap yes/no tags to booleans.
+    OpenStreetMap can use other values such as ``limited`` or ``unknown``. those
+    must not be treated as True or False, so this function returns None for them.
+    the response formatter then leaves that amenity out of the JSON response.
+    """
+    if osm_value == "yes":
+        return True
+    if osm_value == "no":
+        return False
+    return None
+
+
 def format_restroom(element, user_latitude, user_longitude):
-    # convert OpenStreetMap's flexible tags into a stable frontend response.
+    # convert OpenStreetMap's flexible tags into the agreed frontend response.
     coordinates = element_coordinates(element)
     if coordinates is None:
         return None
@@ -63,24 +77,36 @@ def format_restroom(element, user_latitude, user_longitude):
     tags = element.get("tags", {})
     osm_type = element.get("type", "unknown")
 
-    return {
-        # prefixing the ID prevents a node and way with the same numeric ID colliding.
-        "id": f"osm-{osm_type}-{element['id']}",
+    # only include amenity fields when OpenStreetMap provides a clear yes/no value.
+    # omitting unknown values prevents the frontend from assuming false information.
+    amenities = {}
+    osm_amenity_mapping = {
+        "accessible": tags.get("wheelchair"),
+        "unisex": tags.get("unisex"),
+        "babyChangingStation": tags.get("changing_table"),
+        "paymentRequired": tags.get("fee"),
+    }
+    for frontend_name, osm_value in osm_amenity_mapping.items():
+        value = optional_boolean(osm_value)
+        if value is not None:
+            amenities[frontend_name] = value
+
+    restroom = {
+        # the source/type prefix makes an ID unique across OpenStreetMap record types.
+        "restroomId": f"osm-{osm_type}-{element['id']}",
         "name": tags.get("name", "Public restroom"),
         "latitude": latitude,
         "longitude": longitude,
-        "distance_meters": round(
+        "distanceMeters": round(
             distance_in_meters(user_latitude, user_longitude, latitude, longitude)
         ),
-        "source": "openstreetmap",
-        # optional OpenStreetMap tags. may be planned in later sprints.
-        "details": {
-            "wheelchair": tags.get("wheelchair"),
-            "unisex": tags.get("unisex"),
-            "changing_table": tags.get("changing_table"),
-            "fee": tags.get("fee"),
-        },
     }
+
+    # the shared frontend type makes amenities optional, so omit an empty object.
+    if amenities:
+        restroom["amenities"] = amenities
+
+    return restroom
 
 def find_nearest_restroom(latitude, longitude, radius_meters, overpass_url, timeout_seconds):
     # fetch nearby restroom records and return the closest one, if any.
@@ -104,4 +130,8 @@ def find_nearest_restroom(latitude, longitude, radius_meters, overpass_url, time
             restrooms.append(formatted)
 
     # sorting makes the selected result deterministic, even if two locations tie.
-    return min(restrooms, key=lambda restroom: (restroom["distance_meters"], restroom["id"]), default=None)
+    return min(
+        restrooms,
+        key=lambda restroom: (restroom["distanceMeters"], restroom["restroomId"]),
+        default=None,
+    )
