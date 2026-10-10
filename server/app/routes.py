@@ -74,7 +74,7 @@ def nearest_restroom():
             "search": {
                 "latitude": latitude,
                 "longitude": longitude,
-                "radius_meters": radius_meters,
+                "radiusMeters": radius_meters,
             },
             "restroom": restroom,
         }
