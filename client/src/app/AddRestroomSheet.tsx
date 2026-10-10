@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { StyleSheet, View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { Check, Banknote, Accessibility, DoorClosed, Transgender, Droplets, Baby, LucideIcon } from 'lucide-react-native';
+import { Check, ArrowRight, Pencil, Banknote, Accessibility, DoorClosed, Transgender, Droplets, Baby, LucideIcon } from 'lucide-react-native';
 
 function ToggleCard(props: { label: string, icon: LucideIcon }) {
   const [checked, setChecked] = useState(false);
@@ -12,7 +12,7 @@ function ToggleCard(props: { label: string, icon: LucideIcon }) {
       <Text style={styles.cardLabel}>{props.label}</Text>
 
       <View style={[styles.cardCheckbox, checked ? styles.cardCheckboxChecked : {}]}>
-        {checked && <Check size={16} strokeWidth={3} color="white" />}
+        {checked && <Check size={20} strokeWidth={3} color="white" />}
       </View>
     </Pressable>
   )
@@ -33,7 +33,14 @@ export default function AddRestroomSheet() {
       >
         <ScrollView>
           {/*<TextInput placeholder="Restroom Name" placeholderTextColor="gray" enterKeyHint='done' />*/}
-          <Text>Amenities</Text>
+          <View style={styles.headingContainer}>
+            <Text style={styles.heading}>Pleasure Pizza</Text>
+            <Pressable>
+              <Pencil size={14} color="gray" />
+            </Pressable>
+          </View>
+
+          <Text style={styles.subheading}>Amenities</Text>
           <View style={styles.cardContainer}>
             <ToggleCard label="Customers Only" icon={Banknote} />
             <ToggleCard label="Accessible" icon={Accessibility} />
@@ -42,6 +49,11 @@ export default function AddRestroomSheet() {
             <ToggleCard label="Menstrual Products" icon={Droplets} />
             <ToggleCard label="Changing Station" icon={Baby} />
           </View>
+
+          <Pressable style={styles.submitButton}>
+            <Text style={styles.submitText}>Submit</Text>
+            <ArrowRight size={24} style={styles.submitArrow} />
+          </Pressable>
         </ScrollView>
       </BottomSheetView>
     </BottomSheet>
@@ -54,11 +66,28 @@ const styles = StyleSheet.create({
     paddingInline: 24,
     height: '100%'
   },
+  headingContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 16
+  },
+  heading: {
+    fontWeight: 800,
+    fontSize: 26,
+  },
+  subheading: {
+    fontSize: 20,
+    fontWeight: 700,
+    marginBottom: 8
+  },
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: '4%'
+    gap: '4%',
+    marginBottom: 16
   },
   card: {
     width: '48%',
@@ -90,8 +119,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#dddddd',
     position: 'absolute',
-    top: 5,
-    right: 5,
+    top: 6,
+    right: 6,
     display: "flex",
     justifyContent: 'center',
     alignItems: 'center'
@@ -99,5 +128,29 @@ const styles = StyleSheet.create({
   cardCheckboxChecked: {
     backgroundColor: '#009966',
     borderColor: '#009966'
+  },
+  submitButton: {
+    width: '100%',
+    borderWidth: 2,
+    borderColor: '#009966',
+    color: 'white',
+    paddingBlock: 12,
+    borderRadius: 999,
+    display: "flex",
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 32
+  },
+  submitText: {
+    textAlign: "center",
+    color: "#009933",
+    fontWeight: 600,
+    fontSize: 16,
+    flex: 1
+  },
+  submitArrow: {
+    // position: "absolute",
+    right: 8,
+    color: "#009933"
   }
 })
