@@ -22,7 +22,8 @@
           "apiKey": "AIzaSyAPLzImJlHDAqZaLuJdTkk7Avn4Tk37VhY"
         }
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.heather.restroomapp"
     },
     "web": {
       "output": "static",
