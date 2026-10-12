@@ -1,10 +1,38 @@
 import { useRef } from 'react';
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, Platform } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MapView, { Marker, MapMarker} from 'react-native-maps';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import BottomNav from "./BottomNav"
+
+type restroom = {
+  restroomId: number; // Can be changed to a string if needed
+  name: string;
+  address?: string;
+  latitude: number;
+  longitude: number;
+
+  amenities: { // Undefined if we have no data, don't assume true or false
+    cleanliness?: number;
+    paymentRequired?: boolean;
+    accessible?: boolean;
+    unisex?: boolean;
+    singleOccupancy?: boolean;
+    menstrualProductsAvailible?: boolean;
+    babyChangingStation?: boolean;
+  }
+}
+
+const restrooms: restroom[] = [
+  {
+    restroomId: 1,
+    name: "Front & Soquel Restrooms",
+    latitude: 36.97326466616349,
+    longitude: -122.02507860065315,
+    amenities: {}
+  }
+]
 
 export default function Index() {
   const mapRef = useRef<MapView>(null);
@@ -42,15 +70,18 @@ export default function Index() {
         toolbarEnabled={false}
         onPress={handleMarkerDismiss}
       >
-        <Marker
-          ref={markerRef}
-          coordinate={{ latitude: 36.97326466616349, longitude: -122.02507860065315 }}
-          pinColor="#009966"
-          onPress={(e) => {
-            e.stopPropagation();
-            handleMarkerPress();
-          }}
-        />
+        {restrooms.map((pin) => (
+          <Marker
+            ref={markerRef}
+            coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
+            pinColor="#009966"
+            onPress={(e) => {
+              e.stopPropagation();
+              handleMarkerPress();
+            }}
+            key={pin.restroomId}
+          />
+        ))}
       </MapView>
 
       <BottomNav />

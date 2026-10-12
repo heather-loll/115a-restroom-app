@@ -1,7 +1,26 @@
 import { useRef, useState } from 'react';
 import { StyleSheet, View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { Check, ArrowRight, Pencil, Banknote, Accessibility, DoorClosed, Transgender, Droplets, Baby, LucideIcon } from 'lucide-react-native';
+import { Check, ArrowRight, Pencil, LockKeyhole, Accessibility, DoorClosed, Transgender, Droplets, Baby, Germ, ThumbsUp, MopSparkles, LucideIcon } from 'lucide-react-native';
+
+function CleanlinessRanking() {
+  return (
+    <View style={styles.cleanlinessContainer}>
+      <Pressable style={[styles.cleanlinessOption, {borderLeftWidth: 2, borderRightWidth: 1, borderTopLeftRadius: 11, borderBottomLeftRadius: 11}]}>
+        <Germ />
+        <Text>Filthy</Text>
+      </Pressable>
+      <Pressable style={[styles.cleanlinessOption, {borderLeftWidth: 2, borderRightWidth: 0}]}>
+        <ThumbsUp />
+        <Text>Average</Text>
+      </Pressable>
+      <Pressable style={[styles.cleanlinessOption, {borderLeftWidth: 2, borderRightWidth: 2, borderTopRightRadius: 11, borderBottomRightRadius: 11, backgroundColor: '#00996620', borderColor: "#009933"}]}>
+        <MopSparkles />
+        <Text>Pristine</Text>
+      </Pressable>
+    </View>
+  )
+}
 
 function ToggleCard(props: { label: string, icon: LucideIcon }) {
   const [checked, setChecked] = useState(false);
@@ -12,7 +31,7 @@ function ToggleCard(props: { label: string, icon: LucideIcon }) {
       <Text style={styles.cardLabel}>{props.label}</Text>
 
       <View style={[styles.cardCheckbox, checked ? styles.cardCheckboxChecked : {}]}>
-        {checked && <Check size={20} strokeWidth={3} color="white" />}
+        {checked && <Check size={16} strokeWidth={3} color="white" />}
       </View>
     </Pressable>
   )
@@ -34,15 +53,19 @@ export default function AddRestroomSheet() {
         <ScrollView>
           {/*<TextInput placeholder="Restroom Name" placeholderTextColor="gray" enterKeyHint='done' />*/}
           <View style={styles.headingContainer}>
-            <Text style={styles.heading}>Pleasure Pizza</Text>
+              <Text style={styles.heading}>Pleasure Pizza</Text>
             <Pressable>
               <Pencil size={14} color="gray" />
             </Pressable>
           </View>
+          <Text style={styles.address}>1415 Pacific Ave, Santa Cruz, CA</Text>
 
-          <Text style={styles.subheading}>Amenities</Text>
+          <Text style={styles.subheading}>Rate Cleanliness</Text>
+          <CleanlinessRanking />
+
+          <Text style={styles.subheading}>Select Amenities</Text>
           <View style={styles.cardContainer}>
-            <ToggleCard label="Customers Only" icon={Banknote} />
+            <ToggleCard label="Customers Only" icon={LockKeyhole} />
             <ToggleCard label="Accessible" icon={Accessibility} />
             <ToggleCard label="Single Occupancy" icon={DoorClosed} />
             <ToggleCard label="Gender Neutral" icon={Transgender} />
@@ -70,8 +93,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-    marginBottom: 16
+    gap: 12,
   },
   heading: {
     fontWeight: 800,
@@ -82,12 +104,17 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     marginBottom: 8
   },
+  address: {
+    color: 'gray',
+    fontSize: 14,
+    marginBottom: 18
+  },
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: '4%',
-    marginBottom: 16
+    marginBottom: 14
   },
   card: {
     width: '48%',
@@ -152,5 +179,21 @@ const styles = StyleSheet.create({
     // position: "absolute",
     right: 8,
     color: "#009933"
+  },
+  cleanlinessContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: 14
+  },
+  cleanlinessOption: {
+    borderTopWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: '#dddddd',
+    width: '33%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 2,
+    paddingBlock: 8
   }
 })
