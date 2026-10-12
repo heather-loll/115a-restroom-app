@@ -1,0 +1,4419 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-12T02:13:04Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/392893385",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0273432,
+          36.975323
+        ]
+      },
+      "id": "node/392893385"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/403710185",
+        "amenity": "toilets",
+        "check_date": "2024-07-13"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0565564,
+          36.9509866
+        ]
+      },
+      "id": "node/403710185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/408754283",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.001482,
+          37.0026909
+        ]
+      },
+      "id": "node/408754283"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/408754285",
+        "amenity": "toilets",
+        "check_date": "2025-10-30"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0021254,
+          36.9992562
+        ]
+      },
+      "id": "node/408754285"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/410043716",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9958544,
+          37.00568
+        ]
+      },
+      "id": "node/410043716"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/410806172",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.000038,
+          36.99668
+        ]
+      },
+      "id": "node/410806172"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/410862255",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0384091,
+          36.9842283
+        ]
+      },
+      "id": "node/410862255"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411643258",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0429759,
+          37.0306127
+        ]
+      },
+      "id": "node/411643258"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411912511",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0295562,
+          36.9742757
+        ]
+      },
+      "id": "node/411912511"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411912513",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0260574,
+          36.9755466
+        ]
+      },
+      "id": "node/411912513"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411912515",
+        "amenity": "toilets",
+        "description": "Publicly accessible restrooms inside the library, open from the time the library opens until 20 minutes prior to closing.",
+        "opening_hours": "Mo-Th 10:00-17:40; Fr, Sa 10:00-16:40; Su 13:00-16:40"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0285546,
+          36.974628
+        ]
+      },
+      "id": "node/411912515"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411912516",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0250967,
+          36.9732636
+        ]
+      },
+      "id": "node/411912516"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411912517",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0276584,
+          36.9696966
+        ]
+      },
+      "id": "node/411912517"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411913066",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0240732,
+          36.9623557
+        ]
+      },
+      "id": "node/411913066"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/411913067",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0232621,
+          36.9627927
+        ]
+      },
+      "id": "node/411913067"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/412648512",
+        "amenity": "toilets",
+        "fee": "no",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0259944,
+          36.9531955
+        ]
+      },
+      "id": "node/412648512"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/418204221",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0202004,
+          36.9601788
+        ]
+      },
+      "id": "node/418204221"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/454565604",
+        "access": "yes",
+        "amenity": "toilets",
+        "toilets:disposal": "pitlatrine",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9049553,
+          36.9858306
+        ]
+      },
+      "id": "node/454565604"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/454565616",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9063512,
+          37.0082242
+        ]
+      },
+      "id": "node/454565616"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/500814211",
+        "amenity": "toilets",
+        "fee": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9052081,
+          37.0147884
+        ]
+      },
+      "id": "node/500814211"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/502785256",
+        "amenity": "toilets",
+        "fee": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0550669,
+          37.0411442
+        ]
+      },
+      "id": "node/502785256"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/519548065",
+        "amenity": "toilets",
+        "fee": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0680273,
+          37.0400211
+        ]
+      },
+      "id": "node/519548065"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/519548071",
+        "amenity": "toilets",
+        "check_date": "2025-08-23"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0663414,
+          37.0405251
+        ]
+      },
+      "id": "node/519548071"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/674535008",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0260115,
+          36.9724827
+        ]
+      },
+      "id": "node/674535008"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/674535009",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.025258,
+          36.972318
+        ]
+      },
+      "id": "node/674535009"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/689225866",
+        "amenity": "toilets",
+        "toilets:disposal": "flush"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9988754,
+          36.9735519
+        ]
+      },
+      "id": "node/689225866"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/689225901",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.003668,
+          36.9657427
+        ]
+      },
+      "id": "node/689225901"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/792073378",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9363742,
+          36.9787562
+        ]
+      },
+      "id": "node/792073378"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/821295761",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Cowell College",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.053217,
+          36.9972536
+        ]
+      },
+      "id": "node/821295761"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/849815075",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0838146,
+          36.9611217
+        ]
+      },
+      "id": "node/849815075"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/850425128",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9055683,
+          37.0011233
+        ]
+      },
+      "id": "node/850425128"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/889335163",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "male restroom near female restroom",
+        "name": "Cultural Center at Merrill",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0538769,
+          37.0001601
+        ]
+      },
+      "id": "node/889335163"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/889335171",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Crown College Classroom Building",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0548212,
+          37.0000821
+        ]
+      },
+      "id": "node/889335171"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/889335226",
+        "access": "yes",
+        "amenity": "toilets",
+        "entrance": "yes",
+        "name": "Stevenson Academic",
+        "wheelchair": "limited",
+        "wheelchair:description": "men's stall not big enough"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0524637,
+          36.9973541
+        ]
+      },
+      "id": "node/889335226"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1288754108",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0338123,
+          37.0636236
+        ]
+      },
+      "id": "node/1288754108"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1327026470",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0614853,
+          37.0410354
+        ]
+      },
+      "id": "node/1327026470"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1327026488",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.06299,
+          37.0432726
+        ]
+      },
+      "id": "node/1327026488"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1327028938",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0621702,
+          37.0400801
+        ]
+      },
+      "id": "node/1327028938"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1334609531",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0171277,
+          36.9642961
+        ]
+      },
+      "id": "node/1334609531"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1334609555",
+        "amenity": "toilets",
+        "note": "2nd floor"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0188899,
+          36.9639317
+        ]
+      },
+      "id": "node/1334609555"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1334609556",
+        "amenity": "toilets",
+        "check_date": "2026-08-29",
+        "check_date:wheelchair": "2026-08-29",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0140087,
+          36.9651254
+        ]
+      },
+      "id": "node/1334609556"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1334609567",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0197868,
+          36.9640056
+        ]
+      },
+      "id": "node/1334609567"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1334609613",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0137207,
+          36.9656241
+        ]
+      },
+      "id": "node/1334609613"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1422561254",
+        "amenity": "toilets",
+        "changing_table": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0851854,
+          36.9602729
+        ]
+      },
+      "id": "node/1422561254"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1525476237",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9650571,
+          36.9603149
+        ]
+      },
+      "id": "node/1525476237"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1549539365",
+        "access": "yes",
+        "amenity": "toilets",
+        "male": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0229869,
+          36.9629431
+        ]
+      },
+      "id": "node/1549539365"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1558693073",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9984652,
+          36.9627408
+        ]
+      },
+      "id": "node/1558693073"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1800977981",
+        "amenity": "toilets",
+        "female": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0218949,
+          36.9765755
+        ]
+      },
+      "id": "node/1800977981"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1801024312",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0273309,
+          36.9647954
+        ]
+      },
+      "id": "node/1801024312"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951294257",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Cook House 100B",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.054467,
+          36.9789067
+        ]
+      },
+      "id": "node/1951294257"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346733",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Communications 124B",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0612313,
+          37.0009284
+        ]
+      },
+      "id": "node/1951346733"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346756",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Arboretum Horticulture 1 116",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0608295,
+          36.983678
+        ]
+      },
+      "id": "node/1951346756"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346759",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Carriage House 112A",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0520021,
+          36.9799678
+        ]
+      },
+      "id": "node/1951346759"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346761",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "West Field House",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.064321,
+          36.9916331
+        ]
+      },
+      "id": "node/1951346761"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346764",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Farm Louise Cain Gatehouse 21",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0543299,
+          36.9833282
+        ]
+      },
+      "id": "node/1951346764"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346767",
+        "access": "no",
+        "amenity": "toilets",
+        "name": "College Ten Residence Hall 5 Terry Freitas Cafe 5109",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0580053,
+          37.0003988
+        ]
+      },
+      "id": "node/1951346767"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346773",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "eXperimental Theater"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0621039,
+          36.9951275
+        ]
+      },
+      "id": "node/1951346773"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346778",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Central Heat Plant 206",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0609315,
+          37.0011431
+        ]
+      },
+      "id": "node/1951346778"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346783",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "College Nine Lounge",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0577061,
+          37.0005887
+        ]
+      },
+      "id": "node/1951346783"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346788",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Cantu Center 205",
+        "unisex": "yes",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0539321,
+          37.0005123
+        ]
+      },
+      "id": "node/1951346788"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346799",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Cowell Annex 114",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0534721,
+          36.9966509
+        ]
+      },
+      "id": "node/1951346799"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346803",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Center for Adaptive Optics 210",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0605133,
+          36.9982666
+        ]
+      },
+      "id": "node/1951346803"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346808",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "on first floor only, no elevator",
+        "level": "0",
+        "name": "Merrill Library (Casa Latina) 104",
+        "unisex": "yes",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0533653,
+          36.9994016
+        ]
+      },
+      "id": "node/1951346808"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346820",
+        "access": "residents",
+        "amenity": "toilets",
+        "name": "Cowell Apartments 3",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.054437,
+          36.9961572
+        ]
+      },
+      "id": "node/1951346820"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346824",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Wellness Center 109",
+        "toilets:disposal": "flush",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0546797,
+          36.9936312
+        ]
+      },
+      "id": "node/1951346824"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346829",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Earth & Marine Sciences",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0595327,
+          36.9979862
+        ]
+      },
+      "id": "node/1951346829"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346834",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Rachel Carson College Student Commons 205",
+        "old_name": "College Eight",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0647026,
+          36.9911636
+        ]
+      },
+      "id": "node/1951346834"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346840",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Cowell Student Health Center 1210",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0575547,
+          36.9993747
+        ]
+      },
+      "id": "node/1951346840"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346844",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "College 9 & 10 Community Room (Commons)",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0593571,
+          37.0022151
+        ]
+      },
+      "id": "node/1951346844"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346847",
+        "access": "residents",
+        "amenity": "toilets",
+        "name": "Ghandi House"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.057168,
+          37.0009084
+        ]
+      },
+      "id": "node/1951346847"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1951346852",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Cardiff House Women's Center 103",
+        "shower": "yes",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0514284,
+          36.9793948
+        ]
+      },
+      "id": "node/1951346852"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2003869204",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Jack Baskin Engineering II",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0629572,
+          37.0010479
+        ]
+      },
+      "id": "node/2003869204"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2019385409",
+        "amenity": "toilets",
+        "check_date": "2025-10-11"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0487507,
+          36.9589315
+        ]
+      },
+      "id": "node/2019385409"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2041274350",
+        "access": "yes",
+        "amenity": "toilets",
+        "comment": "two small stalls",
+        "name": "Stevenson Academic",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0520728,
+          36.9973578
+        ]
+      },
+      "id": "node/2041274350"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2041336896",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "2",
+        "name": "Stevenson Academic"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0520905,
+          36.9974001
+        ]
+      },
+      "id": "node/2041336896"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2043447832",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Kresge College Assembly Building 466B",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0662547,
+          36.9986993
+        ]
+      },
+      "id": "node/2043447832"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045490944",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "wheelchair accessible in levels -1 and 1, wheelchair limitited in levels 0,2 and 3.",
+        "name": "Kerr Hall 55",
+        "unisex": "yes",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0618769,
+          36.9968395
+        ]
+      },
+      "id": "node/2045490944"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045492413",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Media Theater",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.061662,
+          36.9950609
+        ]
+      },
+      "id": "node/2045492413"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045600307",
+        "access": "yes",
+        "addr:city": "Santa Cruz",
+        "addr:housenumber": "402",
+        "addr:postcode": "95064",
+        "addr:state": "CA",
+        "addr:street": "McHenry Road",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Recital Hall",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0609108,
+          36.992976
+        ]
+      },
+      "id": "node/2045600307"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045610290",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Recital Hall",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0608437,
+          36.9931516
+        ]
+      },
+      "id": "node/2045610290"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045615486",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "McHenry Library",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0590907,
+          36.9956091
+        ]
+      },
+      "id": "node/2045615486"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045615487",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "McHenry Library",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0591926,
+          36.9954203
+        ]
+      },
+      "id": "node/2045615487"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045618996",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Baskin Arts",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.061312,
+          36.9948097
+        ]
+      },
+      "id": "node/2045618996"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045635053",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Academic Resource Center",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0592689,
+          36.994331
+        ]
+      },
+      "id": "node/2045635053"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045636418",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "ARC Press Center",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0589419,
+          36.9942081
+        ]
+      },
+      "id": "node/2045636418"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045638542",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "DARC",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0604949,
+          36.9938482
+        ]
+      },
+      "id": "node/2045638542"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045675438",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "level": "1",
+        "name": "Stevenson Academic",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0517567,
+          36.9970402
+        ]
+      },
+      "id": "node/2045675438"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2045679277",
+        "access": "yes",
+        "amenity": "toilets",
+        "male": "yes",
+        "name": "Stevenson Academic",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0516797,
+          36.9970489
+        ]
+      },
+      "id": "node/2045679277"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046799051",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Music Center 103",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0605483,
+          36.9929236
+        ]
+      },
+      "id": "node/2046799051"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046841072",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Theater Arts J Offices",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.062132,
+          36.9944146
+        ]
+      },
+      "id": "node/2046841072"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046960093",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Baskin Arts Metal Studio P105;Baskin Arts Metal Studio P106",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0612217,
+          36.995054
+        ]
+      },
+      "id": "node/2046960093"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046978025",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Baskin Arts Multipurpose Studio",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.060683,
+          36.9945735
+        ]
+      },
+      "id": "node/2046978025"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046985595",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "women only",
+        "level": "0",
+        "name": "Main Stage",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0624934,
+          36.994943
+        ]
+      },
+      "id": "node/2046985595"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046987808",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "men only",
+        "level": "0",
+        "name": "Main Stage",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0624854,
+          36.9946689
+        ]
+      },
+      "id": "node/2046987808"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046990322",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Main Stage",
+        "unisex": "yes",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0625344,
+          36.9947542
+        ]
+      },
+      "id": "node/2046990322"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2046996751",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Main Stage",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0622413,
+          36.9949923
+        ]
+      },
+      "id": "node/2046996751"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047012946",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Main Stage",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0622222,
+          36.9946816
+        ]
+      },
+      "id": "node/2047012946"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047586049",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2025-12-29",
+        "name": "Bay Tree Bookstore",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0555611,
+          36.9982248
+        ]
+      },
+      "id": "node/2047586049"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047587953",
+        "access": "yes",
+        "amenity": "toilets",
+        "building:levels": "3",
+        "check_date": "2022-06-16",
+        "fee": "no",
+        "name": "Bay Tree Bookstore",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0555437,
+          36.9977954
+        ]
+      },
+      "id": "node/2047587953"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047602472",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Crown/Merrill Apartments Community Room",
+        "unisex": "yes",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0539997,
+          37.0016737
+        ]
+      },
+      "id": "node/2047602472"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047617369",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "level": "0",
+        "male": "yes",
+        "name": "Kresge Study Center",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0655834,
+          36.9979838
+        ]
+      },
+      "id": "node/2047617369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047623266",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "door is only 30\" wide",
+        "level": "3",
+        "name": "Kresge College Academic Building 152A",
+        "unisex": "yes",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0663285,
+          36.9972671
+        ]
+      },
+      "id": "node/2047623266"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047644285",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "door is only 27\" wide",
+        "level": "2",
+        "name": "Kresge College",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0666439,
+          36.9972501
+        ]
+      },
+      "id": "node/2047644285"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2047658141",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "only 27.5\" wide door",
+        "level": "3",
+        "name": "Kresge Lounge",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0669574,
+          36.9974746
+        ]
+      },
+      "id": "node/2047658141"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2048692901",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Crown/Merrill Dining Commons",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.054308,
+          37.0000822
+        ]
+      },
+      "id": "node/2048692901"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050222979",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "2",
+        "name": "Cowell/Stevenson Dining Commons 157",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0529435,
+          36.9969725
+        ]
+      },
+      "id": "node/2050222979"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050526985",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "male restroom near female restroom",
+        "name": "Merrill Academic Building",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535485,
+          36.9996141
+        ]
+      },
+      "id": "node/2050526985"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050530492",
+        "access": "residents",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Merrill B",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.052707,
+          36.9999116
+        ]
+      },
+      "id": "node/2050530492"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050552918",
+        "access": "residents",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Kolchiyama",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.053296,
+          37.0003839
+        ]
+      },
+      "id": "node/2050552918"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050553030",
+        "access": "residents",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Buloson",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.052973,
+          37.0003056
+        ]
+      },
+      "id": "node/2050553030"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050553050",
+        "access": "residents",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Lorde-Studds",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.053592,
+          37.0004454
+        ]
+      },
+      "id": "node/2050553050"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050558484",
+        "access": "residents",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Leonardo House",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.055316,
+          37.0003458
+        ]
+      },
+      "id": "node/2050558484"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050564411",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "male": "no",
+        "name": "Porter Academic Building D217B",
+        "unisex": "yes",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0650032,
+          36.9941925
+        ]
+      },
+      "id": "node/2050564411"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050564412",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Porter I Building",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0652467,
+          36.9965282
+        ]
+      },
+      "id": "node/2050564412"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050564415",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "no",
+        "male": "yes",
+        "name": "Porter Academic Building",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0650837,
+          36.9940383
+        ]
+      },
+      "id": "node/2050564415"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050586305",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2023-11-02",
+        "male": "yes",
+        "name": "Porter D Building",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0653063,
+          36.9939981
+        ]
+      },
+      "id": "node/2050586305"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050586308",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "name": "Porter D Building",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0652956,
+          36.9940419
+        ]
+      },
+      "id": "node/2050586308"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050763624",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Crown College Admin Building 107",
+        "unisex": "yes",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0548024,
+          37.0002449
+        ]
+      },
+      "id": "node/2050763624"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050776102",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Vallier Hall",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0544953,
+          36.9998791
+        ]
+      },
+      "id": "node/2050776102"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050865079",
+        "access": "yes",
+        "amenity": "toilets",
+        "building:levels": "2",
+        "name": "Student Union",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0560026,
+          36.9978146
+        ]
+      },
+      "id": "node/2050865079"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050865170",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Student Union",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0559597,
+          36.9979131
+        ]
+      },
+      "id": "node/2050865170"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2050867918",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Hahn Student Services",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0570728,
+          36.9961973
+        ]
+      },
+      "id": "node/2050867918"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2051199958",
+        "access": "yes",
+        "amenity": "toilets",
+        "male": "yes",
+        "name": "Porter/Kresge Dining Hall",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0657323,
+          36.9943576
+        ]
+      },
+      "id": "node/2051199958"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2051200956",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "name": "Porter/Kresge Dining Hall",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.065739,
+          36.9943351
+        ]
+      },
+      "id": "node/2051200956"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2051780199",
+        "access": "yes",
+        "amenity": "toilets",
+        "male": "yes",
+        "name": "Rachel Carson College Academic Building",
+        "old_name": "College Eight",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.064519,
+          36.9918165
+        ]
+      },
+      "id": "node/2051780199"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2051780219",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "name": "Rachel Carson College Academic Building",
+        "old_name": "College Eight",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0645023,
+          36.9918652
+        ]
+      },
+      "id": "node/2051780219"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052047954",
+        "access": "residents",
+        "amenity": "toilets",
+        "name": "Leonardo House",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.055422,
+          37.0003446
+        ]
+      },
+      "id": "node/2052047954"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052353606",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Merrill Ming Ong Computer Lab 110",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0523572,
+          36.9997317
+        ]
+      },
+      "id": "node/2052353606"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052434210",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Oakes Academic/Administrative Building",
+        "note": "Not enough room for transition.",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0627594,
+          36.989684
+        ]
+      },
+      "id": "node/2052434210"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052434215",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Oakes Academic/Administrative Building",
+        "note": "Not enough room for transition.",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0627594,
+          36.9896658
+        ]
+      },
+      "id": "node/2052434215"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052442398",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Oakes Café",
+        "note": "Entrance ramp is not ramped",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0632167,
+          36.9893041
+        ]
+      },
+      "id": "node/2052442398"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052442400",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Oakes Café",
+        "note": "Not enough space for transition.",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0632114,
+          36.9892742
+        ]
+      },
+      "id": "node/2052442400"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052446951",
+        "access": "yes",
+        "amenity": "toilets",
+        "female": "yes",
+        "level": "2",
+        "name": "Cowell College",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535526,
+          36.9973127
+        ]
+      },
+      "id": "node/2052446951"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052464358",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "College Nine Residential Hall Namasté Lounge",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0571833,
+          37.0007966
+        ]
+      },
+      "id": "node/2052464358"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052464359",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Social Sciences 1",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0581889,
+          37.0023389
+        ]
+      },
+      "id": "node/2052464359"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052464369",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2026-10-07",
+        "name": "University Center",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0577653,
+          37.0009744
+        ]
+      },
+      "id": "node/2052464369"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052464370",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Social Sciences II",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0590474,
+          37.0017348
+        ]
+      },
+      "id": "node/2052464370"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052464373",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Social Sciences 2",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.058814,
+          37.0017584
+        ]
+      },
+      "id": "node/2052464373"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052556170",
+        "access": "customers",
+        "amenity": "toilets",
+        "female": "yes",
+        "name": "Rachel Carson College Academic Building",
+        "old_name": "College Eight",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0649415,
+          36.9918025
+        ]
+      },
+      "id": "node/2052556170"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2052558582",
+        "access": "customers",
+        "amenity": "toilets",
+        "male": "yes",
+        "name": "Rachel Carson College Academic Building",
+        "old_name": "College Eight",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0651064,
+          36.9918496
+        ]
+      },
+      "id": "node/2052558582"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053273557",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Emergency Response Center 109",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0519485,
+          36.9791823
+        ]
+      },
+      "id": "node/2053273557"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053273572",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Barn G 128",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0525347,
+          36.9803922
+        ]
+      },
+      "id": "node/2053273572"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053273584",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Campus Fleet Garage 102A",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0532933,
+          36.9799628
+        ]
+      },
+      "id": "node/2053273584"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053292459",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Visual Arts Research Facility 100A",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0647986,
+          36.9925861
+        ]
+      },
+      "id": "node/2053292459"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053328005",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Merrill Faculty Office Annex 162",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535966,
+          36.9993697
+        ]
+      },
+      "id": "node/2053328005"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053349300",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Cook House 100C",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0544939,
+          36.9789078
+        ]
+      },
+      "id": "node/2053349300"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053533297",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Graduate Student Housing",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0645998,
+          36.9997661
+        ]
+      },
+      "id": "node/2053533297"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053671108",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "level": "1",
+        "name": "Jack Baskin Engineering II",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0629252,
+          37.0008539
+        ]
+      },
+      "id": "node/2053671108"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053671130",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Communications 124C",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0613856,
+          37.0007083
+        ]
+      },
+      "id": "node/2053671130"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053671145",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Jack Baskin Engineering Auditorium 103",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0623147,
+          37.0003333
+        ]
+      },
+      "id": "node/2053671145"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053671152",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Jack Baskin Engineering 58",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0630299,
+          37.0001488
+        ]
+      },
+      "id": "node/2053671152"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703159",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Interdisciplinary Sciences Building",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0597685,
+          36.9984722
+        ]
+      },
+      "id": "node/2053703159"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703186",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "On level 1 and above",
+        "fee": "no",
+        "name": "Natural Sciences 2",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0607607,
+          36.9985274
+        ]
+      },
+      "id": "node/2053703186"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703201",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Physical Sciences Building 164",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0618865,
+          36.999764
+        ]
+      },
+      "id": "node/2053703201"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703203",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "level": "0",
+        "name": "Natural Sciences 2",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0607446,
+          36.9984353
+        ]
+      },
+      "id": "node/2053703203"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703210",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Science & Engineering Library"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0605612,
+          36.9989116
+        ]
+      },
+      "id": "node/2053703210"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703231",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Earth & Marine Sciences",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0598187,
+          36.9979391
+        ]
+      },
+      "id": "node/2053703231"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703256",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Thimann Laboratories 481",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0618053,
+          36.9981782
+        ]
+      },
+      "id": "node/2053703256"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703281",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "female": "no",
+        "level": "0",
+        "male": "yes",
+        "name": "Thimann Lecture Hall Men’s Restroom",
+        "toilets:disposal": "flush",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0612309,
+          36.9980374
+        ]
+      },
+      "id": "node/2053703281"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703298",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Science & Engineering Library"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0607355,
+          36.9989096
+        ]
+      },
+      "id": "node/2053703298"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703305",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2022-04-27",
+        "name": "Biomedical Sciences"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0610182,
+          36.9997527
+        ]
+      },
+      "id": "node/2053703305"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703347",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Sinsheimer Labs"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0617156,
+          36.9986367
+        ]
+      },
+      "id": "node/2053703347"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2053703352",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Earth & Marine Sciences A162",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0599873,
+          36.997714
+        ]
+      },
+      "id": "node/2053703352"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2059550663",
+        "amenity": "toilets",
+        "female": "yes",
+        "level": "1",
+        "name": "Cowell College",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.053562,
+          36.9973127
+        ]
+      },
+      "id": "node/2059550663"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2059550668",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "2",
+        "male": "yes",
+        "name": "Cowell College",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535526,
+          36.9973183
+        ]
+      },
+      "id": "node/2059550668"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2059550672",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "male": "yes",
+        "name": "Cowell College",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535616,
+          36.9973183
+        ]
+      },
+      "id": "node/2059550672"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2079483517",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2025-11-04",
+        "check_date:wheelchair": "2025-11-04",
+        "name": "Humanities Lecture Hall",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0546671,
+          36.9984451
+        ]
+      },
+      "id": "node/2079483517"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2086573191",
+        "access": "permissive",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0054131,
+          36.9953379
+        ]
+      },
+      "id": "node/2086573191"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2086573243",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0012209,
+          36.9972241
+        ]
+      },
+      "id": "node/2086573243"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2091955556",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9983382,
+          36.9986112
+        ]
+      },
+      "id": "node/2091955556"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2263380333",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Merrill Academic Building"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0536476,
+          36.9996884
+        ]
+      },
+      "id": "node/2263380333"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2276151856",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0837684,
+          36.9639263
+        ]
+      },
+      "id": "node/2276151856"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2296299265",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0374145,
+          36.9836178
+        ]
+      },
+      "id": "node/2296299265"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2329986942",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9329065,
+          36.9877812
+        ]
+      },
+      "id": "node/2329986942"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2330010104",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9720588,
+          36.9556443
+        ]
+      },
+      "id": "node/2330010104"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2410446416",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0226833,
+          36.9682027
+        ]
+      },
+      "id": "node/2410446416"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2418251083",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Classroom Unit",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0566782,
+          36.9980526
+        ]
+      },
+      "id": "node/2418251083"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2629445162",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.023707,
+          36.9695765
+        ]
+      },
+      "id": "node/2629445162"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2641149717",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9347432,
+          37.011048
+        ]
+      },
+      "id": "node/2641149717"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2737708794",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0178859,
+          36.9585765
+        ]
+      },
+      "id": "node/2737708794"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3358854520",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2022-11-13",
+        "toilets:disposal": "flush",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0020786,
+          37.0684881
+        ]
+      },
+      "id": "node/3358854520"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3627884865",
+        "access": "destination",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.047445,
+          36.9590948
+        ]
+      },
+      "id": "node/3627884865"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3736669710",
+        "amenity": "toilets",
+        "check_date": "2025-07-12"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0641106,
+          37.0404448
+        ]
+      },
+      "id": "node/3736669710"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3744852608",
+        "amenity": "toilets",
+        "male": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0031282,
+          37.0167319
+        ]
+      },
+      "id": "node/3744852608"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3744852609",
+        "amenity": "toilets",
+        "female": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0030772,
+          37.0169203
+        ]
+      },
+      "id": "node/3744852609"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4075823815",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Emergency Response Center 111",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0519587,
+          36.9791825
+        ]
+      },
+      "id": "node/4075823815"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4075829246",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Cardiff House Women's Center 109",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0514571,
+          36.9794207
+        ]
+      },
+      "id": "node/4075829246"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076011973",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Crown College Admin Building 111",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0548516,
+          37.0002524
+        ]
+      },
+      "id": "node/4076011973"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076032287",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Agroecology Trailer 4 (Life Lab) 104",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0546973,
+          36.9834426
+        ]
+      },
+      "id": "node/4076032287"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076034784",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Hahn Art Facility 2",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0526119,
+          36.9979142
+        ]
+      },
+      "id": "node/4076034784"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076037609",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Hahn Art Facility 3",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0526307,
+          36.9979282
+        ]
+      },
+      "id": "node/4076037609"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076040635",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Thimann Laboratories 468A",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0618097,
+          36.998067
+        ]
+      },
+      "id": "node/4076040635"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076041575",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Arboretum Horticulture 2 104",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.060883,
+          36.983788
+        ]
+      },
+      "id": "node/4076041575"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076041585",
+        "access": "private",
+        "amenity": "toilets",
+        "name": "2300 Delaware A102",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0586373,
+          36.9559182
+        ]
+      },
+      "id": "node/4076041585"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4076042201",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Arboretum Horticulture 2 105",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0608481,
+          36.983788
+        ]
+      },
+      "id": "node/4076042201"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4179620667",
+        "access": "private",
+        "amenity": "toilets",
+        "name": "Lounge Rest Room",
+        "toilets:disposal": "flush",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0674773,
+          36.9920223
+        ]
+      },
+      "id": "node/4179620667"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274575655",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Center for Adaptive Optics 112",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0605184,
+          36.998251
+        ]
+      },
+      "id": "node/4274575655"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274575656",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Porter Academic Building D126",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0650054,
+          36.9942009
+        ]
+      },
+      "id": "node/4274575656"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274597955",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Central Heat Plant 205",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0609732,
+          37.001129
+        ]
+      },
+      "id": "node/4274597955"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274634336",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Rachel Carson College Café 105H",
+        "old_name": "College Eight",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0644133,
+          36.9915933
+        ]
+      },
+      "id": "node/4274634336"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274641740",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Earth & Marine Sciences A223",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0599687,
+          36.9976277
+        ]
+      },
+      "id": "node/4274641740"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274641741",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Earth & Marine Sciences A323",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0599774,
+          36.9976245
+        ]
+      },
+      "id": "node/4274641741"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274641742",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Earth & Marine Sciences A423",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0599844,
+          36.9976192
+        ]
+      },
+      "id": "node/4274641742"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274711873",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Elena Baskin Building B B102",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0609712,
+          36.9948589
+        ]
+      },
+      "id": "node/4274711873"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4274711874",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Elena Baskin Building B B103",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0609424,
+          36.9948604
+        ]
+      },
+      "id": "node/4274711874"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4276258335",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Jack Baskin Engineering Auditorium 102",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0624054,
+          37.0003275
+        ]
+      },
+      "id": "node/4276258335"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4276392699",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "CASFS Agroecology Lab 101",
+        "shower": "yes",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.055148,
+          36.9833875
+        ]
+      },
+      "id": "node/4276392699"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4276392700",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Cowell Student Health Center Addition 1430",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0572171,
+          36.9996279
+        ]
+      },
+      "id": "node/4276392700"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4276392701",
+        "access": "yes",
+        "amenity": "toilets",
+        "fee": "no",
+        "name": "Jack Baskin Engineering 60",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0630252,
+          37.0003107
+        ]
+      },
+      "id": "node/4276392701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4276398552",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Farm Chalet 104",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.055515,
+          36.9838341
+        ]
+      },
+      "id": "node/4276398552"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4276398553",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Farm Chalet 105",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0554494,
+          36.9838319
+        ]
+      },
+      "id": "node/4276398553"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4284327749",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "2",
+        "name": "Cowell/Stevenson Dining Commons 156",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0529701,
+          36.9969722
+        ]
+      },
+      "id": "node/4284327749"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4284362936",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "0",
+        "name": "Kresge College Assembly Building 466C",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0662185,
+          36.9987166
+        ]
+      },
+      "id": "node/4284362936"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4284362937",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "OPERS Offices & Support Space 203",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0541694,
+          36.9949983
+        ]
+      },
+      "id": "node/4284362937"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4284362938",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "OPERS Offices & Support Space 205",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0541702,
+          36.9949739
+        ]
+      },
+      "id": "node/4284362938"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4284362939",
+        "access": "yes",
+        "amenity": "toilets",
+        "level": "1",
+        "name": "Wellness Center 110",
+        "toilets:disposal": "flush",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0546802,
+          36.9936097
+        ]
+      },
+      "id": "node/4284362939"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285064960",
+        "access": "yes",
+        "amenity": "toilets",
+        "description": "on first floor only, no elevator",
+        "level": "0",
+        "name": "Merrill Library (Casa Latina) 103",
+        "unisex": "yes",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0533728,
+          36.9993791
+        ]
+      },
+      "id": "node/4285064960"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285064961",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Music Center 105",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0605266,
+          36.992938
+        ]
+      },
+      "id": "node/4285064961"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285072167",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2024-04-04",
+        "name": "Student Union Redwood 1",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0560334,
+          36.9975343
+        ]
+      },
+      "id": "node/4285072167"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285072168",
+        "access": "yes",
+        "amenity": "toilets",
+        "check_date": "2024-04-04",
+        "name": "Student Union Redwood 3",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0560201,
+          36.9975381
+        ]
+      },
+      "id": "node/4285072168"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285095851",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Physical Sciences Building 506A",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0615972,
+          36.9994828
+        ]
+      },
+      "id": "node/4285095851"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285095852",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Physical Sciences Building 506B",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0615847,
+          36.9994841
+        ]
+      },
+      "id": "node/4285095852"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285106124",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Theater Arts A Main Stage A212",
+        "unisex": "yes",
+        "wheelchair": "limited"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0622864,
+          36.9946834
+        ]
+      },
+      "id": "node/4285106124"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285189001",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Receiving Barn (Barn H) 4A",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535364,
+          36.9796066
+        ]
+      },
+      "id": "node/4285189001"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4285189002",
+        "access": "yes",
+        "amenity": "toilets",
+        "name": "Receiving Barn (Barn H) 4B",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0535379,
+          36.9795991
+        ]
+      },
+      "id": "node/4285189002"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4318944476",
+        "access": "customers",
+        "amenity": "toilets",
+        "check_date": "2023-02-11",
+        "drinking_water": "no",
+        "fee": "yes",
+        "female": "no",
+        "male": "no",
+        "toilets:disposal": "flush",
+        "toilets:position": "seated",
+        "unisex": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0572331,
+          36.9524296
+        ]
+      },
+      "id": "node/4318944476"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4560530790",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.01794,
+          36.9584079
+        ]
+      },
+      "id": "node/4560530790"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6212295040",
+        "amenity": "toilets",
+        "female": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0229516,
+          36.9628839
+        ]
+      },
+      "id": "node/6212295040"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6283093811",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0273721,
+          36.9647773
+        ]
+      },
+      "id": "node/6283093811"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6285170209",
+        "amenity": "toilets",
+        "male": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0218665,
+          36.9764997
+        ]
+      },
+      "id": "node/6285170209"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6512288310",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0565324,
+          36.9604377
+        ]
+      },
+      "id": "node/6512288310"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7273170543",
+        "amenity": "toilets",
+        "fee": "no",
+        "female": "yes",
+        "male": "no",
+        "name": "Thimann Lecture Hall Women’s Restroom",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0612307,
+          36.9980162
+        ]
+      },
+      "id": "node/7273170543"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8716583670",
+        "amenity": "toilets",
+        "building": "toilets",
+        "shower": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0440829,
+          37.0291232
+        ]
+      },
+      "id": "node/8716583670"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8993610536",
+        "amenity": "toilets",
+        "toilets:disposal": "flush"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9782031,
+          36.9865349
+        ]
+      },
+      "id": "node/8993610536"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10003056698",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0558009,
+          37.0524596
+        ]
+      },
+      "id": "node/10003056698"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10119601519",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0269423,
+          36.9725662
+        ]
+      },
+      "id": "node/10119601519"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10208560220",
+        "access": "yes",
+        "amenity": "toilets",
+        "portable": "yes",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0316529,
+          37.0536977
+        ]
+      },
+      "id": "node/10208560220"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10303588055",
+        "amenity": "toilets"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.9687328,
+          36.9760924
+        ]
+      },
+      "id": "node/10303588055"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10612661431",
+        "access": "yes",
+        "amenity": "toilets",
+        "changing_table": "no",
+        "check_date": "2023-02-06",
+        "toilets:disposal": "flush",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0280317,
+          36.9775116
+        ]
+      },
+      "id": "node/10612661431"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10956334068",
+        "amenity": "toilets",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0571451,
+          36.9524219
+        ]
+      },
+      "id": "node/10956334068"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11137490376",
+        "access": "permissive",
+        "amenity": "toilets",
+        "check_date:opening_hours": "2025-06-23",
+        "description": "A code, which is changed periodically, is needed to unlock the restrooms. It can easily be obtained by asking any staff member. Access to the restrooms is generally permissive and open to the public upon request.",
+        "drinking_water": "yes",
+        "fee": "no",
+        "female": "yes",
+        "level": "0",
+        "male": "yes",
+        "opening_hours": "Mo-Su 08:00-21:00",
+        "toilets:disposal": "flush",
+        "toilets:position": "seated;urinal"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0145046,
+          36.9791373
+        ]
+      },
+      "id": "node/11137490376"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13819236272",
+        "amenity": "toilets",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0579269,
+          36.9518967
+        ]
+      },
+      "id": "node/13819236272"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13819236273",
+        "amenity": "toilets",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.0579254,
+          36.9519325
+        ]
+      },
+      "id": "node/13819236273"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13819236274",
+        "amenity": "toilets",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.057925,
+          36.9519698
+        ]
+      },
+      "id": "node/13819236274"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13819236275",
+        "amenity": "toilets",
+        "unisex": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.057923,
+          36.9520085
+        ]
+      },
+      "id": "node/13819236275"
+    }
+  ]
+}
