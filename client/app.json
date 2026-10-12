@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Restroom Finder App",
-    "slug": "restroomapp",
+    "slug": "restroom-finder-app",
     "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,8 +16,7 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
+      }
     },
     "web": {
       "output": "static",
@@ -37,6 +36,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4b2620d1-9d43-4941-ae10-0d8a464f7b84"
+      }
+    },
+    "owner": "heatherlol"
   }
 }
