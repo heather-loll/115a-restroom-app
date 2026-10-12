@@ -56,9 +56,33 @@ class NearestRestroomApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         restroom = response.get_json()["restroom"]
-        self.assertEqual(restroom["id"], "osm-way-20")
+        self.assertEqual(restroom["restroomId"], "osm-way-20")
         self.assertEqual(restroom["name"], "Public restroom")
-        self.assertEqual(restroom["details"]["wheelchair"], "yes")
+        self.assertEqual(restroom["amenities"]["accessible"], True)
+
+    @patch("app.openstreetmap.requests.get")
+    def test_omits_unknown_amenities(self, mock_get):
+        # "limited" is not the same as yes or no, so it must not become a boolean.
+        mock_get.return_value = FakeResponse(
+            {
+                "elements": [
+                    {
+                        "type": "node",
+                        "id": 30,
+                        "lat": 36.9751,
+                        "lon": -122.0300,
+                        "tags": {"amenity": "toilets", "wheelchair": "limited"},
+                    }
+                ]
+            }
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearest?latitude=36.9750&longitude=-122.0300"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("amenities", response.get_json()["restroom"])
 
     def test_rejects_missing_coordinates(self):
         response = self.client.get("/api/restrooms/nearest?latitude=36.9750")
