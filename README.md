@@ -15,7 +15,7 @@
 
 ## Run Backend Locally
 
-The Flask server supplies the closest restroom from OpenStreetMap. It's separate
+The Flask server supplies nearby restroom data from OpenStreetMap. It's separate
 from the Expo client so the future MongoDB data layer can be added without mixing
 Python code into the React Native application.
 
@@ -34,7 +34,9 @@ The default backend port is `5001`. If it is already in use, stop the server wit
 `Control` + `C`, then start it on another port with `PORT=5002 python run.py`.
 Keep that terminal running and use the selected port in the URL below.
 
-To find a restroom near a location, make the request from a second terminal in the virtual environment with:
+### Nearest-restroom Endpoint
+
+To find the closest restroom near a location, make the request from a second terminal in the virtual environment with:
 
 `curl "http://127.0.0.1:5001/api/restrooms/nearest?latitude=36.9749&longitude=-122.0308"`
 
@@ -46,6 +48,17 @@ For example, add `&radius_meters=500` to search within 500 meters. The response
 contains either the closest OpenStreetMap restroom or `"restroom": null` when
 none is found.
 
+### Nearby-restrooms Endpoint for Map Pins
+
+To find every restroom within a search radius:
+
+`curl "http://127.0.0.1:5001/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308&radius_meters=1000"`
+
+This response uses the same `Restroom` structure as the nearest-restroom endpoint,
+but returns a `restrooms` list sorted from closest to farthest. The Expo map can
+create one pin for each item in that list. If no restroom is found, `restrooms`
+is an empty list (`[]`).
+
 ### Stop the Backend
 
 1. In the terminal running `python run.py`, `Control` + `C` to stop the Flask server
@@ -55,5 +68,3 @@ none is found.
 
 With the virtual environment active, run this command from `server/`:
 `python -m unittest discover -s tests`
-
-Overall: the backend accepts a location (latitude and longitude) from the frontend, finds the closest OpenStreetMap restroom, and returns that restroom’s information in a format the app can display.

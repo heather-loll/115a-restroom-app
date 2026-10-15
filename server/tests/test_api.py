@@ -84,8 +84,53 @@ class NearestRestroomApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("amenities", response.get_json()["restroom"])
 
+    @patch("app.openstreetmap.requests.get")
+    def test_returns_all_nearby_restrooms_closest_first(self, mock_get):
+        # the endpoint should return one response item for every mapped restroom,
+        # ordered so the frontend can render pins and identify the closest option.
+        mock_get.return_value = FakeResponse(
+            {
+                "elements": [
+                    {
+                        "type": "node",
+                        "id": 10,
+                        "lat": 36.9800,
+                        "lon": -122.0300,
+                        "tags": {"amenity": "toilets", "name": "Far restroom"},
+                    },
+                    {
+                        "type": "way",
+                        "id": 20,
+                        "center": {"lat": 36.9751, "lon": -122.0300},
+                        "tags": {"amenity": "toilets", "wheelchair": "yes"},
+                    },
+                ]
+            }
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response_body = response.get_json()
+        self.assertEqual(response_body["search"]["radiusMeters"], 1_000)
+        self.assertEqual(len(response_body["restrooms"]), 2)
+        self.assertEqual(
+            response_body["restrooms"][0]["restroomId"], "osm-way-20"
+        )
+        self.assertEqual(
+            response_body["restrooms"][0]["amenities"]["accessible"], True
+        )
+
     def test_rejects_missing_coordinates(self):
         response = self.client.get("/api/restrooms/nearest?latitude=36.9750")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("longitude", response.get_json()["error"])
+
+    def test_nearby_rejects_missing_coordinates(self):
+        response = self.client.get("/api/restrooms/nearby?latitude=36.9750")
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("longitude", response.get_json()["error"])
