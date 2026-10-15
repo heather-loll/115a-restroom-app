@@ -1,12 +1,16 @@
 """
 HTTP routes for the API. Defines the API endpoints. /api/restrooms/nearest accepts latitude 
 and longitude, validates them, calls the OpenStreetMap logic, and returns the nearest restroom 
-as JSON. /api/health confirms that the backend is running. This file defines the API URLs 
-that the frontend can call.
+as JSON. /api/restrooms/nearby returns all nearby restrooms within a radius. /api/health 
+confirms that the backend is running. This file defines the API URLs that the frontend can call.
 """
 
 from flask import Blueprint, current_app, jsonify, request
-from .openstreetmap import OpenStreetMapError, find_nearest_restroom
+from .openstreetmap import (
+    OpenStreetMapError,
+    find_nearby_restrooms,
+    find_nearest_restroom,
+)
 
 
 api = Blueprint("api", __name__)
@@ -31,6 +35,36 @@ def get_number_argument(name, minimum, maximum, default=None):
 
     return value, None
 
+
+def get_search_arguments():
+    # read the coordinate and radius parameters shared by restroom searches.
+    latitude, error = get_number_argument("latitude", -90, 90)
+    if error:
+        return None, error
+
+    longitude, error = get_number_argument("longitude", -180, 180)
+    if error:
+        return None, error
+
+    # a bounded radius avoids accidentally sending an expensive world-scale query.
+    radius_meters, error = get_number_argument(
+        "radius_meters", 100, 5_000, default=1_000
+    )
+    if error:
+        return None, error
+
+    return (latitude, longitude, radius_meters), None
+
+
+def search_metadata(latitude, longitude, radius_meters):
+    # return the common response data that describes one restroom search.
+    return {
+        "latitude": latitude,
+        "longitude": longitude,
+        "radiusMeters": radius_meters,
+    }
+
+
 @api.get("/health")
 def health_check():
     # quick way to confirm that the Flask server is running.
@@ -41,20 +75,11 @@ def nearest_restroom():
     # return the closest OpenStreetMap restroom to the supplied coordinates.
     # example: /api/restrooms/nearest?latitude=36.9749&longitude=-122.0308
     # radius_meters is optional and defaults to 1,000 meters.
-    latitude, error = get_number_argument("latitude", -90, 90)
+    search_arguments, error = get_search_arguments()
     if error:
         return jsonify({"error": error}), 400
 
-    longitude, error = get_number_argument("longitude", -180, 180)
-    if error:
-        return jsonify({"error": error}), 400
-
-    # a bounded radius avoids accidentally sending an expensive world-scale query.
-    radius_meters, error = get_number_argument(
-        "radius_meters", 100, 5_000, default=1_000
-    )
-    if error:
-        return jsonify({"error": error}), 400
+    latitude, longitude, radius_meters = search_arguments
 
     try:
         restroom = find_nearest_restroom(
@@ -71,11 +96,38 @@ def nearest_restroom():
 
     return jsonify(
         {
-            "search": {
-                "latitude": latitude,
-                "longitude": longitude,
-                "radiusMeters": radius_meters,
-            },
+            "search": search_metadata(latitude, longitude, radius_meters),
             "restroom": restroom,
+        }
+    )
+
+
+@api.get("/restrooms/nearby")
+def nearby_restrooms():
+    # return all nearby restroom pins in the agreed frontend JSON structure.
+    # example: /api/restrooms/nearby?latitude=36.9749&longitude=-122.0308
+    # the optional radius_meters query parameter defaults to 1,000 meters.
+    search_arguments, error = get_search_arguments()
+    if error:
+        return jsonify({"error": error}), 400
+
+    latitude, longitude, radius_meters = search_arguments
+
+    try:
+        restrooms = find_nearby_restrooms(
+            latitude=latitude,
+            longitude=longitude,
+            radius_meters=radius_meters,
+            overpass_url=current_app.config["OVERPASS_URL"],
+            timeout_seconds=current_app.config["OVERPASS_TIMEOUT_SECONDS"],
+        )
+    except OpenStreetMapError:
+        return jsonify({"error": "OpenStreetMap data is temporarily unavailable."}), 502
+
+    return jsonify(
+        {
+            "search": search_metadata(latitude, longitude, radius_meters),
+            # an empty list when the selected area has no mapped restrooms.
+            "restrooms": restrooms,
         }
     )

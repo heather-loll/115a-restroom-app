@@ -108,8 +108,8 @@ def format_restroom(element, user_latitude, user_longitude):
 
     return restroom
 
-def find_nearest_restroom(latitude, longitude, radius_meters, overpass_url, timeout_seconds):
-    # fetch nearby restroom records and return the closest one, if any.
+def find_nearby_restrooms(latitude, longitude, radius_meters, overpass_url, timeout_seconds):
+    # return all OpenStreetMap restrooms in the search radius, closest first.
     try:
         response = requests.get(
             overpass_url,
@@ -129,9 +129,20 @@ def find_nearest_restroom(latitude, longitude, radius_meters, overpass_url, time
         if formatted is not None:
             restrooms.append(formatted)
 
-    # sorting makes the selected result deterministic, even if two locations tie.
-    return min(
+    # sorting gives the frontend a predictable order and puts the closest pin first.
+    return sorted(
         restrooms,
         key=lambda restroom: (restroom["distanceMeters"], restroom["restroomId"]),
-        default=None,
     )
+
+
+def find_nearest_restroom(latitude, longitude, radius_meters, overpass_url, timeout_seconds):
+    # return the closest restroom in the search radius, or None when none exist.
+    restrooms = find_nearby_restrooms(
+        latitude,
+        longitude,
+        radius_meters,
+        overpass_url,
+        timeout_seconds,
+    )
+    return restrooms[0] if restrooms else None
