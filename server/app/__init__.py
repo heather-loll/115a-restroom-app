@@ -1,7 +1,8 @@
 """
 Creates and configures the Flask app. It stores general settings such as the OpenStreetMap 
 API address, request timeout, and CORS settings, enables frontend-to-backend requests during 
-development, and connects the API routes to the app.
+development, and connects the API routes to the app. Configures MonogoDB for restrooms submitted 
+through the POST /api/restrooms endpoint.
 """
 
 import os
@@ -21,6 +22,13 @@ def create_app(test_config=None):
         OVERPASS_URL=os.environ.get("OVERPASS_URL", "https://overpass-api.de/api/interpreter"),
         # don't let a slow external API leave the mobile app waiting forever.
         OVERPASS_TIMEOUT_SECONDS=15,
+        # MongoDB is used for restrooms submitted through POST /api/restrooms.
+        MONGODB_URI=os.environ.get("MONGODB_URI", "mongodb://localhost:27017"),
+        MONGODB_DATABASE=os.environ.get("MONGODB_DATABASE", "ToiletApp"),
+        MONGODB_RESTROOMS_COLLECTION="restrooms",
+        MONGODB_TIMEOUT_MS=5_000,
+        # tests can replace MongoDB with a small in-memory fake collection.
+        RESTROOMS_COLLECTION=None,
     )
 
     if test_config:

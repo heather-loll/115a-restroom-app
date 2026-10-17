@@ -1,11 +1,12 @@
 """
-Tests the API using fake restroom data rather than making a real OpenStreetMap request.
-These tests mock OpenStreetMap, so they're fast and don't depend on Wi-Fi. It checks that 
-the closest restroom is returned and that invalid or missing coordinates are handled safely.
+Tests the restroom API without requiring live external services. OpenStreetMap and
+MongoDB are replaced with small fake objects, so tests stay fast and reliable. The
+tests check searches, user-submitted restrooms, validation, and duplicate handling.
 Run with: `python -m unittest discover -s tests` in the virtual environment.
 """
 
 import unittest
+from copy import deepcopy
 from unittest.mock import patch
 from app import create_app
 
@@ -21,9 +22,30 @@ class FakeResponse:
     def json(self):
         return self.payload
 
-class NearestRestroomApiTests(unittest.TestCase):
+
+class FakeRestroomsCollection:
+    # small in-memory MongoDB substitute used by POST endpoint tests.
+
+    def __init__(self):
+        self.documents = []
+
+    def find_one(self, query):
+        coordinates = query.get("geometry.coordinates")
+        for document in self.documents:
+            if document["geometry"]["coordinates"] == coordinates:
+                return deepcopy(document)
+        return None
+
+    def insert_one(self, document):
+        self.documents.append(deepcopy(document))
+
+
+class RestroomApiTests(unittest.TestCase):
     def setUp(self):
-        self.app = create_app({"TESTING": True})
+        self.collection = FakeRestroomsCollection()
+        self.app = create_app(
+            {"TESTING": True, "RESTROOMS_COLLECTION": self.collection}
+        )
         self.client = self.app.test_client()
 
     @patch("app.openstreetmap.requests.get")
@@ -134,6 +156,62 @@ class NearestRestroomApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("longitude", response.get_json()["error"])
+
+    def test_adds_a_user_submitted_restroom(self):
+        response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New Campus Restroom",
+                "address": "1156 High St, Santa Cruz, CA",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+                "amenities": {
+                    "accessible": True,
+                    "singleOccupancy": True,
+                    "cleanliness": 4,
+                },
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        restroom = response.get_json()["restroom"]
+        self.assertTrue(restroom["restroomId"].startswith("user-"))
+        self.assertEqual(restroom["name"], "New Campus Restroom")
+        self.assertEqual(restroom["latitude"], 36.9910)
+        self.assertEqual(restroom["longitude"], -122.0600)
+        self.assertEqual(restroom["amenities"]["cleanliness"], 4)
+        self.assertEqual(len(self.collection.documents), 1)
+        self.assertEqual(
+            self.collection.documents[0]["geometry"]["coordinates"],
+            [-122.0600, 36.9910],
+        )
+
+    def test_rejects_duplicate_restroom_coordinates(self):
+        request_body = {
+            "name": "New Campus Restroom",
+            "latitude": 36.9910,
+            "longitude": -122.0600,
+        }
+        first_response = self.client.post("/api/restrooms", json=request_body)
+        duplicate_response = self.client.post("/api/restrooms", json=request_body)
+
+        self.assertEqual(first_response.status_code, 201)
+        self.assertEqual(duplicate_response.status_code, 409)
+        self.assertIn("already exists", duplicate_response.get_json()["error"])
+
+    def test_rejects_invalid_submitted_restroom_data(self):
+        response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "",
+                "latitude": "not a number",
+                "longitude": -122.0600,
+                "amenities": {"accessible": "yes"},
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("name", response.get_json()["error"])
 
 
 if __name__ == "__main__":
