@@ -3,7 +3,7 @@ import { Alert, StyleSheet } from "react-native";
 import MapView, { Marker, MapMarker } from 'react-native-maps';
 
 type PinState = {
-  markerRef: RefObject<MapMarker | null> | null;
+  markerId: number | null;
   restroom: Restroom | null;
 } | null;
 
@@ -12,6 +12,7 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
 
   const mapRef = useRef<MapView>(null);
   const [activePin, setActivePin] = useState<PinState>(null);
+  const markerRefs = useRef<{ [key: string]: MapMarker | null }>({});
 
   // Whenever the active pin changes, pipe changes up by setting a new active restroom
   useEffect(() => {
@@ -31,7 +32,11 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
   }, [activePin])
 
   const handleMarkerDismiss = () => {
-    setActivePin({ markerRef: null, restroom: null });
+    if (activePin?.markerId && markerRefs.current[activePin.markerId]) {
+      markerRefs.current[activePin.markerId]?.hideCallout();
+    }
+
+    setActivePin(null);
   };
 
   // If sheet is dismissed elsewhere, update the active map pin
@@ -66,12 +71,14 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
         const markerRef = useRef<MapMarker>(null);
         return (
           <Marker
-            ref={markerRef}
+            ref={(e) => {
+              markerRefs.current[restroom.restroomId] = e;
+            }}
             coordinate={{ latitude: restroom.latitude, longitude: restroom.longitude }}
             pinColor="#009966"
             onSelect={(e) => {
               e.stopPropagation();
-              setActivePin({ markerRef, restroom });
+              setActivePin({ markerId: restroom.restroomId, restroom });
             }}
             key={restroom.restroomId}
           />
