@@ -24,7 +24,7 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
     mapRef.current?.animateCamera({
       center: {
         longitude: activePin?.restroom.longitude,
-        latitude: activePin?.restroom.latitude - 0.0025,
+        latitude: activePin?.restroom.latitude,
       }
     }, { duration: 1000 });
 
