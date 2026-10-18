@@ -1,15 +1,27 @@
-import { useRef } from 'react';
-import { StyleSheet, Text } from "react-native";
+import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
+import { StyleSheet, Text, Alert } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
-export default function RestroomInfoSheet(props: { restroom: Restroom }) {
-  const { restroom } = props;
+export default function RestroomInfoSheet(props: { restroom: Restroom | null, setActiveRestroom: Dispatch<SetStateAction<Restroom | null>> }) {
+  const { restroom, setActiveRestroom } = props;
 
+  const [localData, setLocalData] = useState<Restroom | null>(restroom);
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  useEffect(() => {
+    if (restroom !== null) {
+      setLocalData(restroom);
+      bottomSheetRef.current?.snapToIndex(2);
+    } else {
+      bottomSheetRef.current?.close();
+    }
+  }, [restroom])
+
 
   const handleSheetChange = (index: number) => {
     if (index === -1) {
-      // Signal to minimize map pin
+      setActiveRestroom(null);
+      // Alert.alert("minimize triggered");
     }
   }
 
@@ -19,13 +31,13 @@ export default function RestroomInfoSheet(props: { restroom: Restroom }) {
       snapPoints={[250, '35%', '93%']}
       enablePanDownToClose={true}
       onChange={handleSheetChange}
-      index={2}
+      index={-1}
     >
       <BottomSheetView
         style={styles.sheetContainer}
       >
-        <Text style={styles.sheetHeader}>{restroom.name}</Text>
-        <Text style={styles.sheetSubHeader}>{restroom.address}</Text>
+        <Text style={styles.sheetHeader}>{localData?.name}</Text>
+        <Text style={styles.sheetSubHeader}>{localData?.address}</Text>
       </BottomSheetView>
     </BottomSheet>
   )

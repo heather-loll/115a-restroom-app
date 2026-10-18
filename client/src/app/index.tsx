@@ -32,14 +32,13 @@ export default function Index() {
     <GestureHandlerRootView style={styles.container}>
       <Map
         points={restrooms}
+        activeRestroom={activeRestroom}
         setActiveRestroom={setActiveRestroom}
       />
 
       <BottomNav />
 
-      {activeRestroom &&
-        <RestroomInfoSheet restroom={activeRestroom} />
-      }
+      <RestroomInfoSheet restroom={activeRestroom} setActiveRestroom={setActiveRestroom} />
     </GestureHandlerRootView>
   );
 }
