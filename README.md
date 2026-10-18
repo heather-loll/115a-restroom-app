@@ -15,9 +15,9 @@
 
 ## Run Backend Locally
 
-The Flask server supplies nearby restroom data from OpenStreetMap. It's separate
-from the Expo client so the future MongoDB data layer can be added without mixing
-Python code into the React Native application.
+The Flask server supplies nearby restroom data from OpenStreetMap and saves
+user-submitted restrooms in MongoDB. It is separate from the Expo client so the
+Python backend can be built without mixing backend code into the React Native app.
 
 1. Open a terminal at the `115a-restroom-app` repository root
 1. `cd server`
@@ -58,6 +58,23 @@ This response uses the same `Restroom` structure as the nearest-restroom endpoin
 but returns a `restrooms` list sorted from closest to farthest. The Expo map can
 create one pin for each item in that list. If no restroom is found, `restrooms`
 is an empty list (`[]`).
+
+### Add-restroom Endpoint
+
+`POST /api/restrooms` saves a user-submitted restroom in the local MongoDB
+`ToiletApp.restrooms` collection. Start MongoDB locally before calling this endpoint.
+The server uses `mongodb://localhost:27017` by default. Set `MONGODB_URI` to use a
+different database address.
+
+The request body needs a restroom name, latitude, and longitude. `address` and
+`amenities` are optional. The backend creates the `restroomId` and returns the
+saved restroom with HTTP status `201`.
+
+The accepted amenity names are `cleanliness` (a whole number from 1 to 5),
+`paymentRequired`, `accessible`, `unisex`, `singleOccupancy`,
+`menstrualProductsAvailable`, and `babyChangingStation`. All amenity values other
+than `cleanliness` must be `true` or `false`. A submission with coordinates already
+in the database returns HTTP status `409` instead of creating a duplicate.
 
 ### Stop the Backend
 
