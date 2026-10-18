@@ -75,7 +75,7 @@ export default function Fab() {
 
       <SettingsSheet />
       <FilterSheet />
-      { addRestroomSheetOpen ? <AddRestroomSheet /> : <></>}
+      { addRestroomSheetOpen && <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />}
     </>
   )
 }

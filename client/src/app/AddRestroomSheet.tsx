@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, Dispatch, SetStateAction } from 'react';
 import { StyleSheet, View, Text, Pressable, ScrollView, TextInput } from "react-native";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Check, ArrowRight, Pencil, LockKeyhole, Accessibility, DoorClosed, Transgender, Droplets, Baby, Germ, ThumbsUp, MopSparkles, LucideIcon } from 'lucide-react-native';
@@ -37,7 +37,8 @@ function ToggleCard(props: { label: string, icon: LucideIcon }) {
   )
 }
 
-export default function AddRestroomSheet() {
+export default function AddRestroomSheet(props: {setAddRestroomSheetOpen: Dispatch<SetStateAction<boolean>>}) {
+  const {setAddRestroomSheetOpen} = props
   const filterSheetRef = useRef<BottomSheet>(null);
 
   return (
@@ -46,6 +47,9 @@ export default function AddRestroomSheet() {
       snapPoints={['93%']}
       enablePanDownToClose={true}
       index={1}
+      onClose={() => {
+        setAddRestroomSheetOpen(false)
+      }}
     >
       <BottomSheetView
         style={styles.sheetContainer}
