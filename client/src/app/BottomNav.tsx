@@ -5,14 +5,15 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import AddRestroomSheet from './AddRestroomSheet';
 
-function SettingsSheet() {
-  const settingsSheetRef = useRef<BottomSheet>(null);
+const settingsSheetRef = useRef<BottomSheet>(null);
 
+function SettingsSheet() {
   return (
     <BottomSheet
       ref={settingsSheetRef}
       snapPoints={['93%']}
-      index={1}
+      index={-1}
+      enablePanDownToClose={true}
     >
       <BottomSheetView
         style={styles.sheetContainer}
@@ -23,14 +24,15 @@ function SettingsSheet() {
   )
 }
 
-function FilterSheet() {
-  const filterSheetRef = useRef<BottomSheet>(null);
+const filterSheetRef = useRef<BottomSheet>(null);
 
+function FilterSheet() {
   return (
     <BottomSheet
       ref={filterSheetRef}
       snapPoints={['35%']}
-      index={1}
+      index={-1}
+      enablePanDownToClose={true}
     >
       <BottomSheetView
         style={styles.sheetContainer}
@@ -42,8 +44,6 @@ function FilterSheet() {
 }
 
 export default function Fab() {
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [addRestroomSheetOpen, setAddRestroomSheetOpen] = useState(false);
 
   return (
@@ -52,14 +52,14 @@ export default function Fab() {
         <TouchableOpacity
           style={styles.settings}
           activeOpacity={0.8}
-          onPress={() => setSettingsOpen(true)}
+          onPress={() => settingsSheetRef.current?.snapToIndex(1)}
         >
           <Settings color="#fff" size={24} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.filter}
           activeOpacity={0.8}
-          onPress={() => setFilterSheetOpen(true)}
+          onPress={() => filterSheetRef.current?.snapToIndex(1)}
         >
           <ListFilter color="#fff" size={20} />
         </TouchableOpacity>
@@ -73,9 +73,9 @@ export default function Fab() {
         </TouchableOpacity>
       </View>
 
-      { settingsOpen ? <SettingsSheet /> : <></>}
-      { filterSheetOpen ? <FilterSheet /> : <></>}
-      { addRestroomSheetOpen ? <AddRestroomSheet /> : <></>}
+      <SettingsSheet />
+      <FilterSheet />
+      { addRestroomSheetOpen && <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />}
     </>
   )
 }
