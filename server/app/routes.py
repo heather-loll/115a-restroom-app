@@ -10,13 +10,13 @@ This file defines the API URLs that the frontend can call.
 from flask import Blueprint, current_app, jsonify, request
 from .openstreetmap import (
     OpenStreetMapError,
+    find_nearby_restrooms,
+    find_nearest_restroom,
 )
 from .mongodb import (
     MongoDatabaseError,
     RestroomAlreadyExistsError,
     create_restroom,
-    find_nearby_restrooms,
-    find_nearest_restroom,
 )
 
 
@@ -148,8 +148,7 @@ def get_new_restroom_data():
         "name": name,
         "latitude": latitude,
         "longitude": longitude,
-        #no address for now until we figure out how we want to validate it
-        "address": None,
+        "address": address,
         "amenities": validated_amenities,
     }, None
 
@@ -170,11 +169,18 @@ def nearest_restroom():
 
     latitude, longitude, radius_meters = search_arguments
 
-    restroom = find_nearest_restroom(
-        latitude=latitude,
-        longitude=longitude,
-        radius_meters=radius_meters
-    )
+    try:
+        restroom = find_nearest_restroom(
+            latitude=latitude,
+            longitude=longitude,
+            radius_meters=radius_meters,
+            overpass_url=current_app.config["OVERPASS_URL"],
+            timeout_seconds=current_app.config["OVERPASS_TIMEOUT_SECONDS"],
+        )
+    except OpenStreetMapError:
+        # keep implementation details out of the response while telling the client
+        # this is a temporary upstream-data problem, not invalid user input.
+        return jsonify({"error": "OpenStreetMap data is temporarily unavailable."}), 502
 
     return jsonify(
         {
@@ -195,11 +201,16 @@ def nearby_restrooms():
 
     latitude, longitude, radius_meters = search_arguments
 
-    restrooms = find_nearby_restrooms(
-        latitude=latitude,
-        longitude=longitude,
-        radius_meters=radius_meters
-    )
+    try:
+        restrooms = find_nearby_restrooms(
+            latitude=latitude,
+            longitude=longitude,
+            radius_meters=radius_meters,
+            overpass_url=current_app.config["OVERPASS_URL"],
+            timeout_seconds=current_app.config["OVERPASS_TIMEOUT_SECONDS"],
+        )
+    except OpenStreetMapError:
+        return jsonify({"error": "OpenStreetMap data is temporarily unavailable."}), 502
 
     return jsonify(
         {

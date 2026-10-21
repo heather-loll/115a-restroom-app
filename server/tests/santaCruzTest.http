@@ -1,4 +1,0 @@
-### GET request to example server
-GET http://localhost:5001/api/restrooms/nearby?latitude=36.995674&longitude=-122.058840
-
-###
