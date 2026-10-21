@@ -9,6 +9,7 @@ from uuid import uuid4
 from flask import current_app
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
+from math import asin, cos, radians, sin, sqrt
 
 
 class RestroomAlreadyExistsError(Exception):
@@ -17,6 +18,40 @@ class RestroomAlreadyExistsError(Exception):
 
 class MongoDatabaseError(Exception):
     """ raised when MongoDB cannot complete a restroom database operation. """
+
+def distance_in_meters(first_latitude, first_longitude, second_latitude, second_longitude):
+    # calculate straight-line distance with the Haversine formula.
+    earth_radius_meters = 6_371_000
+    latitude_difference = radians(second_latitude - first_latitude)
+    longitude_difference = radians(second_longitude - first_longitude)
+    start_latitude = radians(first_latitude)
+    end_latitude = radians(second_latitude)
+
+    haversine_value = (
+        sin(latitude_difference / 2) ** 2
+        + cos(start_latitude)
+        * cos(end_latitude)
+        * sin(longitude_difference / 2) ** 2
+    )
+    return 2 * earth_radius_meters * asin(sqrt(haversine_value))
+
+
+def format_restroom(element, user_latitude, user_longitude):
+    #don't have to do a lot of formatting since validation is done in the code to add restrooms
+
+    restroom = {
+        # the source/type prefix makes an ID unique across OpenStreetMap record types.
+        "restroomId": element["restroomId"],
+        "name": element["name"],
+        "latitude": element["geometry"]["coordinates"][1],
+        "longitude": element["geometry"]["coordinates"][0],
+        "distanceMeters": round(
+            distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
+        ),
+        "amenities": element["amenities"]
+    }
+
+    return restroom
 
 
 def get_restrooms_collection():
@@ -101,3 +136,39 @@ def create_restroom(name, latitude, longitude, address, amenities):
         raise MongoDatabaseError("Could not save the restroom in MongoDB.") from error
 
     return document_to_restroom(document)
+
+def find_nearest_restroom(latitude, longitude, radius_meters):
+    collection = get_restrooms_collection()
+    document = collection.find_one(
+        {
+            "$near": {
+                "$geometry": {
+                    "type": "Point",
+                    "coordinates": [longitude, latitude],
+                },
+                "$maxDistance": radius_meters
+            }
+        }
+    )
+    #does the function actually return None if no restrooms are found?
+    if document is None:
+        return None
+    return format_restroom(document, latitude, longitude)
+
+
+def find_nearby_restrooms(latitude, longitude, radius_meters):
+    collection = get_restrooms_collection()
+    documents = collection.find(
+        {
+            "$near": {
+                "$geometry": {
+                    "type": "Point",
+                    "coordinates": [longitude, latitude],
+                },
+                "$maxDistance": radius_meters
+            }
+        }
+    )
+
+    for document in documents:
+        yield format_restroom(document, latitude, longitude)
