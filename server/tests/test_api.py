@@ -36,6 +36,13 @@ class FakeRestroomsCollection:
                 return deepcopy(document)
         return None
 
+    def replace_one(self, query, document):
+        Id = query.get("restroomId")
+        for document in self.documents:
+            if document["restroomId"] == Id:
+                return deepcopy(document)
+        return None
+
     def insert_one(self, document):
         self.documents.append(deepcopy(document))
 

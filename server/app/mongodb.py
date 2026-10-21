@@ -15,6 +15,9 @@ from math import asin, cos, radians, sin, sqrt
 class RestroomAlreadyExistsError(Exception):
     """ raised when a restroom already uses the submitted coordinates. """
 
+class RestroomDoesntExistError(Exception):
+    """ raised when a restroom being edited doesn't exist. """
+
 
 class MongoDatabaseError(Exception):
     """ raised when MongoDB cannot complete a restroom database operation. """
@@ -137,6 +140,20 @@ def create_restroom(name, latitude, longitude, address, amenities):
         raise MongoDatabaseError("Could not save the restroom in MongoDB.") from error
 
     return document_to_restroom(document)
+
+def amend_restroom(restroomId, name, amenities):
+    collection = get_restrooms_collection()
+    document = collection.find_one(
+        {
+            "restroomId": restroomId
+        }
+    )
+    if document is None:
+        raise RestroomDoesntExistError("Restroom doesn't exist.")
+    document["name"] = name
+    if amenities:
+        document["amenities"] = amenities
+    collection.replace_one({"restroomId": restroomId}, document)
 
 def find_nearest_restroom(latitude, longitude, radius_meters):
     collection = get_restrooms_collection()

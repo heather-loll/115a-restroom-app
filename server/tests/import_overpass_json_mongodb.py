@@ -61,3 +61,4 @@ for(feature) in main_json["features"]:
 #rebuild index
 restrooms.drop_indexes()
 restrooms.create_index([("geometry", "2dsphere")])
+restrooms.create_index("restroomId")
