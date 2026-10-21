@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import Map from './Map';
-import BottomNav from './BottomNav';
-import RestroomInfoSheet from './RestroomInfoSheet';
+import Map from '../components/Map';
+import BottomNav from '../components/BottomNav';
+import RestroomInfoSheet from '../components/RestroomInfoSheet';
 
 const restrooms: Restroom[] = [
   {
