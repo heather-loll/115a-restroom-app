@@ -81,12 +81,11 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["restroomId"], "osm-way-20")
         self.assertEqual(restroom["name"], "Public restroom")
         self.assertEqual(restroom["amenities"]["accessible"], True)
-    #test not needed anymore since we aren't pulling from OSM directly
-    '''
-    @patch("pymongo.collection.Collection.find_one")
-    def test_omits_unknown_amenities(self, mock_find):
+
+    @patch("app.openstreetmap.requests.get")
+    def test_omits_unknown_amenities(self, mock_get):
         # "limited" is not the same as yes or no, so it must not become a boolean.
-        mock_find.return_value = FakeResponse(
+        mock_get.return_value = FakeResponse(
             {
                 "elements": [
                     {
@@ -106,7 +105,7 @@ class RestroomApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("amenities", response.get_json()["restroom"])
-    '''
+
     @patch("app.openstreetmap.requests.get")
     def test_returns_all_nearby_restrooms_closest_first(self, mock_get):
         # the endpoint should return one response item for every mapped restroom,
