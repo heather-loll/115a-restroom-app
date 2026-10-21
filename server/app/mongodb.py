@@ -48,7 +48,7 @@ def format_restroom(element, user_latitude, user_longitude):
         "distanceMeters": round(
             distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
         ),
-        "amenities": element["amenities"]
+        "amenities": element.get("amenities", {}),
     }
 
     return restroom
@@ -56,7 +56,8 @@ def format_restroom(element, user_latitude, user_longitude):
 
 def get_restrooms_collection():
     # return the configured restroom collection.
-    """ 
+    # leftover from the old MongoDB code since creating a collection on each function call causes a weird crash
+    """
     Tests provide an in-memory fake collection through the app configuration.
     During normal use, this function creates a MongoDB client from environment
     configuration only when a database operation is needed.
@@ -160,15 +161,19 @@ def find_nearby_restrooms(latitude, longitude, radius_meters):
     collection = get_restrooms_collection()
     documents = collection.find(
         {
-            "$near": {
-                "$geometry": {
-                    "type": "Point",
-                    "coordinates": [longitude, latitude],
-                },
-                "$maxDistance": radius_meters
+            "geometry": {
+                "$near": {
+                    "$geometry": {
+                        "type": "Point",
+                        "coordinates": [longitude, latitude],
+                    },
+                    "$maxDistance": radius_meters
+                }
             }
         }
     )
-
+    restrooms = []
     for document in documents:
-        yield format_restroom(document, latitude, longitude)
+        formatted_restroom = format_restroom(document, latitude, longitude)
+        restrooms.append(formatted_restroom)
+    return restrooms
