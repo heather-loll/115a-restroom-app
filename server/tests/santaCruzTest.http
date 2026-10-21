@@ -1,4 +1,37 @@
-### GET request to example server
+###
+###you'll need to delete the database every time you run this
+
 GET http://localhost:5001/api/restrooms/nearby?latitude=36.995674&longitude=-122.058840
 
 ###
+POST http://localhost:5001/api/restrooms
+Content-Type: application/json
+
+{
+                "name": "Ugly Bathroom",
+                "address": "This shouldn't matter",
+                "latitude": 0.0,
+                "longitude": 1.0,
+                "amenities": {
+                    "accessible": true,
+                    "singleOccupancy": true,
+                    "cleanliness": 4
+                }
+}
+
+###
+GET http://localhost:5001/api/restrooms/nearby?latitude=0.0&longitude=1.0
+
+###
+POST http://localhost:5001/api/restrooms/amend
+Content-Type: application/json
+
+{
+  "restroomId": "osm-Feature-node/821295761",
+  "name": "Cowell Restroom",
+  "amenities": {
+    "accessible": false,
+    "singleOccupancy": false,
+    "cleanliness": 2
+  }
+}

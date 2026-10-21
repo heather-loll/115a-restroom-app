@@ -141,7 +141,7 @@ def create_restroom(name, latitude, longitude, address, amenities):
 
     return document_to_restroom(document)
 
-def amend_restroom(restroomId, name, amenities):
+def edit_restroom(restroomId, name, amenities):
     collection = get_restrooms_collection()
     document = collection.find_one(
         {
@@ -154,6 +154,7 @@ def amend_restroom(restroomId, name, amenities):
     if amenities:
         document["amenities"] = amenities
     collection.replace_one({"restroomId": restroomId}, document)
+    return document_to_restroom(document)
 
 def find_nearest_restroom(latitude, longitude, radius_meters):
     collection = get_restrooms_collection()

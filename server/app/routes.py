@@ -16,6 +16,7 @@ from .mongodb import (
     RestroomAlreadyExistsError,
     RestroomDoesntExistError,
     create_restroom,
+    edit_restroom,
     find_nearby_restrooms,
     find_nearest_restroom,
 )
@@ -287,14 +288,15 @@ def amend_restroom():
     # The request body uses the shared Restroom fields except restroomId and
     # distanceMeters, because the server creates the ID and no search occurred.
     restroom_data, error = get_amended_restroom_data()
+
     if error:
         return jsonify({"error": error}), 400
 
     try:
-        restroom = amend_restroom(**restroom_data)
+        restroom = edit_restroom(**restroom_data)
     except RestroomDoesntExistError as error:
         return jsonify({"error": str(error)}), 409
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
-    return jsonify({"restroom": restroom}), 201
+    return jsonify({"restroom": restroom}), 200
