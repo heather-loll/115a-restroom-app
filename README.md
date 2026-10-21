@@ -12,6 +12,24 @@
 1. Scan the QR code from the terminal on your mobile device to view the app on your mobile device
 1. If you make changes, you may type `r` in the terminal to hot reload the app to reflect your changes
 
+## Running on an emulator
+### iOS
+- On a Mac, download [XCode](https://apps.apple.com/us/app/xcode/id497799835) from the App Store
+- Open the `Device Simulator` app on your computer
+- Press the `+` button and select "iPhone" under "Simulators"
+- Download an iPhone simulator of your choice
+- Open and run the simulator until you see the iPhone homescreen
+- Run `npm run ios` in the terminal in the `client` directory
+- This should automatically install Expo Go on the iOS emulator and open the app in a development environment
+
+### Android
+- Download and install [Android Studio](https://developer.android.com/studio)
+- On the landing screen, press the 3 vertical dots and select "Virtual Device Manager"
+- Press the `+` button at the top and select the device of your choice
+- Once installed, navigate back to the device manager
+- Press the play button next to your device and wait to see the Android homescreen
+- Run `npm run android` in the terminal in the `client` directory
+- This should automatically install Expo Go on the Android emulator and open the app in a development environment
 
 ## Run Backend Locally
 
