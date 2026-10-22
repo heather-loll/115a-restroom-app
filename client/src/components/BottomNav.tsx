@@ -1,83 +1,70 @@
 import { useRef, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Plus, Settings, ListFilter } from 'lucide-react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import AddRestroomSheet from './AddRestroomSheet';
 
-const settingsSheetRef = useRef<BottomSheet>(null);
-
-function SettingsSheet() {
+function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
   return (
-    <BottomSheet
-      ref={settingsSheetRef}
-      snapPoints={['93%']}
-      index={-1}
-      enablePanDownToClose={true}
-    >
-      <BottomSheetView
-        style={styles.sheetContainer}
-      >
+    <BottomSheet ref={sheetRef} snapPoints={['93%']} index={-1} enablePanDownToClose={true}>
+      <BottomSheetView style={styles.sheetContainer}>
         <Text>Settings</Text>
       </BottomSheetView>
     </BottomSheet>
-  )
+  );
 }
 
-const filterSheetRef = useRef<BottomSheet>(null);
-
-function FilterSheet() {
+function FilterSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
   return (
-    <BottomSheet
-      ref={filterSheetRef}
-      snapPoints={['35%']}
-      index={-1}
-      enablePanDownToClose={true}
-    >
-      <BottomSheetView
-        style={styles.sheetContainer}
-      >
+    <BottomSheet ref={sheetRef} snapPoints={['35%']} index={-1} enablePanDownToClose={true}>
+      <BottomSheetView style={styles.sheetContainer}>
         <Text>Filers</Text>
       </BottomSheetView>
     </BottomSheet>
-  )
+  );
 }
 
 export default function Fab() {
   const [addRestroomSheetOpen, setAddRestroomSheetOpen] = useState(false);
 
+  const settingsSheetRef = useRef<BottomSheet>(null);
+  const filterSheetRef = useRef<BottomSheet>(null);
+
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity
+        <Pressable
           style={styles.settings}
-          activeOpacity={0.8}
-          onPress={() => settingsSheetRef.current?.snapToIndex(1)}
-        >
+          accessibilityRole="button"
+          accessibilityLabel="Open settings"
+          onPress={() => settingsSheetRef.current?.snapToIndex(1)}>
           <Settings color="#fff" size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           style={styles.filter}
-          activeOpacity={0.8}
-          onPress={() => filterSheetRef.current?.snapToIndex(1)}
-        >
+          accessibilityRole="button"
+          accessibilityLabel="Open filter options"
+          onPress={() => filterSheetRef.current?.snapToIndex(1)}>
           <ListFilter color="#fff" size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           style={styles.add}
-          activeOpacity={0.8}
-          onPress={() => {setAddRestroomSheetOpen(true)}}
-        >
+          onPress={() => {
+            setAddRestroomSheetOpen(true);
+          }}>
           <Plus color="#fff" size={24} />
           <Text style={styles.addText}>Add Restroom</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
-      <SettingsSheet />
-      <FilterSheet />
-      { addRestroomSheetOpen && <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />}
+      <SettingsSheet sheetRef={settingsSheetRef} />
+      <FilterSheet sheetRef={filterSheetRef} />
+      {addRestroomSheetOpen && (
+        <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />
+      )}
     </>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -93,19 +80,19 @@ const styles = StyleSheet.create({
     height: 52,
     width: 52,
     display: 'flex',
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "gray",
-    borderRadius: 26
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'gray',
+    borderRadius: 26,
   },
   filter: {
     height: 52,
     width: 52,
     display: 'flex',
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#009966',
-    borderRadius: 26
+    borderRadius: 26,
   },
   add: {
     height: 52,
@@ -120,13 +107,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 3,
     paddingInline: 16,
-    gap: 8
+    gap: 8,
   },
   addText: {
     fontSize: 16,
     color: 'white',
     textTransform: 'uppercase',
-    fontWeight: 600
+    fontWeight: 600,
   },
   sheetContainer: {
     flex: 1,
