@@ -1,10 +1,10 @@
 """
-Tests the restroom preference-ranking helper without flask, mongodb, or a
-live database. run with: `python -m unittest discover -s tests` in venv.
+Tests the restroom preference-ranking and preference-filering helpers without flask, 
+mongodb, or a live database. run with: `python -m unittest discover -s tests` in venv.
 """
 
 import unittest
-from app.preferences import prioritize_restrooms
+from app.preferences import filter_restrooms, prioritize_restrooms
 
 
 class preference_matching_tests(unittest.TestCase):
@@ -83,6 +83,54 @@ class preference_matching_tests(unittest.TestCase):
 
         restroom_ids = [restroom["restroomId"] for restroom in prioritized_restrooms]
         self.assertEqual(restroom_ids, ["closest", "farther"])
+
+    # restrooms with a confirmed conflict are removed, but missing information
+    # remains available because the app does not know that it is a mismatch.
+    def test_filters_known_conflicts_but_keeps_unknown_amenities(self):
+        restrooms = [
+            {"restroomId": "match", "amenities": {"accessible": True}},
+            {"restroomId": "unknown", "amenities": {}},
+            {"restroomId": "conflict", "amenities": {"accessible": False}},
+        ]
+
+        filtered_restrooms = filter_restrooms(restrooms, {"accessible": True})
+
+        restroom_ids = [restroom["restroomId"] for restroom in filtered_restrooms]
+        self.assertEqual(restroom_ids, ["match", "unknown"])
+
+    # false is also a valid preference. this checks that a user who wants a
+    # free restroom can remove restrooms known to require payment.
+    def test_filters_conflicts_for_false_preferences(self):
+        restrooms = [
+            {"restroomId": "free", "amenities": {"paymentRequired": False}},
+            {"restroomId": "paid", "amenities": {"paymentRequired": True}},
+        ]
+
+        filtered_restrooms = filter_restrooms(
+            restrooms,
+            {"paymentRequired": False},
+        )
+
+        self.assertEqual(filtered_restrooms[0]["restroomId"], "free")
+        self.assertEqual(len(filtered_restrooms), 1)
+
+    # filtering can run before ranking, which is how a later nearby endpoint
+    # can remove confirmed conflicts and prioritize the remaining results.
+    def test_can_filter_before_prioritizing_restrooms(self):
+        restrooms = [
+            {"restroomId": "unknown", "amenities": {}},
+            {"restroomId": "conflict", "amenities": {"accessible": False}},
+            {"restroomId": "match", "amenities": {"accessible": True}},
+        ]
+
+        filtered_restrooms = filter_restrooms(restrooms, {"accessible": True})
+        prioritized_restrooms = prioritize_restrooms(
+            filtered_restrooms,
+            {"accessible": True},
+        )
+
+        restroom_ids = [restroom["restroomId"] for restroom in prioritized_restrooms]
+        self.assertEqual(restroom_ids, ["match", "unknown"])
 
     # rejecting unsupported fields keeps future api requests aligned with the
     # shared restroom amenity names.
