@@ -1,5 +1,7 @@
 """
-Ranks restrooms using the amenity preferences selected by a user.
+Removes restrooms with a confirmed amenity conflict, and 
+keeps restrooms with missing/unknown amenity data. Also 
+ranks restrooms using the amenity preferences selected by a user.
 This does not access flask or mongodb, so a route can use it later
 without duplicating the matching rules or changing the stored restroom data.
 """
@@ -29,6 +31,36 @@ def prioritize_restrooms(restrooms, preferences):
         restrooms,
         key=lambda restroom: preference_rank(restroom, validated_preferences),
     )
+
+
+def filter_restrooms(restrooms, preferences):
+    # return a new list that removes only restrooms with a known conflict.
+    # a missing amenity remains in the results because unknown information is
+    # not the same as a confirmed false value.
+    validated_preferences = validate_preferences(preferences)
+
+    return [
+        restroom
+        for restroom in restrooms
+        if not has_known_preference_conflict(restroom, validated_preferences)
+    ]
+
+
+def has_known_preference_conflict(restroom, preferences):
+    # check one restroom for an amenity that is present but disagrees with a
+    # selected preference. the helper keeps filtering rules in one place for
+    # a future api route to reuse.
+    amenities = restroom.get("amenities") or {}
+
+    for preference_name, preferred_value in preferences.items():
+        has_conflict = (
+            preference_name in amenities
+            and amenities[preference_name] != preferred_value
+        )
+        if has_conflict:
+            return True
+
+    return False
 
 
 def validate_preferences(preferences):
