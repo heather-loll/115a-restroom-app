@@ -17,41 +17,67 @@ import {
   LucideIcon,
 } from 'lucide-react-native';
 
+const submit = async () => {};
+
 function CleanlinessRanking() {
+  const [selected, setSelected] = useState<0 | 1 | 2 | 3>(0);
+
+  const selectedStyles = {
+    backgroundColor: '#00996620',
+    borderColor: '#009933',
+  };
+
+  // Border with styling is represented as an array
+  // Index 0 is the case that none are selected
+  // Indicies 1, 2, 3 are the cases that Filthy, Average, and Pristine are selected
+
   return (
     <View style={styles.cleanlinessContainer}>
       <Pressable
+        onPress={() => {
+          setSelected(selected === 1 ? 0 : 1);
+        }}
         style={[
           styles.cleanlinessOption,
           {
             borderLeftWidth: 2,
-            borderRightWidth: 1,
+            borderRightWidth: [1, 2, 0, 1][selected],
             borderTopLeftRadius: 11,
             borderBottomLeftRadius: 11,
           },
+          selected === 1 ? selectedStyles : {},
         ]}>
         <Germ />
         <Text>Filthy</Text>
       </Pressable>
       <Pressable
+        onPress={() => {
+          setSelected(selected === 2 ? 0 : 2);
+        }}
         style={[
           styles.cleanlinessOption,
-          { borderLeftWidth: 2, borderRightWidth: 0 },
+          {
+            borderLeftWidth: [1, 0, 2, 1][selected],
+            borderRightWidth: [1, 1, 2, 0][selected],
+          },
+          selected === 2 ? selectedStyles : {},
         ]}>
         <ThumbsUp />
         <Text>Average</Text>
       </Pressable>
       <Pressable
+        onPress={() => {
+          setSelected(selected === 3 ? 0 : 3);
+        }}
         style={[
           styles.cleanlinessOption,
           {
-            borderLeftWidth: 2,
+            borderLeftWidth: [1, 1, 0, 2][selected],
             borderRightWidth: 2,
             borderTopRightRadius: 11,
             borderBottomRightRadius: 11,
-            backgroundColor: '#00996620',
-            borderColor: '#009933',
           },
+          selected === 3 ? selectedStyles : {},
         ]}>
         <MopSparkles />
         <Text>Pristine</Text>
@@ -70,11 +96,7 @@ function ToggleCard(props: { label: string; icon: LucideIcon }) {
       <props.icon size={32} style={styles.cardIcon} />
       <Text style={styles.cardLabel}>{props.label}</Text>
 
-      <View
-        style={[
-          styles.cardCheckbox,
-          checked ? styles.cardCheckboxChecked : {},
-        ]}>
+      <View style={[styles.cardCheckbox, checked ? styles.cardCheckboxChecked : {}]}>
         {checked && <Check size={16} strokeWidth={3} color="white" />}
       </View>
     </Pressable>
@@ -120,7 +142,7 @@ export default function AddRestroomSheet(props: {
             <ToggleCard label="Changing Station" icon={Baby} />
           </View>
 
-          <Pressable style={styles.submitButton}>
+          <Pressable onClick={submit} style={styles.submitButton}>
             <Text style={styles.submitText}>Submit</Text>
             <ArrowRight size={24} style={styles.submitArrow} />
           </Pressable>
