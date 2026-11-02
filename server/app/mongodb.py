@@ -160,12 +160,14 @@ def find_nearest_restroom(latitude, longitude, radius_meters):
     collection = get_restrooms_collection()
     document = collection.find_one(
         {
-            "$near": {
-                "$geometry": {
-                    "type": "Point",
-                    "coordinates": [longitude, latitude],
-                },
-                "$maxDistance": radius_meters
+            "geometry": {
+                "$near": {
+                    "$geometry": {
+                        "type": "Point",
+                        "coordinates": [longitude, latitude],
+                    },
+                    "$maxDistance": radius_meters
+                }
             }
         }
     )

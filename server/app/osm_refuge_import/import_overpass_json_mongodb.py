@@ -51,8 +51,9 @@ for(feature) in main_json["features"]:
     address = address_from_osm(feature["properties"])
     osm_type = feature.get("type", "unknown")
     document = build_restroom_document(feature["properties"].get("name"), feature["geometry"]["coordinates"][1], feature["geometry"]["coordinates"][0], address, amenities)
-    #override user-generated ID with OSM ID
-    document["restroomId"] = f"osm-{osm_type}-{feature['id']}"
+    #use id number from osm, mark osm imported items with osm- prefix
+    id = feature['id'].split('/')[1]
+    document["restroomId"] = f"osm-{id}"
     filter = {
         "geometry": document["geometry"]
     }
