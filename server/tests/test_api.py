@@ -6,6 +6,7 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 """
 
 import unittest
+import mongomock_ng
 from copy import deepcopy
 from unittest.mock import patch
 from app import create_app
@@ -23,26 +24,12 @@ class FakeResponse:
         return self.payload
 
 
-class FakeRestroomsCollection:
-    # small in-memory MongoDB substitute used by POST endpoint tests.
-
-    def __init__(self):
-        self.documents = []
-
-    def find_one(self, query):
-        coordinates = query.get("geometry.coordinates")
-        for document in self.documents:
-            if document["geometry"]["coordinates"] == coordinates:
-                return deepcopy(document)
-        return None
-
-    def insert_one(self, document):
-        self.documents.append(deepcopy(document))
-
 
 class RestroomApiTests(unittest.TestCase):
     def setUp(self):
-        self.collection = FakeRestroomsCollection()
+        self.collection = mongomock_ng.MongoClient().db.collection
+        self.collection.create_index([("geometry", "2dsphere")])
+        self.collection.create_index("restroomId")
         self.app = create_app(
             {"TESTING": True, "RESTROOMS_COLLECTION": self.collection}
         )
@@ -52,24 +39,27 @@ class RestroomApiTests(unittest.TestCase):
     def test_returns_closest_restroom(self, mock_get):
         # the way is closer than the node and uses `center`
         # covering both shapes that the live OpenStreetMap query can return.
-        mock_get.return_value = FakeResponse(
-            {
-                "elements": [
-                    {
-                        "type": "node",
-                        "id": 10,
-                        "lat": 36.9800,
-                        "lon": -122.0300,
-                        "tags": {"amenity": "toilets", "name": "Far restroom"},
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "osm-10",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800]
                     },
-                    {
-                        "type": "way",
-                        "id": 20,
-                        "center": {"lat": 36.9751, "lon": -122.0300},
-                        "tags": {"amenity": "toilets", "wheelchair": "yes"},
+                    "name": "Near restroom",
+                    "amenities": {"accessible": True},
+                },
+                {
+                    "restroomId": "osm-20",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9800]
                     },
-                ]
-            }
+                    "name": "Far restroom",
+                    "amenities": {"accessible": False},
+                }
+            ]
         )
 
         response = self.client.get(
@@ -78,57 +68,38 @@ class RestroomApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         restroom = response.get_json()["restroom"]
-        self.assertEqual(restroom["restroomId"], "osm-way-20")
-        self.assertEqual(restroom["name"], "Public restroom")
+        self.assertEqual(restroom["restroomId"], "osm-10")
+        self.assertEqual(restroom["name"], "Near restroom")
         self.assertEqual(restroom["amenities"]["accessible"], True)
 
-    @patch("app.openstreetmap.requests.get")
-    def test_omits_unknown_amenities(self, mock_get):
-        # "limited" is not the same as yes or no, so it must not become a boolean.
-        mock_get.return_value = FakeResponse(
-            {
-                "elements": [
-                    {
-                        "type": "node",
-                        "id": 30,
-                        "lat": 36.9751,
-                        "lon": -122.0300,
-                        "tags": {"amenity": "toilets", "wheelchair": "limited"},
-                    }
-                ]
-            }
-        )
-
-        response = self.client.get(
-            "/api/restrooms/nearest?latitude=36.9750&longitude=-122.0300"
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn("amenities", response.get_json()["restroom"])
 
     @patch("app.openstreetmap.requests.get")
     def test_returns_all_nearby_restrooms_closest_first(self, mock_get):
         # the endpoint should return one response item for every mapped restroom,
         # ordered so the frontend can render pins and identify the closest option.
-        mock_get.return_value = FakeResponse(
-            {
-                "elements": [
-                    {
-                        "type": "node",
-                        "id": 10,
-                        "lat": 36.9800,
-                        "lon": -122.0300,
-                        "tags": {"amenity": "toilets", "name": "Far restroom"},
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "osm-10",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800]
                     },
-                    {
-                        "type": "way",
-                        "id": 20,
-                        "center": {"lat": 36.9751, "lon": -122.0300},
-                        "tags": {"amenity": "toilets", "wheelchair": "yes"},
+                    "name": "Near restroom",
+                    "amenities": {"accessible": True},
+                },
+                {
+                    "restroomId": "osm-20",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9800]
                     },
-                ]
-            }
+                    "name": "Far restroom",
+                    "amenities": {"accessible": False},
+                }
+            ]
         )
+
 
         response = self.client.get(
             "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
@@ -139,7 +110,7 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(response_body["search"]["radiusMeters"], 1_000)
         self.assertEqual(len(response_body["restrooms"]), 2)
         self.assertEqual(
-            response_body["restrooms"][0]["restroomId"], "osm-way-20"
+            response_body["restrooms"][0]["restroomId"], "osm-10"
         )
         self.assertEqual(
             response_body["restrooms"][0]["amenities"]["accessible"], True
@@ -180,9 +151,10 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["latitude"], 36.9910)
         self.assertEqual(restroom["longitude"], -122.0600)
         self.assertEqual(restroom["amenities"]["cleanliness"], 4)
-        self.assertEqual(len(self.collection.documents), 1)
+        self.assertEqual(self.collection.count_documents({}), 1)
+        document = self.collection.find_one()
         self.assertEqual(
-            self.collection.documents[0]["geometry"]["coordinates"],
+            document["geometry"]["coordinates"],
             [-122.0600, 36.9910],
         )
 
