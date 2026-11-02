@@ -1,10 +1,10 @@
 """
-Tests the restroom preference-ranking helper without flask, mongodb, or a
-live database. run with: `python -m unittest discover -s tests` in venv.
+Tests the restroom preference-ranking and preference-filtering helpers without flask,
+mongodb, or a live database. run with: `python -m unittest discover -s tests` in venv.
 """
 
 import unittest
-from app.preferences import prioritize_restrooms
+from app.preferences import filter_restrooms, prioritize_restrooms
 
 
 class preference_matching_tests(unittest.TestCase):
@@ -95,6 +95,83 @@ class preference_matching_tests(unittest.TestCase):
     def test_us_2_3_t_2_rejects_non_boolean_preference_values(self):
         with self.assertRaisesRegex(ValueError, "must be true or false"):
             prioritize_restrooms([], {"accessible": "yes"})
+
+    # a restroom with a known conflicting value does not fit the selected
+    # preference, so filtering removes it from the returned list.
+    def test_us_2_3_t_3_excludes_restrooms_with_confirmed_conflicts(self):
+        restrooms = [
+            {"restroomId": "match", "amenities": {"accessible": True}},
+            {"restroomId": "conflict", "amenities": {"accessible": False}},
+        ]
+
+        filtered_restrooms = filter_restrooms(restrooms, {"accessible": True})
+
+        restroom_ids = [restroom["restroomId"] for restroom in filtered_restrooms]
+        self.assertEqual(restroom_ids, ["match"])
+
+    # missing amenity information is unknown, so it must remain available
+    # instead of being treated as a confirmed conflict.
+    def test_us_2_3_t_3_keeps_restrooms_with_unknown_amenities(self):
+        restrooms = [
+            {"restroomId": "match", "amenities": {"accessible": True}},
+            {"restroomId": "unknown", "amenities": {}},
+        ]
+
+        filtered_restrooms = filter_restrooms(restrooms, {"accessible": True})
+
+        restroom_ids = [restroom["restroomId"] for restroom in filtered_restrooms]
+        self.assertEqual(restroom_ids, ["match", "unknown"])
+
+    # false is also a valid preference. a user who wants a free restroom can
+    # exclude restrooms known to require payment.
+    def test_us_2_3_t_3_excludes_conflicts_for_false_preferences(self):
+        restrooms = [
+            {"restroomId": "free", "amenities": {"paymentRequired": False}},
+            {"restroomId": "paid", "amenities": {"paymentRequired": True}},
+        ]
+
+        filtered_restrooms = filter_restrooms(
+            restrooms,
+            {"paymentRequired": False},
+        )
+
+        self.assertEqual(filtered_restrooms[0]["restroomId"], "free")
+        self.assertEqual(len(filtered_restrooms), 1)
+
+    # filtering removes conflicts without rearranging the restrooms that remain.
+    def test_us_2_3_t_3_preserves_original_order_of_remaining_restrooms(self):
+        restrooms = [
+            {"restroomId": "first-match", "amenities": {"accessible": True}},
+            {"restroomId": "remove", "amenities": {"accessible": False}},
+            {"restroomId": "unknown", "amenities": {}},
+            {"restroomId": "second-match", "amenities": {"accessible": True}},
+        ]
+
+        filtered_restrooms = filter_restrooms(restrooms, {"accessible": True})
+
+        restroom_ids = [restroom["restroomId"] for restroom in filtered_restrooms]
+        self.assertEqual(
+            restroom_ids,
+            ["first-match", "unknown", "second-match"],
+        )
+
+    # filtering can run before ranking, so confirmed conflicts are removed and
+    # confirmed matches are then placed before restrooms with unknown amenities.
+    def test_us_2_3_t_3_filters_before_prioritizing_restrooms(self):
+        restrooms = [
+            {"restroomId": "unknown", "amenities": {}},
+            {"restroomId": "conflict", "amenities": {"accessible": False}},
+            {"restroomId": "match", "amenities": {"accessible": True}},
+        ]
+
+        filtered_restrooms = filter_restrooms(restrooms, {"accessible": True})
+        prioritized_restrooms = prioritize_restrooms(
+            filtered_restrooms,
+            {"accessible": True},
+        )
+
+        restroom_ids = [restroom["restroomId"] for restroom in prioritized_restrooms]
+        self.assertEqual(restroom_ids, ["match", "unknown"])
 
 
 if __name__ == "__main__":
