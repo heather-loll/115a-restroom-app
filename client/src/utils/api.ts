@@ -21,20 +21,20 @@ const get = async <T = any>(endpoint: string, params: any): Promise<[T | null, E
   }
 };
 
-// const post = async (endpoint: string, body: any): Promise<[T | null, Error | null]> => {
-//   try {
-//     const response = await axios.post(`${BASE_URI}${endpoint}`, body);
-//     return [response.data, null];
-//   } catch (err) {
-//     console.error(err);
-//
-//     if (err instanceof Error) {
-//       return [null, err];
-//     }
-//
-//     return [null, new Error(String(err))];
-//   }
-// };
+const post = async <T = any>(endpoint: string, body: any): Promise<[T | null, Error | null]> => {
+  try {
+    const response = await axios.post(`${BASE_URI}${endpoint}`, body);
+    return [response.data, null];
+  } catch (err) {
+    console.error(err);
+
+    if (err instanceof Error) {
+      return [null, err];
+    }
+
+    return [null, new Error(String(err))];
+  }
+};
 
 // Style guide: All exported functions should begin with "API_" and then be camel cased
 // This makes it clear what is making API calls vs ordinary function calls
@@ -55,4 +55,22 @@ export const API_getRestrooms = async (
   }
 
   return data.restrooms;
+};
+
+export const API_submitRestroom = async (
+  longitude: number,
+  latitude: number,
+  amenities: AmenitiesList,
+): Promise<Restroom | null> => {
+  const [data, error] = await post<Restroom>('/restrooms', {
+    longitude,
+    latitude,
+    amenities,
+  });
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
 };
