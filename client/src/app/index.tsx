@@ -1,29 +1,29 @@
 import { useRef, useState } from 'react';
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import Map from "./Map"
-import BottomNav from "./BottomNav"
-import RestroomInfoSheet from "./RestroomInfoSheet"
+import Map from '../components/Map';
+import BottomNav from '../components/BottomNav';
+import RestroomInfoSheet from '../components/RestroomInfoSheet';
 
 const restrooms: Restroom[] = [
   {
     restroomId: 1,
-    name: "Front & Soquel Restrooms",
-    address: "315 Front Street, Santa Cruz, CA",
+    name: 'Front & Soquel Restrooms',
+    address: '315 Front Street, Santa Cruz, CA',
     latitude: 36.97326466616349,
     longitude: -122.02507860065315,
-    amenities: {}
+    amenities: {},
   },
   {
     restroomId: 2,
-    name: "Pleasure Pizza",
-    address: "1415 Pacific Ave, Santa Cruz, CA",
+    name: 'Pleasure Pizza',
+    address: '1415 Pacific Ave, Santa Cruz, CA',
     latitude: 36.975188,
     longitude: -122.026669,
-    amenities: {}
-  }
-]
+    amenities: {},
+  },
+];
 
 export default function Index() {
   const [activeRestroom, setActiveRestroom] = useState<Restroom | null>(null);
@@ -38,7 +38,10 @@ export default function Index() {
 
       <BottomNav />
 
-      <RestroomInfoSheet restroom={activeRestroom} setActiveRestroom={setActiveRestroom} />
+      <RestroomInfoSheet
+        restroom={activeRestroom}
+        setActiveRestroom={setActiveRestroom}
+      />
     </GestureHandlerRootView>
   );
 }
@@ -46,7 +49,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

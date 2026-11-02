@@ -1,5 +1,5 @@
-import { useRef, useState, Dispatch, SetStateAction, RefObject, useEffect } from 'react';
-import { Alert, StyleSheet } from "react-native";
+import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import MapView, { Marker, MapMarker } from 'react-native-maps';
 
 type PinState = {
@@ -7,7 +7,11 @@ type PinState = {
   restroom: Restroom | null;
 } | null;
 
-export default function Map(props: { points: Restroom[], activeRestroom: Restroom | null, setActiveRestroom: Dispatch<SetStateAction<Restroom | null>> }) {
+export default function Map(props: {
+  points: Restroom[];
+  activeRestroom: Restroom | null;
+  setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
+}) {
   const { points, activeRestroom, setActiveRestroom } = props;
 
   const mapRef = useRef<MapView>(null);
@@ -22,14 +26,16 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
     if (activePin?.restroom?.latitude === undefined) return;
 
     // Center map
-    mapRef.current?.animateCamera({
-      center: {
-        longitude: activePin?.restroom.longitude,
-        latitude: activePin?.restroom.latitude,
-      }
-    }, { duration: 1000 });
-
-  }, [activePin])
+    mapRef.current?.animateCamera(
+      {
+        center: {
+          longitude: activePin?.restroom.longitude,
+          latitude: activePin?.restroom.latitude,
+        },
+      },
+      { duration: 1000 },
+    );
+  }, [activePin]);
 
   const handleMarkerDismiss = () => {
     if (activePin?.markerId && markerRefs.current[activePin.markerId]) {
@@ -42,9 +48,9 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
   // If sheet is dismissed elsewhere, update the active map pin
   useEffect(() => {
     if (activeRestroom === null) {
-      handleMarkerDismiss()
+      handleMarkerDismiss();
     }
-  }, [activeRestroom])
+  }, [activeRestroom]);
 
   return (
     <MapView
@@ -67,25 +73,28 @@ export default function Map(props: { points: Restroom[], activeRestroom: Restroo
       onPress={handleMarkerDismiss}
       // googleMapId={ }
     >
-      {points.map((restroom) => {
+      {points.map(restroom => {
         const markerRef = useRef<MapMarker>(null);
         return (
           <Marker
-            ref={(e) => {
+            ref={e => {
               markerRefs.current[restroom.restroomId] = e;
             }}
-            coordinate={{ latitude: restroom.latitude, longitude: restroom.longitude }}
+            coordinate={{
+              latitude: restroom.latitude,
+              longitude: restroom.longitude,
+            }}
             pinColor="#009966"
-            onSelect={(e) => {
+            onSelect={e => {
               e.stopPropagation();
               setActivePin({ markerId: restroom.restroomId, restroom });
             }}
             key={restroom.restroomId}
           />
-        )
+        );
       })}
     </MapView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
