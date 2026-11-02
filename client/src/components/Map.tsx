@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import MapView, { Marker, MapMarker } from 'react-native-maps';
 
 type PinState = {
-  markerId: number | null;
+  markerId: string | null;
   restroom: Restroom | null;
 } | null;
 
@@ -54,6 +54,7 @@ export default function Map(props: {
 
   return (
     <MapView
+      key={`map-view-${points.length}`}
       ref={mapRef}
       style={styles.map}
       initialRegion={{
@@ -74,7 +75,6 @@ export default function Map(props: {
       // googleMapId={ }
     >
       {points.map(restroom => {
-        const markerRef = useRef<MapMarker>(null);
         return (
           <Marker
             ref={e => {

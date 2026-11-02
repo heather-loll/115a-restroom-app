@@ -1,17 +1,30 @@
-type Restroom = {
-  restroomId: number; // Can be changed to a string if needed
-  name: string;
-  address?: string;
+type Point = {
   latitude: number;
   longitude: number;
+};
 
-  amenities: { // Undefined if we have no data, don't assume true or false
-    cleanliness?: number;
-    paymentRequired?: boolean;
-    accessible?: boolean;
-    unisex?: boolean;
-    singleOccupancy?: boolean;
-    menstrualProductsAvailible?: boolean;
-    babyChangingStation?: boolean;
-  }
+interface Restroom extends Point {
+  restroomId: string;
+  name: string | null;
+  address?: string;
+  amenities: AmenitiesList;
+}
+
+type AmenitiesList = {
+  cleanliness?: number;
+  paymentRequired?: boolean;
+  accessible?: boolean;
+  unisex?: boolean;
+  singleOccupancy?: boolean;
+  menstrualProductsAvailible?: boolean;
+  babyChangingStation?: boolean;
+};
+
+interface GetRestroomsAPIResponse {
+  restrooms: Restroom[];
+  search: {
+    latitude: number;
+    longitude: number;
+    radiusMeters?: number;
+  };
 }
