@@ -115,6 +115,81 @@ class RestroomApiTests(unittest.TestCase):
             response_body["restrooms"][0]["amenities"]["accessible"], True
         )
 
+    def test_nearby_preferences_filter_conflicts_and_prioritize_matches(self):
+        # known conflicts are removed. among the restrooms that remain, a
+        # restroom matching both preferences is returned before a partial match
+        # and a restroom with unknown amenity information.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "partial-match",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                    "name": "Partial match restroom",
+                    "amenities": {"accessible": True},
+                },
+                {
+                    "restroomId": "full-match",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9801],
+                    },
+                    "name": "Full match restroom",
+                    "amenities": {"accessible": True, "unisex": True},
+                },
+                {
+                    "restroomId": "unknown",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0302, 36.9802],
+                    },
+                    "name": "Unknown restroom",
+                },
+                {
+                    "restroomId": "conflict",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0303, 36.9803],
+                    },
+                    "name": "Conflicting restroom",
+                    "amenities": {"accessible": False, "unisex": True},
+                },
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+            "&accessible=true&unisex=true"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        restroom_ids = [
+            restroom["restroomId"] for restroom in response.get_json()["restrooms"]
+        ]
+        self.assertEqual(restroom_ids, ["full-match", "partial-match", "unknown"])
+
+    def test_nearby_rejects_invalid_preference_query_parameter(self):
+        # preference values must be literal true or false, not arbitrary text.
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+            "&accessible=yes"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("accessible", response.get_json()["error"])
+
+    def test_nearby_rejects_unknown_preference_query_parameter(self):
+        # unsupported names should report a typo instead of being silently ignored.
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+            "&hasCoffee=true"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("hasCoffee", response.get_json()["error"])
+
     def test_rejects_missing_coordinates(self):
         response = self.client.get("/api/restrooms/nearest?latitude=36.9750")
 
