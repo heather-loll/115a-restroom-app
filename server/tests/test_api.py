@@ -1,7 +1,7 @@
 """
-Tests the restroom API without requiring live external services. OpenStreetMap and
-MongoDB are replaced with small fake objects, so tests stay fast and reliable. The
-tests check searches, user-submitted restrooms, validation, and duplicate handling.
+Tests the restroom API without requiring a live MongoDB server. MongoDB is replaced
+with a small fake collection, so tests stay fast and reliable. The tests check
+searches, user-submitted restrooms, validation, and duplicate handling.
 Run with: `python -m unittest discover -s tests` in the virtual environment.
 """
 
@@ -22,7 +22,6 @@ class FakeResponse:
 
     def json(self):
         return self.payload
-
 
 
 class RestroomApiTests(unittest.TestCase):

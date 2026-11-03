@@ -1,7 +1,7 @@
 """
-HTTP routes for the API. 
-/api/restrooms/nearest returns the closest OpenStreetMap restroom, 
-/api/restrooms/nearby returns nearby map pins, and 
+HTTP routes for the API.
+/api/restrooms/nearest returns the closest MongoDB restroom,
+/api/restrooms/nearby returns nearby map pins, optionally matched to preferences, and
 POST /api/restrooms saves a user-submitted restroom in MongoDB. 
 /api/health confirms that the backend is running. 
 This file defines the API URLs that the frontend can call.
@@ -19,6 +19,11 @@ from .mongodb import (
     edit_restroom,
     find_nearby_restrooms,
     find_nearest_restroom,
+)
+from .preferences import (
+    filter_restrooms,
+    preference_amenities,
+    prioritize_restrooms,
 )
 
 
@@ -63,6 +68,36 @@ def get_search_arguments():
         return None, error
 
     return (latitude, longitude, radius_meters), None
+
+
+def get_nearby_preferences():
+    # read optional boolean preferences from a nearby-restrooms URL.
+    # for example, `accessible=true` asks for accessible restrooms first.
+    search_parameter_names = {"latitude", "longitude", "radius_meters"}
+    preferences = {}
+
+    for parameter_name in request.args:
+        # coordinates and the search radius are handled separately above.
+        if parameter_name in search_parameter_names:
+            continue
+
+        # treating unexpected parameters as an error helps catch frontend typos.
+        if parameter_name not in preference_amenities:
+            return None, f"Unknown preference query parameter: '{parameter_name}'."
+
+        values = request.args.getlist(parameter_name)
+        if len(values) != 1:
+            return None, f"Query parameter '{parameter_name}' must be provided once."
+
+        value = values[0].strip().lower()
+        if value == "true":
+            preferences[parameter_name] = True
+        elif value == "false":
+            preferences[parameter_name] = False
+        else:
+            return None, f"Query parameter '{parameter_name}' must be true or false."
+
+    return preferences, None
 
 
 def search_metadata(latitude, longitude, radius_meters):
@@ -155,6 +190,7 @@ def get_new_restroom_data():
         "amenities": validated_amenities,
     }, None
 
+
 def get_amended_restroom_data():
     # validate the JSON body accepted by POST /api/restrooms/amend.
     # Just submits a restroomID and an updated name and amenities.
@@ -213,9 +249,10 @@ def health_check():
     # quick way to confirm that the Flask server is running.
     return jsonify({"status": "ok"})
 
+
 @api.get("/restrooms/nearest")
 def nearest_restroom():
-    # return the closest OpenStreetMap restroom to the supplied coordinates.
+    # return the closest MongoDB restroom to the supplied coordinates.
     # example: /api/restrooms/nearest?latitude=36.9749&longitude=-122.0308
     # radius_meters is optional and defaults to 1,000 meters.
     search_arguments, error = get_search_arguments()
@@ -242,18 +279,27 @@ def nearest_restroom():
 def nearby_restrooms():
     # return all nearby restroom pins in the agreed frontend JSON structure.
     # example: /api/restrooms/nearby?latitude=36.9749&longitude=-122.0308
-    # the optional radius_meters query parameter defaults to 1,000 meters.
+    # optional amenity preferences remove known conflicts and rank the remaining
+    # restrooms. the optional radius_meters parameter defaults to 1,000 meters.
     search_arguments, error = get_search_arguments()
     if error:
         return jsonify({"error": error}), 400
 
     latitude, longitude, radius_meters = search_arguments
+    preferences, error = get_nearby_preferences()
+    if error:
+        return jsonify({"error": error}), 400
 
     restrooms = find_nearby_restrooms(
         latitude=latitude,
         longitude=longitude,
         radius_meters=radius_meters
     )
+
+    # first remove restrooms known not to meet a selected preference. then rank
+    # confirmed matches before restrooms whose amenity information is unknown.
+    restrooms = filter_restrooms(restrooms, preferences)
+    restrooms = prioritize_restrooms(restrooms, preferences)
 
     return jsonify(
         {
@@ -281,6 +327,7 @@ def add_restroom():
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
     return jsonify({"restroom": restroom}), 201
+
 
 @api.post("/restrooms/amend")
 def amend_restroom():

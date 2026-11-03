@@ -40,7 +40,7 @@ def distance_in_meters(first_latitude, first_longitude, second_latitude, second_
 
 
 def format_restroom(element, user_latitude, user_longitude):
-    #don't have to do a lot of formatting since validation is done in the code to add restrooms
+    # don't have to do a lot of formatting since validation is done in the code to add restrooms.
 
     restroom = {
         # the source/type prefix makes an ID unique across OpenStreetMap record types.
@@ -141,6 +141,7 @@ def create_restroom(name, latitude, longitude, address, amenities):
 
     return document_to_restroom(document)
 
+
 def edit_restroom(restroomId, name, amenities):
     collection = get_restrooms_collection()
     document = collection.find_one(
@@ -155,6 +156,7 @@ def edit_restroom(restroomId, name, amenities):
         document["amenities"] = amenities
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
+
 
 def find_nearest_restroom(latitude, longitude, radius_meters):
     collection = get_restrooms_collection()
@@ -171,7 +173,7 @@ def find_nearest_restroom(latitude, longitude, radius_meters):
             }
         }
     )
-    #does the function actually return None if no restrooms are found?
+    # does the function actually return None if no restrooms are found?
     if document is None:
         return None
     return format_restroom(document, latitude, longitude)
