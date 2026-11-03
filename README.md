@@ -1,4 +1,9 @@
-# Restroom Finder App
+# Restroom Finder+
+
+## Project Documents
+
+[Restroom Finder+ Google Drive folder](https://drive.google.com/drive/u/1/folders/1H2LagVsONhPuw8UMwInsZ76GlX-lh1uF)  
+*Access is limited to UC Santa Cruz accounts.*
 
 ## Run Frontend Locally
 
@@ -33,9 +38,22 @@
 
 ## Run Backend Locally
 
-The Flask server supplies nearby restroom data from OpenStreetMap and saves
-user-submitted restrooms in MongoDB. It is separate from the Expo client so the
-Python backend can be built without mixing backend code into the React Native app.
+The Flask server supplies nearby restroom data from MongoDB and saves
+user-submitted restrooms there. It is separate from the Expo client so the Python
+backend can be built without mixing backend code into the React Native app.
+
+### Set Up Local MongoDB
+
+The API reads restroom data from MongoDB, so MongoDB must be installed and running
+before using the restroom endpoints.
+
+1. {To Do}
+1.
+1.
+
+The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
+`restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
+`MONGODB_RESTROOMS_COLLECTION` before starting Python to use different values.
 
 1. Open a terminal at the `115a-restroom-app` repository root
 1. `cd server`
@@ -63,8 +81,8 @@ example URL are not fixed: replace them with the location you want to search. La
 
 `radius_meters` is optional and defaults to 1000 (allowed range: 100 to 5000).
 For example, add `&radius_meters=500` to search within 500 meters. The response
-contains either the closest OpenStreetMap restroom or `"restroom": null` when
-none is found.
+contains either the closest restroom in MongoDB or `"restroom": null` when none
+is found.
 
 ### Nearby-restrooms Endpoint for Map Pins
 
@@ -77,22 +95,42 @@ but returns a `restrooms` list sorted from closest to farthest. The Expo map can
 create one pin for each item in that list. If no restroom is found, `restrooms`
 is an empty list (`[]`).
 
+#### Optional Preferences
+
+The map can optionally request restrooms that match a user's selected amenities.
+Add one or more boolean query parameters to the nearby-restrooms URL, such as:
+
+`&accessible=true&unisex=true`
+
+Supported preferences are `paymentRequired`, `accessible`, `unisex`,
+`singleOccupancy`, `menstrualProductsAvailable`, and `babyChangingStation`.
+Use only `true` or `false` as values. The endpoint removes restrooms with a known
+conflict, keeps restrooms with missing amenity data, and places confirmed matches
+first. Without preference parameters, the endpoint keeps its normal distance order.
+
 ### Add-restroom Endpoint
 
 `POST /api/restrooms` saves a user-submitted restroom in the local MongoDB
-`ToiletApp.restrooms` collection. Start MongoDB locally before calling this endpoint.
-The server uses `mongodb://localhost:27017` by default. Set `MONGODB_URI` to use a
-different database address.
+`ToiletApp.restrooms` collection.
 
-The request body needs a restroom name, latitude, and longitude. `address` and
-`amenities` are optional. The backend creates the `restroomId` and returns the
-saved restroom with HTTP status `201`.
+The request body needs a restroom name, latitude, and longitude. `amenities` is
+optional. The backend creates the `restroomId` and returns the saved restroom with
+HTTP status `201`. Address information is not stored yet, so clients should omit
+`address` for now.
 
 The accepted amenity names are `cleanliness` (a whole number from 1 to 5),
 `paymentRequired`, `accessible`, `unisex`, `singleOccupancy`,
 `menstrualProductsAvailable`, and `babyChangingStation`. All amenity values other
 than `cleanliness` must be `true` or `false`. A submission with coordinates already
 in the database returns HTTP status `409` instead of creating a duplicate.
+
+### Amend-restroom Endpoint
+
+`POST /api/restrooms/amend` updates the name and amenity information for a restroom
+that already exists in MongoDB. The request body must include `restroomId`, `name`,
+and optionally `amenities`, using the same amenity names and values as the
+add-restroom endpoint. The response contains the updated restroom with HTTP status
+`200`. An unknown `restroomId` returns HTTP status `409`.
 
 ### Stop the Backend
 
