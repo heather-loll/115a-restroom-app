@@ -1,4 +1,9 @@
-# Restroom Finder App
+# Restroom Finder+
+
+## Project Documents
+
+[Restroom Finder+ Google Drive folder](https://drive.google.com/drive/u/1/folders/1H2LagVsONhPuw8UMwInsZ76GlX-lh1uF)  
+*Access is limited to UC Santa Cruz accounts.*
 
 ## Run Frontend Locally
 
