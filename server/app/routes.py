@@ -1,16 +1,14 @@
 """
 HTTP routes for the API.
 /api/restrooms/nearest returns the closest MongoDB restroom,
-/api/restrooms/nearby returns nearby map pins, optionally matched to preferences, and
-POST /api/restrooms saves a user-submitted restroom in MongoDB. 
-/api/health confirms that the backend is running. 
+/api/restrooms/nearby returns nearby map pins optionally matched to preferences,
+POST /api/restrooms saves a user-submitted restroom in MongoDB, and
+POST /api/restrooms/amend updates an existing restroom in MongoDB.
+/api/health confirms that the backend is running.
 This file defines the API URLs that the frontend can call.
 """
 
-from flask import Blueprint, current_app, jsonify, request
-from .openstreetmap import (
-    OpenStreetMapError,
-)
+from flask import Blueprint, jsonify, request
 from .mongodb import (
     MongoDatabaseError,
     RestroomAlreadyExistsError,
@@ -185,7 +183,7 @@ def get_new_restroom_data():
         "name": name,
         "latitude": latitude,
         "longitude": longitude,
-        #no address for now until we figure out how we want to validate it
+        # address is not stored until the team chooses a structured address format.
         "address": None,
         "amenities": validated_amenities,
     }, None
@@ -193,7 +191,7 @@ def get_new_restroom_data():
 
 def get_amended_restroom_data():
     # validate the JSON body accepted by POST /api/restrooms/amend.
-    # Just submits a restroomID and an updated name and amenities.
+    # the frontend submits a restroomId and its updated name and amenities.
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return None, "Request body must be a JSON object."
@@ -331,9 +329,7 @@ def add_restroom():
 
 @api.post("/restrooms/amend")
 def amend_restroom():
-    # save a user-submitted restroom in MongoDB.
-    # The request body uses the shared Restroom fields except restroomId and
-    # distanceMeters, because the server creates the ID and no search occurred.
+    # update an existing restroom's name and optional amenity information.
     restroom_data, error = get_amended_restroom_data()
 
     if error:

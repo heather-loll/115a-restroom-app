@@ -37,9 +37,18 @@ The Flask server supplies nearby restroom data from MongoDB and saves
 user-submitted restrooms there. It is separate from the Expo client so the Python
 backend can be built without mixing backend code into the React Native app.
 
-Start MongoDB locally before making a restroom API request. The server uses the
-local address `mongodb://localhost:27017` by default. Set `MONGODB_URI` if the
-database uses a different address.
+### Set Up Local MongoDB
+
+The API reads restroom data from MongoDB, so MongoDB must be installed and running
+before using the restroom endpoints.
+
+1. {To Do}
+1.
+1.
+
+The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
+`restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
+`MONGODB_RESTROOMS_COLLECTION` before starting Python to use different values.
 
 1. Open a terminal at the `115a-restroom-app` repository root
 1. `cd server`
@@ -99,15 +108,24 @@ first. Without preference parameters, the endpoint keeps its normal distance ord
 `POST /api/restrooms` saves a user-submitted restroom in the local MongoDB
 `ToiletApp.restrooms` collection.
 
-The request body needs a restroom name, latitude, and longitude. `address` and
-`amenities` are optional. The backend creates the `restroomId` and returns the
-saved restroom with HTTP status `201`.
+The request body needs a restroom name, latitude, and longitude. `amenities` is
+optional. The backend creates the `restroomId` and returns the saved restroom with
+HTTP status `201`. Address information is not stored yet, so clients should omit
+`address` for now.
 
 The accepted amenity names are `cleanliness` (a whole number from 1 to 5),
 `paymentRequired`, `accessible`, `unisex`, `singleOccupancy`,
 `menstrualProductsAvailable`, and `babyChangingStation`. All amenity values other
 than `cleanliness` must be `true` or `false`. A submission with coordinates already
 in the database returns HTTP status `409` instead of creating a duplicate.
+
+### Amend-restroom Endpoint
+
+`POST /api/restrooms/amend` updates the name and amenity information for a restroom
+that already exists in MongoDB. The request body must include `restroomId`, `name`,
+and optionally `amenities`, using the same amenity names and values as the
+add-restroom endpoint. The response contains the updated restroom with HTTP status
+`200`. An unknown `restroomId` returns HTTP status `409`.
 
 ### Stop the Backend
 

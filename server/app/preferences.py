@@ -2,7 +2,7 @@
 Removes restrooms with a confirmed amenity conflict, and 
 keeps restrooms with missing/unknown amenity data. Also 
 ranks restrooms using the amenity preferences selected by a user.
-This does not access flask or mongodb, so a route can use it later
+This does not access flask or mongodb, so an API route can reuse it
 without duplicating the matching rules or changing the stored restroom data.
 """
 
@@ -23,7 +23,7 @@ preference_amenities = frozenset(
 
 def prioritize_restrooms(restrooms, preferences):
     # return a new ordered list without changing the original restroom list.
-    # this lets the future nearby endpoint preserve its distance ordering when
+    # this lets the nearby endpoint preserve its distance ordering when
     # two restrooms have the same preference priority.
     validated_preferences = validate_preferences(preferences)
 
@@ -64,9 +64,8 @@ def has_known_preference_conflict(restroom, preferences):
 
 
 def validate_preferences(preferences):
-    # make sure the future frontend only sends supported boolean preferences.
-    # route code can show these messages to the frontend if it later accepts
-    # preferences as query parameters or a json request body.
+    # make sure the frontend only sends supported boolean preferences.
+    # route code can return these messages for invalid query parameters or JSON.
     if not isinstance(preferences, dict):
         raise ValueError("Preferences must be a dictionary.")
 

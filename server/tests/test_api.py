@@ -7,21 +7,7 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 
 import unittest
 import mongomock_ng
-from copy import deepcopy
-from unittest.mock import patch
 from app import create_app
-
-
-class FakeResponse:
-    # minimal stand-in for a successful requests response.
-    def __init__(self, payload):
-        self.payload = payload
-
-    def raise_for_status(self):
-        return None
-
-    def json(self):
-        return self.payload
 
 
 class RestroomApiTests(unittest.TestCase):
@@ -34,10 +20,8 @@ class RestroomApiTests(unittest.TestCase):
         )
         self.client = self.app.test_client()
 
-    @patch("app.openstreetmap.requests.get")
-    def test_returns_closest_restroom(self, mock_get):
-        # the way is closer than the node and uses `center`
-        # covering both shapes that the live OpenStreetMap query can return.
+    def test_returns_closest_restroom(self):
+        # two database documents at different coordinates verify the nearest search.
         self.collection.insert_many(
             [
                 {
@@ -72,8 +56,7 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["amenities"]["accessible"], True)
 
 
-    @patch("app.openstreetmap.requests.get")
-    def test_returns_all_nearby_restrooms_closest_first(self, mock_get):
+    def test_returns_all_nearby_restrooms_closest_first(self):
         # the endpoint should return one response item for every mapped restroom,
         # ordered so the frontend can render pins and identify the closest option.
         self.collection.insert_many(
@@ -258,6 +241,34 @@ class RestroomApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("name", response.get_json()["error"])
+
+    def test_amends_an_existing_restroom(self):
+        # create one record first, then verify amend returns and stores its changes.
+        create_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "Original restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+                "amenities": {"accessible": True},
+            },
+        )
+        restroom_id = create_response.get_json()["restroom"]["restroomId"]
+
+        response = self.client.post(
+            "/api/restrooms/amend",
+            json={
+                "restroomId": restroom_id,
+                "name": "Updated restroom",
+                "amenities": {"accessible": False, "singleOccupancy": True},
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        restroom = response.get_json()["restroom"]
+        self.assertEqual(restroom["name"], "Updated restroom")
+        self.assertEqual(restroom["amenities"]["accessible"], False)
+        self.assertEqual(restroom["amenities"]["singleOccupancy"], True)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,7 @@
 """
-MongoDB access for user-submitted restrooms.
-This keeps database code outside Flask route functions. The routes validate
-HTTP input, while these functions check for duplicate coordinates and save valid
-restroom documents in MongoDB.
+MongoDB access for restroom data.
+This keeps database code outside Flask route functions. The routes validate HTTP
+input, while these functions search, create, and update restroom documents.
 """
 
 from uuid import uuid4
@@ -40,7 +39,7 @@ def distance_in_meters(first_latitude, first_longitude, second_latitude, second_
 
 
 def format_restroom(element, user_latitude, user_longitude):
-    # don't have to do a lot of formatting since validation is done in the code to add restrooms.
+    # add distance data while keeping the shared frontend Restroom JSON structure.
 
     restroom = {
         # the source/type prefix makes an ID unique across OpenStreetMap record types.
@@ -59,12 +58,8 @@ def format_restroom(element, user_latitude, user_longitude):
 
 def get_restrooms_collection():
     # return the configured restroom collection.
-    # leftover from the old MongoDB code since creating a collection on each function call causes a weird crash
-    """
-    Tests provide an in-memory fake collection through the app configuration.
-    During normal use, this function creates a MongoDB client from environment
-    configuration only when a database operation is needed.
-    """
+    # tests provide an in-memory fake collection through app configuration.
+    # during normal use, this creates a client only when an operation needs one.
     test_collection = current_app.config.get("RESTROOMS_COLLECTION")
     if test_collection is not None:
         return test_collection
@@ -143,6 +138,7 @@ def create_restroom(name, latitude, longitude, address, amenities):
 
 
 def edit_restroom(restroomId, name, amenities):
+    # update a known restroom and return its shared frontend JSON shape.
     collection = get_restrooms_collection()
     document = collection.find_one(
         {
@@ -173,7 +169,7 @@ def find_nearest_restroom(latitude, longitude, radius_meters):
             }
         }
     )
-    # does the function actually return None if no restrooms are found?
+    # a search with no database match returns None for the API response.
     if document is None:
         return None
     return format_restroom(document, latitude, longitude)
