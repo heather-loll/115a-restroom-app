@@ -19,72 +19,65 @@ import {
 
 const submit = async () => {};
 
+const BORDER = 2;
+
+// [none, filthy, average, pristine] selected
+const BORDERS = {
+  filthy: { left: [2, 2, 2, 2], right: [1, 2, 0, 1] },
+  average: { left: [1, 0, 2, 1], right: [1, 1, 2, 0] },
+  pristine: { left: [1, 1, 0, 2], right: [2, 2, 2, 2] },
+} as const;
+
 function CleanlinessRanking() {
   const [selected, setSelected] = useState<0 | 1 | 2 | 3>(0);
 
-  const selectedStyles = {
-    backgroundColor: '#00996620',
-    borderColor: '#009933',
-  };
-
-  // Border with styling is represented as an array
-  // Index 0 is the case that none are selected
-  // Indicies 1, 2, 3 are the cases that Filthy, Average, and Pristine are selected
+  const options = [
+    { id: 1, key: 'filthy', label: 'Filthy', Icon: Germ },
+    { id: 2, key: 'average', label: 'Average', Icon: ThumbsUp },
+    { id: 3, key: 'pristine', label: 'Pristine', Icon: MopSparkles },
+  ] as const;
 
   return (
     <View style={styles.cleanlinessContainer}>
-      <Pressable
-        onPress={() => {
-          setSelected(selected === 1 ? 0 : 1);
-        }}
-        style={[
-          styles.cleanlinessOption,
-          {
-            borderLeftWidth: 2,
-            borderRightWidth: [1, 2, 0, 1][selected],
-            borderTopLeftRadius: 11,
-            borderBottomLeftRadius: 11,
-          },
-          selected === 1 ? selectedStyles : {},
-        ]}>
-        <Germ />
-        <Text>Filthy</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => {
-          setSelected(selected === 2 ? 0 : 2);
-        }}
-        style={[
-          styles.cleanlinessOption,
-          {
-            borderLeftWidth: [1, 0, 2, 1][selected],
-            borderRightWidth: [1, 1, 2, 0][selected],
-          },
-          selected === 2 ? selectedStyles : {},
-        ]}>
-        <ThumbsUp />
-        <Text>Average</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => {
-          setSelected(selected === 3 ? 0 : 3);
-        }}
-        style={[
-          styles.cleanlinessOption,
-          {
-            borderLeftWidth: [1, 1, 0, 2][selected],
-            borderRightWidth: 2,
-            borderTopRightRadius: 11,
-            borderBottomRightRadius: 11,
-          },
-          selected === 3 ? selectedStyles : {},
-        ]}>
-        <MopSparkles />
-        <Text>Pristine</Text>
-      </Pressable>
+      {options.map(({ id, key, label, Icon }, i) => {
+        const left = BORDERS[key].left[selected];
+        const right = BORDERS[key].right[selected];
+
+        return (
+          <Pressable
+            key={id}
+            onPress={() => setSelected(selected === id ? 0 : id)}
+            style={[
+              styles.cleanlinessOption,
+              {
+                borderLeftWidth: left,
+                borderRightWidth: right,
+                paddingLeft: BORDER - left,
+                paddingRight: BORDER - right,
+              },
+              i === 0 && {
+                borderTopLeftRadius: 11,
+                borderBottomLeftRadius: 11,
+              },
+              i === options.length - 1 && {
+                borderTopRightRadius: 11,
+                borderBottomRightRadius: 11,
+              },
+              selected === id && selectedStyles,
+            ]}>
+            <Icon />
+            <Text>{label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
+
+const selectedStyles = {
+  backgroundColor: '#00996620',
+  borderColor: '#009933',
+};
 
 function ToggleCard(props: { label: string; icon: LucideIcon }) {
   const [checked, setChecked] = useState(false);
@@ -258,7 +251,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderBottomWidth: 2,
     borderColor: '#dddddd',
-    width: '33%',
+    flex: 1,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
