@@ -17,48 +17,67 @@ import {
   LucideIcon,
 } from 'lucide-react-native';
 
+const submit = async () => {};
+
+const BORDER = 2;
+
+// [none, filthy, average, pristine] selected
+const BORDERS = {
+  filthy: { left: [2, 2, 2, 2], right: [1, 2, 0, 1] },
+  average: { left: [1, 0, 2, 1], right: [1, 1, 2, 0] },
+  pristine: { left: [1, 1, 0, 2], right: [2, 2, 2, 2] },
+} as const;
+
 function CleanlinessRanking() {
+  const [selected, setSelected] = useState<0 | 1 | 2 | 3>(0);
+
+  const options = [
+    { id: 1, key: 'filthy', label: 'Filthy', Icon: Germ },
+    { id: 2, key: 'average', label: 'Average', Icon: ThumbsUp },
+    { id: 3, key: 'pristine', label: 'Pristine', Icon: MopSparkles },
+  ] as const;
+
   return (
     <View style={styles.cleanlinessContainer}>
-      <Pressable
-        style={[
-          styles.cleanlinessOption,
-          {
-            borderLeftWidth: 2,
-            borderRightWidth: 1,
-            borderTopLeftRadius: 11,
-            borderBottomLeftRadius: 11,
-          },
-        ]}>
-        <Germ />
-        <Text>Filthy</Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.cleanlinessOption,
-          { borderLeftWidth: 2, borderRightWidth: 0 },
-        ]}>
-        <ThumbsUp />
-        <Text>Average</Text>
-      </Pressable>
-      <Pressable
-        style={[
-          styles.cleanlinessOption,
-          {
-            borderLeftWidth: 2,
-            borderRightWidth: 2,
-            borderTopRightRadius: 11,
-            borderBottomRightRadius: 11,
-            backgroundColor: '#00996620',
-            borderColor: '#009933',
-          },
-        ]}>
-        <MopSparkles />
-        <Text>Pristine</Text>
-      </Pressable>
+      {options.map(({ id, key, label, Icon }, i) => {
+        const left = BORDERS[key].left[selected];
+        const right = BORDERS[key].right[selected];
+
+        return (
+          <Pressable
+            key={id}
+            onPress={() => setSelected(selected === id ? 0 : id)}
+            style={[
+              styles.cleanlinessOption,
+              {
+                borderLeftWidth: left,
+                borderRightWidth: right,
+                paddingLeft: BORDER - left,
+                paddingRight: BORDER - right,
+              },
+              i === 0 && {
+                borderTopLeftRadius: 11,
+                borderBottomLeftRadius: 11,
+              },
+              i === options.length - 1 && {
+                borderTopRightRadius: 11,
+                borderBottomRightRadius: 11,
+              },
+              selected === id && selectedStyles,
+            ]}>
+            <Icon />
+            <Text>{label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
+
+const selectedStyles = {
+  backgroundColor: '#00996620',
+  borderColor: '#009933',
+};
 
 function ToggleCard(props: { label: string; icon: LucideIcon }) {
   const [checked, setChecked] = useState(false);
@@ -70,11 +89,7 @@ function ToggleCard(props: { label: string; icon: LucideIcon }) {
       <props.icon size={32} style={styles.cardIcon} />
       <Text style={styles.cardLabel}>{props.label}</Text>
 
-      <View
-        style={[
-          styles.cardCheckbox,
-          checked ? styles.cardCheckboxChecked : {},
-        ]}>
+      <View style={[styles.cardCheckbox, checked ? styles.cardCheckboxChecked : {}]}>
         {checked && <Check size={16} strokeWidth={3} color="white" />}
       </View>
     </Pressable>
@@ -120,7 +135,7 @@ export default function AddRestroomSheet(props: {
             <ToggleCard label="Changing Station" icon={Baby} />
           </View>
 
-          <Pressable style={styles.submitButton}>
+          <Pressable onClick={submit} style={styles.submitButton}>
             <Text style={styles.submitText}>Submit</Text>
             <ArrowRight size={24} style={styles.submitArrow} />
           </Pressable>
@@ -236,7 +251,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderBottomWidth: 2,
     borderColor: '#dddddd',
-    width: '33%',
+    flex: 1,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
