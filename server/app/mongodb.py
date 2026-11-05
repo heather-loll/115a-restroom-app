@@ -53,7 +53,18 @@ def format_restroom(element, user_latitude, user_longitude):
         "amenities": element.get("amenities", {}),
     }
 
+    add_location_details(restroom, element)
+
     return restroom
+
+
+def add_location_details(restroom, document):
+    # copy optional building-location details only when the database has them.
+    # this keeps older imported restroom records compatible with the API shape.
+    for field_name in ("floor", "directions"):
+        value = document.get(field_name)
+        if value is not None:
+            restroom[field_name] = value
 
 
 def get_restrooms_collection():
@@ -124,6 +135,7 @@ def document_to_restroom(document):
         restroom["address"] = document["address"]
     if document.get("amenities"):
         restroom["amenities"] = document["amenities"]
+    add_location_details(restroom, document)
 
     return restroom
 
