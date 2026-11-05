@@ -53,7 +53,18 @@ def format_restroom(element, user_latitude, user_longitude):
         "amenities": element.get("amenities", {}),
     }
 
+    add_location_details(restroom, element)
+
     return restroom
+
+
+def add_location_details(restroom, document):
+    # copy optional building-location details only when the database has them.
+    # this keeps older imported restroom records compatible with the API shape.
+    for field_name in ("floor", "directions"):
+        value = document.get(field_name)
+        if value is not None:
+            restroom[field_name] = value
 
 
 def get_restrooms_collection():
@@ -72,7 +83,15 @@ def get_restrooms_collection():
     return database[current_app.config["MONGODB_RESTROOMS_COLLECTION"]]
 
 
-def build_restroom_document(name, latitude, longitude, address, amenities):
+def build_restroom_document(
+    name,
+    latitude,
+    longitude,
+    address,
+    amenities,
+    floor=None,
+    directions=None,
+):
     # create one MongoDB document from already validated frontend data.
     document = {
         # a generated string ID works with the shared frontend Restroom type and
@@ -91,6 +110,12 @@ def build_restroom_document(name, latitude, longitude, address, amenities):
         document["address"] = address
     if amenities:
         document["amenities"] = amenities
+    # these optional details help users locate a restroom inside a large building.
+    # exclude missing values so older and imported restroom documents stay compatible.
+    if floor is not None:
+        document["floor"] = floor
+    if directions is not None:
+        document["directions"] = directions
 
     return document
 
@@ -110,14 +135,31 @@ def document_to_restroom(document):
         restroom["address"] = document["address"]
     if document.get("amenities"):
         restroom["amenities"] = document["amenities"]
+    add_location_details(restroom, document)
 
     return restroom
 
 
-def create_restroom(name, latitude, longitude, address, amenities):
+def create_restroom(
+    name,
+    latitude,
+    longitude,
+    address,
+    amenities,
+    floor=None,
+    directions=None,
+):
     # save a new user-submitted restroom unless its coordinates already exist.
     collection = get_restrooms_collection()
-    document = build_restroom_document(name, latitude, longitude, address, amenities)
+    document = build_restroom_document(
+        name,
+        latitude,
+        longitude,
+        address,
+        amenities,
+        floor=floor,
+        directions=directions,
+    )
     coordinates = document["geometry"]["coordinates"]
 
     try:
@@ -137,7 +179,7 @@ def create_restroom(name, latitude, longitude, address, amenities):
     return document_to_restroom(document)
 
 
-def edit_restroom(restroomId, name, amenities):
+def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
     # update a known restroom and return its shared frontend JSON shape.
     collection = get_restrooms_collection()
     document = collection.find_one(
@@ -150,6 +192,11 @@ def edit_restroom(restroomId, name, amenities):
     document["name"] = name
     if amenities:
         document["amenities"] = amenities
+    # excluded location details leave previously saved information unchanged.
+    if floor is not None:
+        document["floor"] = floor
+    if directions is not None:
+        document["directions"] = directions
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
 

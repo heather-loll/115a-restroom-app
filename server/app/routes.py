@@ -121,6 +121,25 @@ def get_json_number(data, name, minimum, maximum):
     return value, None
 
 
+def get_optional_text(data, name, maximum_length):
+    # read an optional short text field from a JSON request body.
+    # this accepts plain text only and keeps stored location details concise.
+    value = data.get(name)
+    if value is None:
+        return None, None
+
+    if not isinstance(value, str) or not value.strip():
+        return None, f"JSON field '{name}' must be a non-empty string when provided."
+
+    value = value.strip()
+    if len(value) > maximum_length:
+        return None, (
+            f"JSON field '{name}' must be {maximum_length} characters or fewer."
+        )
+
+    return value, None
+
+
 def get_new_restroom_data():
     # validate the JSON body accepted by POST /api/restrooms.
     # The frontend submits user-entered data without an ID or distance.
@@ -141,6 +160,16 @@ def get_new_restroom_data():
         return None, error
 
     longitude, error = get_json_number(data, "longitude", -180, 180)
+    if error:
+        return None, error
+
+    # floors can use labels such as "B1", "1", or "Roof".
+    floor, error = get_optional_text(data, "floor", 5)
+    if error:
+        return None, error
+
+    # directions help locate a restroom inside a large building.
+    directions, error = get_optional_text(data, "directions", 300)
     if error:
         return None, error
 
@@ -186,6 +215,8 @@ def get_new_restroom_data():
         # address is not stored until the team chooses a structured address format.
         "address": None,
         "amenities": validated_amenities,
+        "floor": floor,
+        "directions": directions,
     }, None
 
 
@@ -207,6 +238,14 @@ def get_amended_restroom_data():
     if not isinstance(id, str) or not id.strip():
         return None, "JSON field 'restroomId' must be a non-empty string."
     id = id.strip()
+
+    floor, error = get_optional_text(data, "floor", 5)
+    if error:
+        return None, error
+
+    directions, error = get_optional_text(data, "directions", 300)
+    if error:
+        return None, error
 
     amenities = data.get("amenities", {})
     if not isinstance(amenities, dict):
@@ -239,6 +278,8 @@ def get_amended_restroom_data():
         "restroomId": id,
         "name": name,
         "amenities": validated_amenities,
+        "floor": floor,
+        "directions": directions,
     }, None
 
 
