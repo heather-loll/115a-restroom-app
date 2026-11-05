@@ -167,7 +167,7 @@ def create_restroom(
     return document_to_restroom(document)
 
 
-def edit_restroom(restroomId, name, amenities):
+def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
     # update a known restroom and return its shared frontend JSON shape.
     collection = get_restrooms_collection()
     document = collection.find_one(
@@ -180,6 +180,11 @@ def edit_restroom(restroomId, name, amenities):
     document["name"] = name
     if amenities:
         document["amenities"] = amenities
+    # excluded location details leave previously saved information unchanged.
+    if floor is not None:
+        document["floor"] = floor
+    if directions is not None:
+        document["directions"] = directions
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
 
