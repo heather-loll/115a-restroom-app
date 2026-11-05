@@ -32,6 +32,8 @@ class RestroomApiTests(unittest.TestCase):
                     },
                     "name": "Near restroom",
                     "amenities": {"accessible": True},
+                    "floor": "2",
+                    "directions": "Near the elevators.",
                 },
                 {
                     "restroomId": "osm-20",
@@ -54,6 +56,8 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["restroomId"], "osm-10")
         self.assertEqual(restroom["name"], "Near restroom")
         self.assertEqual(restroom["amenities"]["accessible"], True)
+        self.assertEqual(restroom["floor"], "2")
+        self.assertEqual(restroom["directions"], "Near the elevators.")
 
 
     def test_returns_all_nearby_restrooms_closest_first(self):
@@ -69,6 +73,8 @@ class RestroomApiTests(unittest.TestCase):
                     },
                     "name": "Near restroom",
                     "amenities": {"accessible": True},
+                    "floor": "1",
+                    "directions": "Enter through the main lobby.",
                 },
                 {
                     "restroomId": "osm-20",
@@ -96,6 +102,11 @@ class RestroomApiTests(unittest.TestCase):
         )
         self.assertEqual(
             response_body["restrooms"][0]["amenities"]["accessible"], True
+        )
+        self.assertEqual(response_body["restrooms"][0]["floor"], "1")
+        self.assertEqual(
+            response_body["restrooms"][0]["directions"],
+            "Enter through the main lobby.",
         )
 
     def test_nearby_preferences_filter_conflicts_and_prioritize_matches(self):
@@ -193,6 +204,8 @@ class RestroomApiTests(unittest.TestCase):
                 "address": "1156 High St, Santa Cruz, CA",
                 "latitude": 36.9910,
                 "longitude": -122.0600,
+                "floor": "B1",
+                "directions": "Go downstairs from the main entrance.",
                 "amenities": {
                     "accessible": True,
                     "singleOccupancy": True,
@@ -207,12 +220,22 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["name"], "New Campus Restroom")
         self.assertEqual(restroom["latitude"], 36.9910)
         self.assertEqual(restroom["longitude"], -122.0600)
+        self.assertEqual(restroom["floor"], "B1")
+        self.assertEqual(
+            restroom["directions"],
+            "Go downstairs from the main entrance.",
+        )
         self.assertEqual(restroom["amenities"]["cleanliness"], 4)
         self.assertEqual(self.collection.count_documents({}), 1)
         document = self.collection.find_one()
         self.assertEqual(
             document["geometry"]["coordinates"],
             [-122.0600, 36.9910],
+        )
+        self.assertEqual(document["floor"], "B1")
+        self.assertEqual(
+            document["directions"],
+            "Go downstairs from the main entrance.",
         )
 
     def test_rejects_duplicate_restroom_coordinates(self):
@@ -242,6 +265,33 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("name", response.get_json()["error"])
 
+    def test_rejects_invalid_floor_and_directions(self):
+        # floor and directions are optional, but supplied values must be valid
+        # short text so they are useful and safe to display in the app.
+        invalid_floor_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "Invalid floor restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+                "floor": 2,
+            },
+        )
+        long_directions_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "Long directions restroom",
+                "latitude": 36.9920,
+                "longitude": -122.0600,
+                "directions": "a" * 301,
+            },
+        )
+
+        self.assertEqual(invalid_floor_response.status_code, 400)
+        self.assertIn("floor", invalid_floor_response.get_json()["error"])
+        self.assertEqual(long_directions_response.status_code, 400)
+        self.assertIn("directions", long_directions_response.get_json()["error"])
+
     def test_amends_an_existing_restroom(self):
         # create one record first, then verify amend returns and stores its changes.
         create_response = self.client.post(
@@ -261,6 +311,8 @@ class RestroomApiTests(unittest.TestCase):
                 "restroomId": restroom_id,
                 "name": "Updated restroom",
                 "amenities": {"accessible": False, "singleOccupancy": True},
+                "floor": "3",
+                "directions": "At the end of the north hallway.",
             },
         )
 
@@ -269,6 +321,17 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["name"], "Updated restroom")
         self.assertEqual(restroom["amenities"]["accessible"], False)
         self.assertEqual(restroom["amenities"]["singleOccupancy"], True)
+        self.assertEqual(restroom["floor"], "3")
+        self.assertEqual(
+            restroom["directions"],
+            "At the end of the north hallway.",
+        )
+        document = self.collection.find_one({"restroomId": restroom_id})
+        self.assertEqual(document["floor"], "3")
+        self.assertEqual(
+            document["directions"],
+            "At the end of the north hallway.",
+        )
 
 
 if __name__ == "__main__":

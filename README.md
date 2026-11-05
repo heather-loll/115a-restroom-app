@@ -118,6 +118,11 @@ optional. The backend creates the `restroomId` and returns the saved restroom wi
 HTTP status `201`. Address information is not stored yet, so clients should omit
 `address` for now.
 
+`floor` and `directions` are also optional. Use `floor` for a short label such as
+`B1`, `1`, or `2`, and use `directions` for a short description of where the
+restroom is inside a building. Floors are limited to 20 characters and directions
+are limited to 300 characters.
+
 The accepted amenity names are `cleanliness` (a whole number from 1 to 5),
 `paymentRequired`, `accessible`, `unisex`, `singleOccupancy`,
 `menstrualProductsAvailable`, and `babyChangingStation`. All amenity values other
@@ -129,8 +134,9 @@ in the database returns HTTP status `409` instead of creating a duplicate.
 `POST /api/restrooms/amend` updates the name and amenity information for a restroom
 that already exists in MongoDB. The request body must include `restroomId`, `name`,
 and optionally `amenities`, using the same amenity names and values as the
-add-restroom endpoint. The response contains the updated restroom with HTTP status
-`200`. An unknown `restroomId` returns HTTP status `409`.
+add-restroom endpoint. Optional `floor` and `directions` values can also be sent
+to update location details. The response contains the updated restroom with HTTP
+status `200`. An unknown `restroomId` returns HTTP status `409`.
 
 ### Stop the Backend
 
