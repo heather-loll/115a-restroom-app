@@ -72,7 +72,15 @@ def get_restrooms_collection():
     return database[current_app.config["MONGODB_RESTROOMS_COLLECTION"]]
 
 
-def build_restroom_document(name, latitude, longitude, address, amenities):
+def build_restroom_document(
+    name,
+    latitude,
+    longitude,
+    address,
+    amenities,
+    floor=None,
+    directions=None,
+):
     # create one MongoDB document from already validated frontend data.
     document = {
         # a generated string ID works with the shared frontend Restroom type and
@@ -91,6 +99,12 @@ def build_restroom_document(name, latitude, longitude, address, amenities):
         document["address"] = address
     if amenities:
         document["amenities"] = amenities
+    # these optional details help users locate a restroom inside a large building.
+    # exclude missing values so older and imported restroom documents stay compatible.
+    if floor is not None:
+        document["floor"] = floor
+    if directions is not None:
+        document["directions"] = directions
 
     return document
 
@@ -114,10 +128,26 @@ def document_to_restroom(document):
     return restroom
 
 
-def create_restroom(name, latitude, longitude, address, amenities):
+def create_restroom(
+    name,
+    latitude,
+    longitude,
+    address,
+    amenities,
+    floor=None,
+    directions=None,
+):
     # save a new user-submitted restroom unless its coordinates already exist.
     collection = get_restrooms_collection()
-    document = build_restroom_document(name, latitude, longitude, address, amenities)
+    document = build_restroom_document(
+        name,
+        latitude,
+        longitude,
+        address,
+        amenities,
+        floor=floor,
+        directions=directions,
+    )
     coordinates = document["geometry"]["coordinates"]
 
     try:
