@@ -120,7 +120,7 @@ HTTP status `201`. Address information is not stored yet, so clients should omit
 
 `floor` and `directions` are also optional. Use `floor` for a short label such as
 `B1`, `1`, or `2`, and use `directions` for a short description of where the
-restroom is inside a building. Floors are limited to 20 characters and directions
+restroom is inside a building. Floors are limited to 5 characters and directions
 are limited to 300 characters.
 
 The accepted amenity names are `cleanliness` (a whole number from 1 to 5),

@@ -164,7 +164,7 @@ def get_new_restroom_data():
         return None, error
 
     # floors can use labels such as "B1", "1", or "Roof".
-    floor, error = get_optional_text(data, "floor", 20)
+    floor, error = get_optional_text(data, "floor", 5)
     if error:
         return None, error
 
@@ -239,7 +239,7 @@ def get_amended_restroom_data():
         return None, "JSON field 'restroomId' must be a non-empty string."
     id = id.strip()
 
-    floor, error = get_optional_text(data, "floor", 20)
+    floor, error = get_optional_text(data, "floor", 5)
     if error:
         return None, error
 
