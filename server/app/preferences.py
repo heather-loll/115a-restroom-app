@@ -8,7 +8,7 @@ without duplicating the matching rules or changing the stored restroom data.
 
 
 # these are the boolean amenity fields a user can currently choose as preferences.
-# cleanliness is not included because it needs a separate minimum-rating rule later.
+# cleanliness is a calculated community rating, not a true or false preference.
 preference_amenities = frozenset(
     {
         "paymentRequired",

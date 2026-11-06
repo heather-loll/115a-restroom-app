@@ -1,7 +1,7 @@
 """
 MongoDB access for restroom data.
 This keeps database code outside Flask route functions. The routes validate HTTP
-input, while these functions search, create, and update restroom documents.
+input, while these functions search, create, update, and rate restroom documents.
 """
 
 from uuid import uuid4
@@ -50,9 +50,12 @@ def format_restroom(element, user_latitude, user_longitude):
         "distanceMeters": round(
             distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
         ),
-        "amenities": element.get("amenities", {}),
+        # copy amenities so adding a calculated rating never changes the
+        # MongoDB document that was read from the database.
+        "amenities": stored_amenities(element),
     }
 
+    add_cleanliness_average(restroom)
     add_location_details(restroom, element)
 
     return restroom
@@ -65,6 +68,18 @@ def add_location_details(restroom, document):
         value = document.get(field_name)
         if value is not None:
             restroom[field_name] = value
+
+
+def stored_amenities(document):
+    # return only the shared restroom details stored on the restroom document.
+    # cleanliness is intentionally excluded because it is calculated from the
+    # separate user-rating records instead of being one editable amenity value.
+    amenities = document.get("amenities") or {}
+    return {
+        name: value
+        for name, value in amenities.items()
+        if name != "cleanliness"
+    }
 
 
 def get_restrooms_collection():
@@ -81,6 +96,55 @@ def get_restrooms_collection():
     )
     database = client[current_app.config["MONGODB_DATABASE"]]
     return database[current_app.config["MONGODB_RESTROOMS_COLLECTION"]]
+
+
+def get_ratings_collection():
+    # return the collection containing individual cleanliness votes.
+    # stores ratings beside restroom data in a separate collection so one vote
+    # can never overwrite another person's vote.
+    test_collection = current_app.config.get("RATINGS_COLLECTION")
+    if test_collection is not None:
+        return test_collection
+
+    restrooms_collection = get_restrooms_collection()
+    return restrooms_collection.database["restroom_ratings"]
+
+
+def get_cleanliness_summary(restroom_id):
+    # calculate the average and count for one restroom's saved votes.
+    # returning None for the average follows the rule that missing
+    # information is unknown instead of pretending a restroom has a rating.
+    try:
+        ratings = list(
+            get_ratings_collection().find(
+                {"restroomId": restroom_id},
+                {"cleanliness": 1},
+            )
+        )
+    except PyMongoError as error:
+        raise MongoDatabaseError("Could not read cleanliness ratings.") from error
+
+    if not ratings:
+        return None, 0
+
+    total = sum(rating["cleanliness"] for rating in ratings)
+    return total / len(ratings), len(ratings)
+
+
+def add_cleanliness_average(restroom, summary=None):
+    # add the calculated rating to an API restroom response when votes exist.
+    # the count is returned separately because only the rating endpoint exposes
+    # it, while all endpoints share the same Restroom object shape.
+    if summary is None:
+        summary = get_cleanliness_summary(restroom["restroomId"])
+
+    average, rating_count = summary
+    if average is not None:
+        amenities = dict(restroom.get("amenities") or {})
+        amenities["cleanliness"] = average
+        restroom["amenities"] = amenities
+
+    return rating_count
 
 
 def build_restroom_document(
@@ -120,7 +184,7 @@ def build_restroom_document(
     return document
 
 
-def document_to_restroom(document):
+def document_to_restroom(document, cleanliness_summary=None):
     # format a MongoDB document using the shared frontend Restroom JSON shape.
     longitude, latitude = document["geometry"]["coordinates"]
     restroom = {
@@ -133,9 +197,11 @@ def document_to_restroom(document):
     # these fields are optional in the shared Restroom type, so omit absent data.
     if "address" in document:
         restroom["address"] = document["address"]
-    if document.get("amenities"):
-        restroom["amenities"] = document["amenities"]
+    amenities = stored_amenities(document)
+    if amenities:
+        restroom["amenities"] = amenities
     add_location_details(restroom, document)
+    add_cleanliness_average(restroom, cleanliness_summary)
 
     return restroom
 
@@ -148,6 +214,7 @@ def create_restroom(
     amenities,
     floor=None,
     directions=None,
+    cleanliness_rating=None,
 ):
     # save a new user-submitted restroom unless its coordinates already exist.
     collection = get_restrooms_collection()
@@ -162,6 +229,7 @@ def create_restroom(
     )
     coordinates = document["geometry"]["coordinates"]
 
+    restroom_saved = False
     try:
         # this matches the existing GeoJSON importer's duplicate-coordinate rule.
         duplicate = collection.find_one({"geometry.coordinates": coordinates})
@@ -171,9 +239,24 @@ def create_restroom(
             )
 
         collection.insert_one(document)
+        restroom_saved = True
+
+        # a new restroom can include its first vote, but the vote remains a
+        # separate record so later votes can be included in the average.
+        if cleanliness_rating is not None:
+            get_ratings_collection().insert_one(
+                {
+                    "restroomId": document["restroomId"],
+                    "cleanliness": cleanliness_rating,
+                }
+            )
     except RestroomAlreadyExistsError:
         raise
     except PyMongoError as error:
+        # don't leave a newly created restroom behind if its first rating could
+        # not be saved. deleting it keeps this one request all-or-nothing.
+        if restroom_saved:
+            collection.delete_one({"restroomId": document["restroomId"]})
         raise MongoDatabaseError("Could not save the restroom in MongoDB.") from error
 
     return document_to_restroom(document)
@@ -199,6 +282,34 @@ def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
         document["directions"] = directions
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
+
+
+def add_cleanliness_rating(restroom_id, cleanliness):
+    # save one user's cleanliness vote and return the updated restroom summary.
+    # ratings are append-only because the backend has no user accounts and
+    # cannot safely identify which earlier vote should be edited.
+    restroom_collection = get_restrooms_collection()
+
+    try:
+        document = restroom_collection.find_one({"restroomId": restroom_id})
+        if document is None:
+            raise RestroomDoesntExistError("Restroom doesn't exist.")
+
+        get_ratings_collection().insert_one(
+            {
+                "restroomId": restroom_id,
+                "cleanliness": cleanliness,
+            }
+        )
+        summary = get_cleanliness_summary(restroom_id)
+    except RestroomDoesntExistError:
+        raise
+    except PyMongoError as error:
+        raise MongoDatabaseError("Could not save the cleanliness rating.") from error
+
+    restroom = document_to_restroom(document, cleanliness_summary=summary)
+    rating_count = summary[1]
+    return restroom, rating_count
 
 
 def find_nearest_restroom(latitude, longitude, radius_meters):
