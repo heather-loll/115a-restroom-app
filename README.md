@@ -55,6 +55,8 @@ The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
 `restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
 `MONGODB_RESTROOMS_COLLECTION` before starting Python to use different values.
 
+### Set Up Local Server
+
 1. Open a terminal at the `115a-restroom-app` repository root
 1. `cd server`
 1. Create a local Python environment: `python3 -m venv .venv`
