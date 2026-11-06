@@ -1,7 +1,7 @@
-import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
-import { StyleSheet, Text } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-
+import { Transgender } from 'lucide-react-native';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 export default function RestroomInfoSheet(props: {
   restroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
@@ -36,7 +36,33 @@ export default function RestroomInfoSheet(props: {
       index={-1}>
       <BottomSheetView style={styles.sheetContainer}>
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
-        <Text style={styles.sheetSubHeader}>{localData?.address}</Text>
+        <Text style={styles.sheetAddress}>{localData?.address}</Text>
+        <Text style={styles.sheetSubHeader}>Rate Bathroom</Text>
+
+        <Text style={styles.sheetSubHeader}>Amenities</Text>
+        <View style={styles.amenityContainer}>
+          <View style={styles.listItem}> 
+            {/* temp to show multiple obj layout */}
+            <Transgender color="#000" size={28} />
+            <Text style={styles.amenityText}>Unisex</Text>
+          </View>
+           <View style={styles.listItem}> 
+            <Transgender color="#000" size={28} />
+            <Text style={styles.amenityText}>Unisex</Text>
+          </View>
+           <View style={styles.listItem}> 
+            <Transgender color="#000" size={28} />
+            <Text style={styles.amenityText}>Unisex</Text>
+          </View>
+           <View style={styles.listItem}> 
+            <Transgender color="#000" size={28} />
+            <Text style={styles.amenityText}>Unisex</Text>
+          </View>
+           <View style={styles.listItem}> 
+            <Transgender color="#000" size={28} />
+            <Text style={styles.amenityText}>Unisex</Text>
+          </View>
+        </View>
       </BottomSheetView>
     </BottomSheet>
   );
@@ -54,7 +80,27 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sheetSubHeader: {
+    fontSize: 20,
+    fontWeight: 700,
+    marginBottom: 8,
+  },
+  sheetAddress: {
     color: 'gray',
     fontSize: 14,
   },
+  amenityContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  listItem: {
+    width: '50%',
+    flexDirection: 'row',
+    gap: 16,
+    alignItems: 'center',
+    marginBottom: 16
+  },
+  amenityText: {
+    fontSize: 16
+  }
 });
