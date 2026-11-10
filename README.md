@@ -47,9 +47,12 @@ backend can be built without mixing backend code into the React Native app.
 The API reads restroom data from MongoDB, so MongoDB must be installed and running
 before using the restroom endpoints.
 
-1. {To Do}
-1.
-1.
+1. Follow the mongodb [installation guide](https://www.mongodb.com/docs/manual/administration/install-community/) for your operating system, 
+1. Once running, it should be available as a background service, connect to it by starting a session with `mongosh`
+1. In mongosh, run the following:
+   - `use ToiletApp` (creates the database "ToiletApp")
+   - `db.createCollection("restrooms")` (creates the collection "restrooms")
+1. Once that is setup, run the python script `server/app/osm_refuge_import/import_overpass_json_mongodb.py` from the venv to build the sample database of Santa Cruz data
 
 The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
 `restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
