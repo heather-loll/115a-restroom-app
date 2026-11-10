@@ -27,7 +27,7 @@ POST http://localhost:5001/api/restrooms/amend
 Content-Type: application/json
 
 {
-  "restroomId": "osm-Feature-node/821295761",
+  "restroomId": "osm-821295761",
   "name": "Cowell Restroom",
   "amenities": {
     "accessible": false,
@@ -36,7 +36,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5001/api/restrooms/osm-Feature-node/821295761/ratings
+POST http://localhost:5001/api/restrooms/osm-821295761/ratings
 Content-Type: application/json
 
 {
