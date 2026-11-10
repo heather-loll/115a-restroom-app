@@ -125,20 +125,33 @@ HTTP status `201`. Address information is not stored yet, so clients should omit
 restroom is inside a building. Floors are limited to 5 characters and directions
 are limited to 300 characters.
 
-The accepted amenity names are `cleanliness` (a whole number from 1 to 5),
-`paymentRequired`, `accessible`, `unisex`, `singleOccupancy`,
-`menstrualProductsAvailable`, and `babyChangingStation`. All amenity values other
-than `cleanliness` must be `true` or `false`. A submission with coordinates already
-in the database returns HTTP status `409` instead of creating a duplicate.
+The accepted amenity names are `paymentRequired`, `accessible`, `unisex`,
+`singleOccupancy`, `menstrualProductsAvailable`, and `babyChangingStation`. All
+of these amenity values must be `true` or `false`. A submission may also include
+an optional `cleanliness` value of `1`, `2`, or `3`. These mean filthy, average,
+and pristine. When supplied, it is saved as the restroom's first separate user
+rating. A submission with coordinates already in the database returns HTTP status
+`409` instead of creating a duplicate.
 
 ### Amend-restroom Endpoint
 
-`POST /api/restrooms/amend` updates the name and amenity information for a restroom
-that already exists in MongoDB. The request body must include `restroomId`, `name`,
-and optionally `amenities`, using the same amenity names and values as the
-add-restroom endpoint. Optional `floor` and `directions` values can also be sent
-to update location details. The response contains the updated restroom with HTTP
-status `200`. An unknown `restroomId` returns HTTP status `409`.
+`POST /api/restrooms/amend` updates the name and boolean amenity information for a
+restroom that already exists in MongoDB. The request body must include `restroomId`,
+`name`, and optionally `amenities`, using the same boolean amenity names as the
+add-restroom endpoint. Optional `floor` and `directions` values can also be sent to
+update location details. Cleanliness is not amended here because it is a separate
+anonymous user vote. The response contains the updated restroom with HTTP status
+`200`. An unknown `restroomId` returns HTTP status `409`.
+
+### Cleanliness-rating Endpoint
+
+`POST /api/restrooms/<restroomId>/ratings` adds one cleanliness vote to an existing
+restroom. Its JSON request body must include `cleanliness` as a whole number: `1`
+for filthy, `2` for average, or `3` for pristine. The backend saves every vote
+separately and returns HTTP status `201` with the updated restroom and `ratingCount`.
+The returned `restroom.amenities.cleanliness` value is the rolling average of all
+saved votes. The nearest and nearby restroom endpoints include the same average when
+ratings exist, and omit it when there are no votes yet.
 
 ### Stop the Backend
 

@@ -15,7 +15,7 @@ Content-Type: application/json
                 "amenities": {
                     "accessible": true,
                     "singleOccupancy": true,
-                    "cleanliness": 4
+                    "cleanliness": 3
                 }
 }
 
@@ -31,7 +31,14 @@ Content-Type: application/json
   "name": "Cowell Restroom",
   "amenities": {
     "accessible": false,
-    "singleOccupancy": false,
-    "cleanliness": 2
+    "singleOccupancy": false
   }
+}
+
+###
+POST http://localhost:5001/api/restrooms/osm-Feature-node/821295761/ratings
+Content-Type: application/json
+
+{
+  "cleanliness": 2
 }
