@@ -82,7 +82,7 @@ const selectedStyles = {
   borderColor: '#009933',
 };
 
-function ToggleCard(props: { label: string; icon: LucideIcon }) {
+function ToggleCard(props: { label: string, icon: LucideIcon }) {
   const [checked, setChecked] = useState(false);
 
   return (
@@ -92,7 +92,11 @@ function ToggleCard(props: { label: string; icon: LucideIcon }) {
       onPress={() => setChecked(!checked)}>
       <props.icon size={32} style={styles.cardIcon} />
       <Text style={styles.cardLabel}>{props.label}</Text>
-
+      
+      {props.label === "Customers Only" &&
+        <Text style={styles.cardSubLabel}>(Code Required)</Text>
+      }
+      
       <View style={[styles.cardCheckbox, checked ? styles.cardCheckboxChecked : {}]}>
         {checked && <Check size={16} strokeWidth={3} color="white" />}
       </View>
@@ -219,6 +223,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     fontWeight: 500,
+  },
+  cardSubLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 400,
+    opacity: 0.5
   },
   cardCheckbox: {
     width: 22,
