@@ -2,6 +2,7 @@ import {
   getForegroundPermissionsAsync,
   requestForegroundPermissionsAsync,
   getCurrentPositionAsync,
+  reverseGeocodeAsync,
   Accuracy,
 } from 'expo-location';
 
@@ -10,7 +11,7 @@ const DEFAULT_COORDS = {
   longitude: 36.975188,
 };
 
-export default async () => {
+export const getUserLocation = async () => {
   let { status } = await getForegroundPermissionsAsync();
 
   // Request location permission
@@ -42,4 +43,27 @@ export default async () => {
   }
 
   return { longitude, latitude };
+};
+
+export const getNearestAddress = async (
+  longitude: number,
+  latitude: number,
+): Promise<string | null> => {
+  const { status } = await requestForegroundPermissionsAsync();
+
+  if (status !== 'granted') {
+    console.warn('No location permissions');
+    return null;
+  }
+
+  const addresses = await reverseGeocodeAsync({ longitude, latitude });
+
+  if (addresses.length > 0) {
+    const [address] = addresses;
+    const { streetNumber, street, city, region, postalCode } = address;
+    return [streetNumber, street, city, region, postalCode].filter(Boolean).join(', ');
+  } else {
+    // No addresses found at this location
+    return null;
+  }
 };

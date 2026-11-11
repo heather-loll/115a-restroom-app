@@ -1,6 +1,6 @@
 import { useRef, useState, Dispatch, SetStateAction } from 'react';
-import { StyleSheet, View, Text, Pressable, ScrollView } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { StyleSheet, View, Text, Pressable } from 'react-native';
+import BottomSheet, { BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import {
   Check,
   ArrowRight,
@@ -16,6 +16,9 @@ import {
   MopSparkles,
   LucideIcon,
 } from 'lucide-react-native';
+
+import { useCurrentMapLocationStore } from '../utils/stores'
+import { getNearestAddress } from '../utils/location'
 
 const submit = async () => {};
 
@@ -65,7 +68,7 @@ function CleanlinessRanking() {
               },
               selected === id && selectedStyles,
             ]}>
-            <Icon />
+            <Icon color="black" />
             <Text>{label}</Text>
           </Pressable>
         );
@@ -96,12 +99,23 @@ function ToggleCard(props: { label: string; icon: LucideIcon }) {
   );
 }
 
-export default function AddRestroomSheet(props: {
+export default  function AddRestroomSheet(props: {
   setAddRestroomSheetOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { setAddRestroomSheetOpen } = props;
   const filterSheetRef = useRef<BottomSheet>(null);
 
+  const [currentMapLocation] = useCurrentMapLocationStore()
+
+  const [address, setAddress] = useState("");
+  
+  getNearestAddress(
+    currentMapLocation.longitude,
+    currentMapLocation.latitude
+  ).then((a) => {
+    setAddress(a ?? "");
+  })
+  
   return (
     <BottomSheet
       ref={filterSheetRef}
@@ -111,16 +125,15 @@ export default function AddRestroomSheet(props: {
       onClose={() => {
         setAddRestroomSheetOpen(false);
       }}>
-      <BottomSheetView style={styles.sheetContainer}>
-        <ScrollView>
+      <BottomSheetScrollView style={styles.sheetContainer}>
           {/*<TextInput placeholder="Restroom Name" placeholderTextColor="gray" enterKeyHint='done' />*/}
           <View style={styles.headingContainer}>
-            <Text style={styles.heading}>Pleasure Pizza</Text>
+            <Text style={styles.heading}>Business Name</Text>
             <Pressable>
               <Pencil size={14} color="gray" />
             </Pressable>
           </View>
-          <Text style={styles.address}>1415 Pacific Ave, Santa Cruz, CA</Text>
+          <Text style={styles.address}>{address}</Text>
 
           <Text style={styles.subheading}>Rate Cleanliness</Text>
           <CleanlinessRanking />
@@ -139,8 +152,7 @@ export default function AddRestroomSheet(props: {
             <Text style={styles.submitText}>Submit</Text>
             <ArrowRight size={24} style={styles.submitArrow} />
           </Pressable>
-        </ScrollView>
-      </BottomSheetView>
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }
@@ -195,6 +207,7 @@ const styles = StyleSheet.create({
   },
   cardIcon: {
     marginBottom: 8,
+    color: 'black'
   },
   cardLabel: {
     fontSize: 16,

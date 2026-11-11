@@ -3,7 +3,10 @@ import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Plus, Settings, ListFilter } from 'lucide-react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
+import {useSelectingLocationToCreateStore} from '../utils/stores'
+
 import AddRestroomSheet from './AddRestroomSheet';
+import SelectLocation from './SelectLocation'
 
 function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
   return (
@@ -25,15 +28,17 @@ function FilterSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | nul
   );
 }
 
-export default function Fab() {
+export default function BottomNav() {
   const [addRestroomSheetOpen, setAddRestroomSheetOpen] = useState(false);
 
   const settingsSheetRef = useRef<BottomSheet>(null);
   const filterSheetRef = useRef<BottomSheet>(null);
 
+  const [selectingLocation, setSelectingLocation] = useSelectingLocationToCreateStore();
+
   return (
     <>
-      <View style={styles.container}>
+      {!selectingLocation && (<View style={styles.container}>
         <Pressable
           style={styles.settings}
           accessibilityRole="button"
@@ -51,15 +56,18 @@ export default function Fab() {
         <Pressable
           style={styles.add}
           onPress={() => {
-            setAddRestroomSheetOpen(true);
+            setSelectingLocation(true)
           }}>
           <Plus color="#fff" size={24} />
           <Text style={styles.addText}>Add Restroom</Text>
         </Pressable>
-      </View>
+      </View>)}
 
       <SettingsSheet sheetRef={settingsSheetRef} />
       <FilterSheet sheetRef={filterSheetRef} />
+      {selectingLocation && (
+        <SelectLocation setAddRestroomSheetOpen={setAddRestroomSheetOpen} />
+      )}
       {addRestroomSheetOpen && (
         <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />
       )}

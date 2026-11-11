@@ -1,6 +1,8 @@
 import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import MapView, { Marker, MapMarker } from 'react-native-maps';
+import { StyleSheet, Alert } from 'react-native';
+import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
+
+import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores'
 
 type PinState = {
   markerId: string | null;
@@ -13,6 +15,8 @@ export default function Map(props: {
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
 }) {
   const { points, activeRestroom, setActiveRestroom } = props;
+  const [selectingLocation] = useSelectingLocationToCreateStore();
+  const [currentMapLocation, setCurrentMapLocation] = useCurrentMapLocationStore();
 
   const mapRef = useRef<MapView>(null);
   const [activePin, setActivePin] = useState<PinState>(null);
@@ -63,7 +67,10 @@ export default function Map(props: {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       }}
-      showsPointsOfInterests={false}
+      onRegionChangeComplete={({longitude, latitude}) => {
+        setCurrentMapLocation({longitude, latitude})
+      }}
+      showsPointsOfInterests={selectingLocation}
       appleLogoInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
       legalLabelInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
       toolbarEnabled={false}
@@ -74,7 +81,7 @@ export default function Map(props: {
       onPress={handleMarkerDismiss}
       // googleMapId={ }
     >
-      {points.map(restroom => {
+      {!selectingLocation && points.map(restroom => {
         return (
           <Marker
             ref={e => {
