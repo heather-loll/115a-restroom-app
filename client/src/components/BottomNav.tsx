@@ -3,10 +3,10 @@ import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Plus, Settings, ListFilter } from 'lucide-react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
-import {useSelectingLocationToCreateStore} from '../utils/stores'
+import { useSelectingLocationToCreateStore } from '../utils/stores';
 
 import AddRestroomSheet from './AddRestroomSheet';
-import SelectLocation from './SelectLocation'
+import SelectLocation from './SelectLocation';
 
 function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
   return (
@@ -38,39 +38,39 @@ export default function BottomNav() {
 
   return (
     <>
-      {!selectingLocation && (<View style={styles.container}>
-        <Pressable
-          style={[styles.settings, styles.bottomNavButton]}
-          android_ripple={{ color: '#ffffff33', foreground: true }}
-          accessibilityRole="button"
-          accessibilityLabel="Open settings"
-          onPress={() => settingsSheetRef.current?.snapToIndex(1)}>
-          <Settings color="#fff" size={24} />
-        </Pressable>
-        <Pressable
-          style={[styles.filter, styles.bottomNavButton]}
-          android_ripple={{ color: '#ffffff33', foreground: true }}
-          accessibilityRole="button"
-          accessibilityLabel="Open filter options"
-          onPress={() => filterSheetRef.current?.snapToIndex(1)}>
-          <ListFilter color="#fff" size={20} />
-        </Pressable>
-        <Pressable
-          style={[styles.add, styles.bottomNavButton]}
-          android_ripple={{ color: '#ffffff33', foreground: true }}
-          onPress={() => {
-            setSelectingLocation(true)
-          }}>
-          <Plus color="#fff" size={24} />
-          <Text style={styles.addText}>Add Restroom</Text>
-        </Pressable>
-      </View>)}
+      {!selectingLocation && (
+        <View style={styles.container}>
+          <Pressable
+            style={[styles.settings, styles.bottomNavButton]}
+            android_ripple={{ color: '#ffffff33', foreground: true }}
+            accessibilityRole="button"
+            accessibilityLabel="Open settings"
+            onPress={() => settingsSheetRef.current?.snapToIndex(1)}>
+            <Settings color="#fff" size={24} />
+          </Pressable>
+          <Pressable
+            style={[styles.filter, styles.bottomNavButton]}
+            android_ripple={{ color: '#ffffff33', foreground: true }}
+            accessibilityRole="button"
+            accessibilityLabel="Open filter options"
+            onPress={() => filterSheetRef.current?.snapToIndex(1)}>
+            <ListFilter color="#fff" size={20} />
+          </Pressable>
+          <Pressable
+            style={[styles.add, styles.bottomNavButton]}
+            android_ripple={{ color: '#ffffff33', foreground: true }}
+            onPress={() => {
+              setSelectingLocation(true);
+            }}>
+            <Plus color="#fff" size={24} />
+            <Text style={styles.addText}>Add Restroom</Text>
+          </Pressable>
+        </View>
+      )}
 
       <SettingsSheet sheetRef={settingsSheetRef} />
       <FilterSheet sheetRef={filterSheetRef} />
-      {selectingLocation && (
-        <SelectLocation setAddRestroomSheetOpen={setAddRestroomSheetOpen} />
-      )}
+      {selectingLocation && <SelectLocation setAddRestroomSheetOpen={setAddRestroomSheetOpen} />}
       {addRestroomSheetOpen && (
         <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />
       )}
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   settings: {
     height: 52,

@@ -19,7 +19,7 @@ export default function Index() {
       const { longitude, latitude } = await getUserLocation();
       const data = await API_getRestrooms(longitude, latitude, 5000);
       setRestrooms(data);
-    })(); 
+    })();
   }, []);
 
   return (

@@ -2,7 +2,7 @@ import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
 import { StyleSheet, Alert } from 'react-native';
 import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores'
+import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
 
 type PinState = {
   markerId: string | null;
@@ -67,8 +67,8 @@ export default function Map(props: {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       }}
-      onRegionChangeComplete={({longitude, latitude}) => {
-        setCurrentMapLocation({longitude, latitude})
+      onRegionChangeComplete={({ longitude, latitude }) => {
+        setCurrentMapLocation({ longitude, latitude });
       }}
       showsPointsOfInterests={selectingLocation}
       appleLogoInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
@@ -81,25 +81,26 @@ export default function Map(props: {
       onPress={handleMarkerDismiss}
       // googleMapId={ }
     >
-      {!selectingLocation && points.map(restroom => {
-        return (
-          <Marker
-            ref={e => {
-              markerRefs.current[restroom.restroomId] = e;
-            }}
-            coordinate={{
-              latitude: restroom.latitude,
-              longitude: restroom.longitude,
-            }}
-            pinColor="#009966"
-            onSelect={e => {
-              e.stopPropagation();
-              setActivePin({ markerId: restroom.restroomId, restroom });
-            }}
-            key={restroom.restroomId}
-          />
-        );
-      })}
+      {!selectingLocation &&
+        points.map(restroom => {
+          return (
+            <Marker
+              ref={e => {
+                markerRefs.current[restroom.restroomId] = e;
+              }}
+              coordinate={{
+                latitude: restroom.latitude,
+                longitude: restroom.longitude,
+              }}
+              pinColor="#009966"
+              onSelect={e => {
+                e.stopPropagation();
+                setActivePin({ markerId: restroom.restroomId, restroom });
+              }}
+              key={restroom.restroomId}
+            />
+          );
+        })}
     </MapView>
   );
 }

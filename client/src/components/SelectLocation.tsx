@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import { ArrowRight, Crosshair } from 'lucide-react-native'
+import { ArrowRight, Crosshair } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {getNearestAddress} from '../utils/location'
+import { getNearestAddress } from '../utils/location';
 
-
-import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores'
+import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
 
 // This will show the user a centralized map pin.
 // As they pan around on the map we can get the address of where they are pointed at.
@@ -16,8 +15,8 @@ import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '.
 export default function SelectLocation(props: { setAddRestroomSheetOpen: any }) {
   const { setAddRestroomSheetOpen } = props;
   const insets = useSafeAreaInsets();
-  const [selectingLocation, setSelectingLocation] = useSelectingLocationToCreateStore()
-  const [currentMapLocation] = useCurrentMapLocationStore()
+  const [selectingLocation, setSelectingLocation] = useSelectingLocationToCreateStore();
+  const [currentMapLocation] = useCurrentMapLocationStore();
 
   const [currentDisplayedAddress, setCurrentDisplayedAddress] = useState<string | null>(null);
 
@@ -27,44 +26,45 @@ export default function SelectLocation(props: { setAddRestroomSheetOpen: any }) 
         const addressString = await getNearestAddress(
           currentMapLocation.longitude,
           currentMapLocation.latitude,
-        )
+        );
 
-        setCurrentDisplayedAddress(addressString)
+        setCurrentDisplayedAddress(addressString);
       }, 1000);
 
       return () => {
-        setCurrentDisplayedAddress(null)
+        setCurrentDisplayedAddress(null);
         clearTimeout(handler);
       };
-    })(); 
+    })();
   }, [currentMapLocation]);
 
   const next = () => {
-    setAddRestroomSheetOpen(true)
-    
+    setAddRestroomSheetOpen(true);
+
     // Delay to prevent layout shift when adding back bottom nav
     setTimeout(() => {
       setSelectingLocation(false);
-    }, 300)
-  }
+    }, 300);
+  };
 
   return (
     <>
-       <View style={[styles.topAddressContainer, {paddingTop: insets.top}]}>
-          <Text style={styles.topAddressText}>{currentDisplayedAddress ?? ""}</Text>
-          <Text style={styles.topCoordsText}>
-            ({currentMapLocation.latitude.toFixed(4)}, {currentMapLocation.longitude.toFixed(4)})
-          </Text>
-        </View>
-        <View style={styles.crosshairsContainer}>
-          <Crosshair size={28} color="white" />
-        </View>
-        <Pressable onPress={next} style={styles.confirmLocationButton} android_ripple={{ color: '#ffffff33', foreground: true }}>
-          <Text style={styles.confirmLocationText}>
-            Confirm Location
-          </Text>
-        </Pressable>
-      </>
+      <View style={[styles.topAddressContainer, { paddingTop: insets.top }]}>
+        <Text style={styles.topAddressText}>{currentDisplayedAddress ?? ''}</Text>
+        <Text style={styles.topCoordsText}>
+          ({currentMapLocation.latitude.toFixed(4)}, {currentMapLocation.longitude.toFixed(4)})
+        </Text>
+      </View>
+      <View style={styles.crosshairsContainer}>
+        <Crosshair size={28} color="white" />
+      </View>
+      <Pressable
+        onPress={next}
+        style={styles.confirmLocationButton}
+        android_ripple={{ color: '#ffffff33', foreground: true }}>
+        <Text style={styles.confirmLocationText}>Confirm Location</Text>
+      </Pressable>
+    </>
   );
 }
 
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingBlock: 16,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   confirmLocationText: {
     textAlign: 'start',
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   nextArrow: {
     right: 8,
-    color: 'white'
+    color: 'white',
   },
   crosshairsContainer: {
     position: 'absolute',
@@ -106,22 +106,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     pointerEvents: 'none',
     paddingBlock: 12,
-    top: 0
+    top: 0,
   },
   topAddressText: {
-    color: "white",
+    color: 'white',
     fontSize: 16,
     fontWeight: 600,
-    textShadowColor: 'rgba(0, 0, 0, 1)', 
+    textShadowColor: 'rgba(0, 0, 0, 1)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
   topCoordsText: {
-    color: "white",
+    color: 'white',
     fontSize: 12,
     fontWeight: 400,
-    textShadowColor: 'rgba(0, 0, 0, 1)', 
+    textShadowColor: 'rgba(0, 0, 0, 1)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
-  }
-})
+  },
+});

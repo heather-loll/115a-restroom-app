@@ -17,9 +17,8 @@ import {
   LucideIcon,
 } from 'lucide-react-native';
 
-import { useCurrentMapLocationStore } from '../utils/stores'
-import { getNearestAddress } from '../utils/location'
-
+import { useCurrentMapLocationStore } from '../utils/stores';
+import { getNearestAddress } from '../utils/location';
 
 const BORDER = 2;
 
@@ -30,8 +29,10 @@ const BORDERS = {
   pristine: { left: [1, 1, 0, 2], right: [2, 2, 2, 2] },
 } as const;
 
-function CleanlinessRanking() {
-  const [selected, setSelected] = useState<0 | 1 | 2 | 3>(0);
+function CleanlinessRanking(props: {
+  state: [0 | 1 | 2 | 3, Dispatch<SetStateAction<0 | 1 | 2 | 3>>];
+}) {
+  const [selected, setSelected] = props.state;
 
   const options = [
     { id: 1, key: 'filthy', label: 'Filthy', Icon: Germ },
@@ -49,7 +50,7 @@ function CleanlinessRanking() {
           <Pressable
             key={id}
             onPress={() => setSelected(selected === id ? 0 : id)}
-            // android_ripple={{ color: !selected ? '#ffffff50' : '#0099331a', foreground: true }} 
+            // android_ripple={{ color: !selected ? '#ffffff50' : '#0099331a', foreground: true }}
             style={[
               styles.cleanlinessOption,
               {
@@ -82,21 +83,21 @@ const selectedStyles = {
   borderColor: '#009933',
 };
 
-function ToggleCard(props: { label: string, icon: LucideIcon }) {
+function ToggleCard(props: { label: string; icon: LucideIcon }) {
   const [checked, setChecked] = useState(false);
 
   return (
     <Pressable
       style={[styles.card, checked ? styles.cardChecked : {}]}
-      // android_ripple={{ color: !checked ? '#ffffff50' : '#0099331a', foreground: true }} 
-      onPress={() => setChecked(!checked)}>
+      // android_ripple={{ color: !checked ? '#ffffff50' : '#0099331a', foreground: true }}
+      onPress={() => {
+        setChecked(!checked);
+      }}>
       <props.icon size={32} style={styles.cardIcon} />
       <Text style={styles.cardLabel}>{props.label}</Text>
-      
-      {props.label === "Customers Only" &&
-        <Text style={styles.cardSubLabel}>(Code Required)</Text>
-      }
-      
+
+      {props.label === 'Customers Only' && <Text style={styles.cardSubLabel}>(Code Required)</Text>}
+
       <View style={[styles.cardCheckbox, checked ? styles.cardCheckboxChecked : {}]}>
         {checked && <Check size={16} strokeWidth={3} color="white" />}
       </View>
@@ -104,27 +105,27 @@ function ToggleCard(props: { label: string, icon: LucideIcon }) {
   );
 }
 
-export default  function AddRestroomSheet(props: {
+export default function AddRestroomSheet(props: {
   setAddRestroomSheetOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const { setAddRestroomSheetOpen } = props;
   const filterSheetRef = useRef<BottomSheet>(null);
 
-  const [currentMapLocation] = useCurrentMapLocationStore()
+  const [currentMapLocation] = useCurrentMapLocationStore();
 
-  const [address, setAddress] = useState("");
-  
-  getNearestAddress(
-    currentMapLocation.longitude,
-    currentMapLocation.latitude
-  ).then((a) => {
-    setAddress(a ?? "");
-  })
-  
+  const [address, setAddress] = useState('');
+
+  const [cleanliness, setCleanliness] = useState<0 | 1 | 2 | 3>(0);
+  const [amenities, setAmenities] = useState();
+
+  getNearestAddress(currentMapLocation.longitude, currentMapLocation.latitude).then(a => {
+    setAddress(a ?? '');
+  });
+
   const submit = async () => {
-    
+    setAddRestroomSheetOpen(false);
   };
-  
+
   return (
     <BottomSheet
       ref={filterSheetRef}
@@ -135,32 +136,35 @@ export default  function AddRestroomSheet(props: {
         setAddRestroomSheetOpen(false);
       }}>
       <BottomSheetScrollView style={styles.sheetContainer}>
-          {/*<TextInput placeholder="Restroom Name" placeholderTextColor="gray" enterKeyHint='done' />*/}
-          <View style={styles.headingContainer}>
-            <Text style={styles.heading}>Business Name</Text>
-            <Pressable>
-              <Pencil size={14} color="gray" />
-            </Pressable>
-          </View>
-          <Text style={styles.address}>{address}</Text>
-
-          <Text style={styles.subheading}>Rate Cleanliness</Text>
-          <CleanlinessRanking />
-
-          <Text style={styles.subheading}>Select Amenities</Text>
-          <View style={styles.cardContainer}>
-            <ToggleCard label="Customers Only" icon={LockKeyhole} />
-            <ToggleCard label="Accessible" icon={Accessibility} />
-            <ToggleCard label="Single Occupancy" icon={DoorClosed} />
-            <ToggleCard label="Gender Neutral" icon={Transgender} />
-            <ToggleCard label="Menstrual Products" icon={Droplets} />
-            <ToggleCard label="Changing Station" icon={Baby} />
-          </View>
-
-          <Pressable onPress={submit} style={styles.submitButton} android_ripple={{ color: '#00993333', foreground: true }}>
-            <Text style={styles.submitText}>Submit</Text>
-            <ArrowRight size={24} style={styles.submitArrow} />
+        {/*<TextInput placeholder="Restroom Name" placeholderTextColor="gray" enterKeyHint='done' />*/}
+        <View style={styles.headingContainer}>
+          <Text style={styles.heading}>Business Name</Text>
+          <Pressable>
+            <Pencil size={14} color="gray" />
           </Pressable>
+        </View>
+        <Text style={styles.address}>{address}</Text>
+
+        <Text style={styles.subheading}>Rate Cleanliness</Text>
+        <CleanlinessRanking state={[cleanliness, setCleanliness]} />
+
+        <Text style={styles.subheading}>Select Amenities</Text>
+        <View style={styles.cardContainer}>
+          <ToggleCard label="Customers Only" icon={LockKeyhole} />
+          <ToggleCard label="Accessible" icon={Accessibility} />
+          <ToggleCard label="Single Occupancy" icon={DoorClosed} />
+          <ToggleCard label="Gender Neutral" icon={Transgender} />
+          <ToggleCard label="Menstrual Products" icon={Droplets} />
+          <ToggleCard label="Changing Station" icon={Baby} />
+        </View>
+
+        <Pressable
+          onPress={submit}
+          style={styles.submitButton}
+          android_ripple={{ color: '#00993333', foreground: true }}>
+          <Text style={styles.submitText}>Submit</Text>
+          <ArrowRight size={24} style={styles.submitArrow} />
+        </Pressable>
       </BottomSheetScrollView>
     </BottomSheet>
   );
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
   address: {
     color: 'gray',
     fontSize: 14,
-    marginBottom: 18,
+    marginBottom: 24,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -209,7 +213,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   cardChecked: {
     borderColor: '#009966',
@@ -217,7 +221,7 @@ const styles = StyleSheet.create({
   },
   cardIcon: {
     marginBottom: 8,
-    color: 'black'
+    color: 'black',
   },
   cardLabel: {
     fontSize: 16,
@@ -228,7 +232,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 400,
-    opacity: 0.5
+    opacity: 0.5,
   },
   cardCheckbox: {
     width: 22,
@@ -257,7 +261,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 32,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   submitText: {
     textAlign: 'center',
@@ -274,7 +278,7 @@ const styles = StyleSheet.create({
   cleanlinessContainer: {
     display: 'flex',
     flexDirection: 'row',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   cleanlinessOption: {
     borderTopWidth: 2,
@@ -286,6 +290,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 2,
     paddingBlock: 8,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
 });
