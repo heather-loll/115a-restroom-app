@@ -76,6 +76,28 @@ class CleanlinessScoreTests(unittest.TestCase):
             ["first-equal-score", "second-equal-score"],
         )
 
+    def test_us_2_t_1_returns_new_list_without_changing_input(self):
+        # callers may reuse the original nearby-restroom list, so sorting must
+        # return a new list and leave the original distance order unchanged.
+        restrooms = [
+            {
+                "restroomId": "lower-score",
+                "amenities": {"cleanliness": 1},
+            },
+            {
+                "restroomId": "higher-score",
+                "amenities": {"cleanliness": 3},
+            },
+        ]
+
+        prioritized_restrooms = prioritize_by_cleanliness_score(restrooms)
+
+        self.assertIsNot(prioritized_restrooms, restrooms)
+        self.assertEqual(
+            [restroom["restroomId"] for restroom in restrooms],
+            ["lower-score", "higher-score"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

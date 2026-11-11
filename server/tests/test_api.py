@@ -531,6 +531,95 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(amend_response.status_code, 400)
         self.assertEqual(self.ratings_collection.count_documents({}), 1)
 
+    def test_us_2_t_1_nearby_prioritizes_cleanliness_scores(self):
+        # the database returns nearby restrooms by distance, but the nearby
+        # endpoint should list a better known cleanliness score first. an
+        # unrated restroom stays available after the scored restrooms.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "low-score",
+                    "name": "Low score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                },
+                {
+                    "restroomId": "high-score",
+                    "name": "High score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9801],
+                    },
+                },
+                {
+                    "restroomId": "unrated",
+                    "name": "Unrated restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0302, 36.9802],
+                    },
+                },
+            ]
+        )
+        self.ratings_collection.insert_many(
+            [
+                {"restroomId": "low-score", "cleanliness": 1},
+                {"restroomId": "high-score", "cleanliness": 3},
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        restroom_ids = [
+            restroom["restroomId"] for restroom in response.get_json()["restrooms"]
+        ]
+        self.assertEqual(restroom_ids, ["high-score", "low-score", "unrated"])
+
+    def test_us_2_t_1_nearest_remains_distance_based(self):
+        # the new score ordering applies only to nearby results. nearest keeps
+        # returning the physically closest restroom even when its score is lower.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "closest-low-score",
+                    "name": "Closest low score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                },
+                {
+                    "restroomId": "farther-high-score",
+                    "name": "Farther high score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0302, 36.9802],
+                    },
+                },
+            ]
+        )
+        self.ratings_collection.insert_many(
+            [
+                {"restroomId": "closest-low-score", "cleanliness": 1},
+                {"restroomId": "farther-high-score", "cleanliness": 3},
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearest?latitude=36.9750&longitude=-122.0300"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.get_json()["restroom"]["restroomId"],
+            "closest-low-score",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
