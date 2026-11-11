@@ -19,8 +19,8 @@ Serves US-3.2, which helps users choose a better restroom when they are not in a
 - A restroom's current score is `amenities.cleanliness`, which is a known numeric cleanliness average of `1` for filthy, `2` for average, and `3` for pristine.
 - Restrooms with higher known cleanliness scores are returned before restrooms with lower known scores.
 - Restrooms without a known numeric cleanliness score remain in the list after scored restrooms. Their existing relative order is preserved.
-- Equal scores preserve the incoming order. This retains the existing nearby and preference ordering as a tie breaker.
-- `GET /api/restrooms/nearby` applies the score helper after its current preference filtering and ranking behavior. Its URL, query parameters, and JSON response shape do not change.
+- Equal scores preserve the incoming order. This retains the existing nearby order as a tie breaker.
+- `GET /api/restrooms/nearby` filters known preference conflicts, applies the score helper, then applies its current preference ranking. Confirmed user preferences are the main ordering rule, and cleanliness score orders restrooms with the same preference rank. Its URL, query parameters, and JSON response shape do not change.
 - `GET /api/restrooms/nearest` remains a distance-based search and is not changed by this task.
 - The README explains that nearby results are prioritized by known cleanliness score and that unrated restrooms remain available after rated results.
 
@@ -41,3 +41,4 @@ Serves US-3.2, which helps users choose a better restroom when they are not in a
 4. The score helper returns a new ordered list without changing its input list.
 5. The nearby-restrooms endpoint returns higher-rated restrooms before lower-rated restrooms while keeping unknown-score restrooms available.
 6. The nearest-restroom endpoint remains distance based, and the README documents the nearby score-ordering behavior.
+7. When preferences are selected, a restroom with a confirmed matching preference is returned before a higher-scored restroom with unknown preference information.

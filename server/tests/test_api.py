@@ -620,6 +620,55 @@ class RestroomApiTests(unittest.TestCase):
             "closest-low-score",
         )
 
+    def test_us_2_t_1_nearby_preferences_rank_before_scores(self):
+        # a confirmed user preference should come before a higher-scored
+        # restroom with unknown preference information. cleanliness still
+        # orders restrooms that have the same preference rank.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "high-score-unknown-accessibility",
+                    "name": "High score unknown restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                },
+                {
+                    "restroomId": "low-score-accessible",
+                    "name": "Low score accessible restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9801],
+                    },
+                    "amenities": {"accessible": True},
+                },
+            ]
+        )
+        self.ratings_collection.insert_many(
+            [
+                {
+                    "restroomId": "high-score-unknown-accessibility",
+                    "cleanliness": 3,
+                },
+                {"restroomId": "low-score-accessible", "cleanliness": 1},
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+            "&accessible=true"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        restroom_ids = [
+            restroom["restroomId"] for restroom in response.get_json()["restrooms"]
+        ]
+        self.assertEqual(
+            restroom_ids,
+            ["low-score-accessible", "high-score-unknown-accessibility"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
