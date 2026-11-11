@@ -40,21 +40,24 @@ export default function BottomNav() {
     <>
       {!selectingLocation && (<View style={styles.container}>
         <Pressable
-          style={styles.settings}
+          style={[styles.settings, styles.bottomNavButton]}
+          android_ripple={{ color: '#ffffff33', foreground: true }}
           accessibilityRole="button"
           accessibilityLabel="Open settings"
           onPress={() => settingsSheetRef.current?.snapToIndex(1)}>
           <Settings color="#fff" size={24} />
         </Pressable>
         <Pressable
-          style={styles.filter}
+          style={[styles.filter, styles.bottomNavButton]}
+          android_ripple={{ color: '#ffffff33', foreground: true }}
           accessibilityRole="button"
           accessibilityLabel="Open filter options"
           onPress={() => filterSheetRef.current?.snapToIndex(1)}>
           <ListFilter color="#fff" size={20} />
         </Pressable>
         <Pressable
-          style={styles.add}
+          style={[styles.add, styles.bottomNavButton]}
+          android_ripple={{ color: '#ffffff33', foreground: true }}
           onPress={() => {
             setSelectingLocation(true)
           }}>
@@ -84,36 +87,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 14,
   },
+  bottomNavButton: {
+    elevation: 8, // Shadows for Android
+    shadowColor: '#000', // Shadows for iOS
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden'
+  },
   settings: {
     height: 52,
     width: 52,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: 'gray',
     borderRadius: 26,
   },
   filter: {
     height: 52,
     width: 52,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#009966',
     borderRadius: 26,
   },
   add: {
     height: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#009966',
     borderRadius: 32,
-    elevation: 8, // Shadows for Android
-    shadowColor: '#000', // Shadows for iOS
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
     paddingInline: 16,
     gap: 8,
   },

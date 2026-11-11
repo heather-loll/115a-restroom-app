@@ -59,7 +59,7 @@ export default function SelectLocation(props: { setAddRestroomSheetOpen: any }) 
         <View style={styles.crosshairsContainer}>
           <Crosshair size={28} color="white" />
         </View>
-        <Pressable onPress={next} style={styles.confirmLocationButton}>
+        <Pressable onPress={next} style={styles.confirmLocationButton} android_ripple={{ color: '#ffffff33', foreground: true }}>
           <Text style={styles.confirmLocationText}>
             Confirm Location
           </Text>
@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    // paddingLeft: 32,
-    paddingBlock: 16
+    paddingBlock: 16,
+    overflow: 'hidden'
   },
   confirmLocationText: {
     textAlign: 'start',

@@ -20,7 +20,6 @@ import {
 import { useCurrentMapLocationStore } from '../utils/stores'
 import { getNearestAddress } from '../utils/location'
 
-const submit = async () => {};
 
 const BORDER = 2;
 
@@ -50,6 +49,7 @@ function CleanlinessRanking() {
           <Pressable
             key={id}
             onPress={() => setSelected(selected === id ? 0 : id)}
+            // android_ripple={{ color: !selected ? '#ffffff50' : '#0099331a', foreground: true }} 
             style={[
               styles.cleanlinessOption,
               {
@@ -88,6 +88,7 @@ function ToggleCard(props: { label: string; icon: LucideIcon }) {
   return (
     <Pressable
       style={[styles.card, checked ? styles.cardChecked : {}]}
+      // android_ripple={{ color: !checked ? '#ffffff50' : '#0099331a', foreground: true }} 
       onPress={() => setChecked(!checked)}>
       <props.icon size={32} style={styles.cardIcon} />
       <Text style={styles.cardLabel}>{props.label}</Text>
@@ -115,6 +116,10 @@ export default  function AddRestroomSheet(props: {
   ).then((a) => {
     setAddress(a ?? "");
   })
+  
+  const submit = async () => {
+    
+  };
   
   return (
     <BottomSheet
@@ -148,7 +153,7 @@ export default  function AddRestroomSheet(props: {
             <ToggleCard label="Changing Station" icon={Baby} />
           </View>
 
-          <Pressable onClick={submit} style={styles.submitButton}>
+          <Pressable onPress={submit} style={styles.submitButton} android_ripple={{ color: '#00993333', foreground: true }}>
             <Text style={styles.submitText}>Submit</Text>
             <ArrowRight size={24} style={styles.submitArrow} />
           </Pressable>
@@ -200,6 +205,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden'
   },
   cardChecked: {
     borderColor: '#009966',
@@ -238,10 +244,10 @@ const styles = StyleSheet.create({
     color: 'white',
     paddingBlock: 12,
     borderRadius: 999,
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 32,
+    overflow: 'hidden'
   },
   submitText: {
     textAlign: 'center',
@@ -270,5 +276,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 2,
     paddingBlock: 8,
+    overflow: 'hidden'
   },
 });
