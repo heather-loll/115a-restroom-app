@@ -7,8 +7,8 @@ rules without changing stored restroom data.
 
 def prioritize_by_cleanliness_score(restrooms):
     # return a new list with known higher scores first. Python's sorted function
-    # is stable, so equal and unknown scores keep the incoming preference and
-    # distance order that the nearby endpoint already created.
+    # is stable, so equal and unknown scores keep the incoming distance order
+    # that the nearby endpoint already created.
     return sorted(restrooms, key=cleanliness_score_sort_key)
 
 
