@@ -20,6 +20,14 @@ type AmenitiesList = {
   babyChangingStation?: boolean;
 };
 
+type AmenityId =
+  | 'paymentRequired'
+  | 'accessible'
+  | 'unisex'
+  | 'singleOccupancy'
+  | 'menstrualProductsAvailible'
+  | 'babyChangingStation';
+
 interface GetRestroomsAPIResponse {
   restrooms: Restroom[];
   search: {

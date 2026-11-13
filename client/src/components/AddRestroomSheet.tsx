@@ -19,6 +19,7 @@ import {
 
 import { useCurrentMapLocationStore } from '../utils/stores';
 import { getNearestAddress } from '../utils/location';
+import { API_submitRestroom } from '@/utils/api';
 
 const BORDER = 2;
 
@@ -83,7 +84,12 @@ const selectedStyles = {
   borderColor: '#009933',
 };
 
-function ToggleCard(props: { label: string; icon: LucideIcon }) {
+function ToggleCard(props: {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  updateAmenities: Function;
+}) {
   const [checked, setChecked] = useState(false);
 
   return (
@@ -91,6 +97,7 @@ function ToggleCard(props: { label: string; icon: LucideIcon }) {
       style={[styles.card, checked ? styles.cardChecked : {}]}
       // android_ripple={{ color: !checked ? '#ffffff50' : '#0099331a', foreground: true }}
       onPress={() => {
+        props.updateAmenities(props.id, !checked);
         setChecked(!checked);
       }}>
       <props.icon size={32} style={styles.cardIcon} />
@@ -116,14 +123,35 @@ export default function AddRestroomSheet(props: {
   const [address, setAddress] = useState('');
 
   const [cleanliness, setCleanliness] = useState<0 | 1 | 2 | 3>(0);
-  const [amenities, setAmenities] = useState();
+  const [amenities, setAmenities] = useState({
+    paymentRequired: false,
+    accessible: false,
+    unisex: false,
+    singleOccupancy: false,
+    menstrualProductsAvailible: false,
+    babyChangingStation: false,
+  });
 
   getNearestAddress(currentMapLocation.longitude, currentMapLocation.latitude).then(a => {
     setAddress(a ?? '');
   });
 
   const submit = async () => {
+    await API_submitRestroom(
+      currentMapLocation.longitude,
+      currentMapLocation.latitude,
+      address,
+      cleanliness || undefined,
+      amenities,
+    );
+
     setAddRestroomSheetOpen(false);
+  };
+
+  const updateAmenities = (id: AmenityId, value: boolean) => {
+    const newAmenities = { ...amenities };
+    newAmenities[id] = value;
+    setAmenities(newAmenities);
   };
 
   return (
@@ -150,12 +178,42 @@ export default function AddRestroomSheet(props: {
 
         <Text style={styles.subheading}>Select Amenities</Text>
         <View style={styles.cardContainer}>
-          <ToggleCard label="Customers Only" icon={LockKeyhole} />
-          <ToggleCard label="Accessible" icon={Accessibility} />
-          <ToggleCard label="Single Occupancy" icon={DoorClosed} />
-          <ToggleCard label="Gender Neutral" icon={Transgender} />
-          <ToggleCard label="Menstrual Products" icon={Droplets} />
-          <ToggleCard label="Changing Station" icon={Baby} />
+          <ToggleCard
+            id="paymentRequired"
+            label="Customers Only"
+            icon={LockKeyhole}
+            updateAmenities={updateAmenities}
+          />
+          <ToggleCard
+            id="accessible"
+            label="Accessible"
+            icon={Accessibility}
+            updateAmenities={updateAmenities}
+          />
+          <ToggleCard
+            id="singleOccupancy"
+            label="Single Occupancy"
+            icon={DoorClosed}
+            updateAmenities={updateAmenities}
+          />
+          <ToggleCard
+            id="unisex"
+            label="Gender Neutral"
+            icon={Transgender}
+            updateAmenities={updateAmenities}
+          />
+          <ToggleCard
+            id="menstrualProductsAvailible"
+            label="Menstrual Products"
+            icon={Droplets}
+            updateAmenities={updateAmenities}
+          />
+          <ToggleCard
+            id="babyChangingStation"
+            label="Changing Station"
+            icon={Baby}
+            updateAmenities={updateAmenities}
+          />
         </View>
 
         <Pressable
