@@ -1,7 +1,7 @@
 """
 HTTP routes for the API.
 /api/restrooms/nearest returns the closest MongoDB restroom,
-/api/restrooms/nearby returns nearby map pins optionally matched to preferences,
+/api/restrooms/nearby returns nearby map pins prioritized by preferences and scores,
 POST /api/restrooms saves a user-submitted restroom in MongoDB,
 POST /api/restrooms/amend updates an existing restroom in MongoDB, and
 POST /api/restrooms/<restroom_id>/ratings saves one cleanliness vote.
@@ -25,6 +25,7 @@ from .preferences import (
     preference_amenities,
     prioritize_restrooms,
 )
+from .scores import prioritize_by_cleanliness_score
 
 
 api = Blueprint("api", __name__)
@@ -359,9 +360,14 @@ def nearby_restrooms():
         radius_meters=radius_meters
     )
 
-    # first remove restrooms known not to meet a selected preference. then rank
-    # confirmed matches before restrooms whose amenity information is unknown.
+    # first remove restrooms known not to meet a selected preference. score
+    # ordering then ranks better-rated restrooms within each preference group.
     restrooms = filter_restrooms(restrooms, preferences)
+    restrooms = prioritize_by_cleanliness_score(restrooms)
+
+    # preference ranking runs last so confirmed user preferences stay easiest
+    # to find. when preferences are equal or absent, it preserves the
+    # cleanliness ordering created above.
     restrooms = prioritize_restrooms(restrooms, preferences)
 
     return jsonify(
