@@ -52,7 +52,12 @@ before using the restroom endpoints.
 1. In mongosh, run the following:
    - `use ToiletApp` (creates the database "ToiletApp")
    - `db.createCollection("restrooms")` (creates the collection "restrooms")
-1. Once that is setup, run the python script `server/app/osm_refuge_import/import_overpass_json_mongodb.py` from the venv to build the sample database of Santa Cruz data
+   - `db.createCollection("restroom_ratings")`
+   - `db.createCollection("restroom_reports")`
+   - `exit`
+1. Once that is setup, source the venv (see "Set Up Local Server")
+1. cd to `115a-restroom-app/server/app/`
+1. Run `PYTHONPATH="../../" python import_overpass_json_mongodb.py` to build the basic Santa Cruz database
 
 The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
 `restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
