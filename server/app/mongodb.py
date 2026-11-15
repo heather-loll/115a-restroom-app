@@ -5,6 +5,9 @@ input, while these functions search, create, update, and rate restroom documents
 """
 
 from uuid import uuid4
+import time
+
+import datetime
 from flask import current_app
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
@@ -109,6 +112,17 @@ def get_ratings_collection():
     restrooms_collection = get_restrooms_collection()
     return restrooms_collection.database["restroom_ratings"]
 
+def get_reports_collection():
+    # return the collection containing reports.
+    # stores list of reports made for each restroom along with a timestamp
+    test_collection = current_app.config.get("REPORTS_COLLECTION")
+    if test_collection is not None:
+        return test_collection
+
+    restrooms_collection = get_restrooms_collection()
+    return restrooms_collection.database["restroom_reports"]
+
+
 
 def get_cleanliness_summary(restroom_id):
     # calculate the average and count for one restroom's saved votes.
@@ -145,6 +159,30 @@ def add_cleanliness_average(restroom, summary=None):
         restroom["amenities"] = amenities
 
     return rating_count
+
+def create_report_field(restroomId):
+    restroom_collection = get_restrooms_collection()
+    restroom = restroom_collection.find_one({"restroomId": restroomId})
+    if restroom is None:
+        raise RestroomDoesntExistError("Restroom doesn't exist.")
+
+    report_collection = get_reports_collection()
+    document = {
+        "restroomId": restroomId,
+        "broken": [],
+        "busy": [],
+        "nonexistent": [],
+    }
+
+    reports = {
+        "broken": False,
+        "busy": False,
+        "nonexistent": False,
+        "data": document["_id"]
+    }
+    report_collection.insert_one(document)
+    restroom_collection.update_one({"restroomId": restroomId}, {"$set": {"reports": reports}})
+
 
 
 def build_restroom_document(
@@ -282,6 +320,54 @@ def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
         document["directions"] = directions
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
+
+def add_restroom_report(restroom_id, reports):
+    #while all report types are unified here, the averaging method is different for each
+    #"nonexistent" and "broken" is a list of the last 5 reports made, if they're all for nonexistent, then the bathroom doesn't exist
+    # TODO: Schedule nonexistent bathrooms for deletion
+    #"busy" calculates a rolling standard deviation of all busy/non-busy report minutes
+    #if the standard deviation of busy is higher than not busy, then the bathroom is busy
+    # TODO: Actually implement busy once we're settled on what we want with that
+
+    # find relevant restroom document to update the report score from
+    restroom_collection = get_restrooms_collection()
+    document = restroom_collection.find_one(
+        {
+            "restroomId": restroom_id
+        }
+    )
+    if document is None:
+        raise RestroomDoesntExistError("Restroom doesn't exist.")
+    reports_aggregate = document.get("reports", None)
+    if reports_aggregate is None:
+        create_report_field(restroom_id)
+    reportsId = reports_aggregate.get("data", None)
+    if reportsId is None:
+        raise MongoDatabaseError("Report field with no linked reports object")
+    reports_collection = get_reports_collection()
+    reports = reports_collection.find_one({"_id": reportsId})
+    if reports is None:
+        raise MongoDatabaseError("Report object with no linked reports")
+    #unixtime internally
+    unixtime = time.time()
+    timestamp = datetime.datetime.fromtimestamp(unixtime)
+    query = {"$push": {}}
+    broken = reports.get("broken", None)
+    busy = reports.get("busy", None)
+    nonexistent = reports.get("nonexistent", None)
+    if broken is not None:
+        query["$push"]["broken"] = {"status": broken, "timestamp": timestamp}
+    if busy is not None:
+        query["$push"]["busy"] = {"status": busy, "timestamp": timestamp}
+    if nonexistent is not None:
+        query["$push"]["nonexistent"] = {"status": nonexistent, "timestamp": timestamp}
+    reports_collection.update_one({"_id": reportsId}, query)
+
+
+
+
+
+
 
 
 def add_cleanliness_rating(restroom_id, cleanliness):

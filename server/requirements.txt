@@ -12,3 +12,5 @@ pymongo>=4.0
 geojson>=3.0
 
 mongomock-ng>=7.11.1
+
+-e .

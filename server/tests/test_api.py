@@ -17,6 +17,7 @@ class RestroomApiTests(unittest.TestCase):
         database = mongomock_ng.MongoClient().db
         self.collection = database.restrooms
         self.ratings_collection = database.restroom_ratings
+        self.reports_collection = database.restroom_ratings
         self.collection.create_index([("geometry", "2dsphere")])
         self.collection.create_index("restroomId")
         self.app = create_app(
@@ -24,6 +25,7 @@ class RestroomApiTests(unittest.TestCase):
                 "TESTING": True,
                 "RESTROOMS_COLLECTION": self.collection,
                 "RATINGS_COLLECTION": self.ratings_collection,
+                "REPORTS_COLLECTION": self.reports_collection,
             }
         )
         self.client = self.app.test_client()
