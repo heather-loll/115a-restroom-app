@@ -47,13 +47,18 @@ backend can be built without mixing backend code into the React Native app.
 The API reads restroom data from MongoDB, so MongoDB must be installed and running
 before using the restroom endpoints.
 
-1. {To Do}
-1.
-1.
+1. Follow the mongodb [installation guide](https://www.mongodb.com/docs/manual/administration/install-community/) for your operating system, 
+1. Once running, it should be available as a background service, connect to it by starting a session with `mongosh`
+1. In mongosh, run the following:
+   - `use ToiletApp` (creates the database "ToiletApp")
+   - `db.createCollection("restrooms")` (creates the collection "restrooms")
+1. Once that is setup, run the python script `server/app/osm_refuge_import/import_overpass_json_mongodb.py` from the venv to build the sample database of Santa Cruz data
 
 The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
 `restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
 `MONGODB_RESTROOMS_COLLECTION` before starting Python to use different values.
+
+### Set Up Local Server
 
 1. Open a terminal at the `115a-restroom-app` repository root
 1. `cd server`
@@ -123,20 +128,33 @@ HTTP status `201`. Address information is not stored yet, so clients should omit
 restroom is inside a building. Floors are limited to 5 characters and directions
 are limited to 300 characters.
 
-The accepted amenity names are `cleanliness` (a whole number from 1 to 5),
-`paymentRequired`, `accessible`, `unisex`, `singleOccupancy`,
-`menstrualProductsAvailable`, and `babyChangingStation`. All amenity values other
-than `cleanliness` must be `true` or `false`. A submission with coordinates already
-in the database returns HTTP status `409` instead of creating a duplicate.
+The accepted amenity names are `paymentRequired`, `accessible`, `unisex`,
+`singleOccupancy`, `menstrualProductsAvailable`, and `babyChangingStation`. All
+of these amenity values must be `true` or `false`. A submission may also include
+an optional `cleanliness` value of `1`, `2`, or `3`. These mean filthy, average,
+and pristine. When supplied, it is saved as the restroom's first separate user
+rating. A submission with coordinates already in the database returns HTTP status
+`409` instead of creating a duplicate.
 
 ### Amend-restroom Endpoint
 
-`POST /api/restrooms/amend` updates the name and amenity information for a restroom
-that already exists in MongoDB. The request body must include `restroomId`, `name`,
-and optionally `amenities`, using the same amenity names and values as the
-add-restroom endpoint. Optional `floor` and `directions` values can also be sent
-to update location details. The response contains the updated restroom with HTTP
-status `200`. An unknown `restroomId` returns HTTP status `409`.
+`POST /api/restrooms/amend` updates the name and boolean amenity information for a
+restroom that already exists in MongoDB. The request body must include `restroomId`,
+`name`, and optionally `amenities`, using the same boolean amenity names as the
+add-restroom endpoint. Optional `floor` and `directions` values can also be sent to
+update location details. Cleanliness is not amended here because it is a separate
+anonymous user vote. The response contains the updated restroom with HTTP status
+`200`. An unknown `restroomId` returns HTTP status `409`.
+
+### Cleanliness-rating Endpoint
+
+`POST /api/restrooms/<restroomId>/ratings` adds one cleanliness vote to an existing
+restroom. Its JSON request body must include `cleanliness` as a whole number: `1`
+for filthy, `2` for average, or `3` for pristine. The backend saves every vote
+separately and returns HTTP status `201` with the updated restroom and `ratingCount`.
+The returned `restroom.amenities.cleanliness` value is the rolling average of all
+saved votes. The nearest and nearby restroom endpoints include the same average when
+ratings exist, and omit it when there are no votes yet.
 
 ### Stop the Backend
 

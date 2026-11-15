@@ -1,13 +1,13 @@
 """
-Tests the restroom preference-ranking and preference-filtering helpers without flask,
-mongodb, or a live database. run with: `python -m unittest discover -s tests` in venv.
+Tests the restroom preference-ranking and preference-filtering helpers without Flask,
+MongoDB, or a live database. Run with: `python -m unittest discover -s tests` in the virtual environment.
 """
 
 import unittest
 from app.preferences import filter_restrooms, prioritize_restrooms
 
 
-class preference_matching_tests(unittest.TestCase):
+class PreferenceMatchingTests(unittest.TestCase):
     # confirmed amenity matches should be shown before unknown or conflicting data.
     def test_us_2_3_t_2_prioritizes_confirmed_matches_before_unknown_and_conflicting_restrooms(self):
         restrooms = [

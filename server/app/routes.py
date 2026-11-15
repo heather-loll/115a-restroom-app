@@ -2,8 +2,9 @@
 HTTP routes for the API.
 /api/restrooms/nearest returns the closest MongoDB restroom,
 /api/restrooms/nearby returns nearby map pins optionally matched to preferences,
-POST /api/restrooms saves a user-submitted restroom in MongoDB, and
-POST /api/restrooms/amend updates an existing restroom in MongoDB.
+POST /api/restrooms saves a user-submitted restroom in MongoDB,
+POST /api/restrooms/amend updates an existing restroom in MongoDB, and
+POST /api/restrooms/<restroom_id>/ratings saves one cleanliness vote.
 /api/health confirms that the backend is running.
 This file defines the API URLs that the frontend can call.
 """
@@ -13,6 +14,7 @@ from .mongodb import (
     MongoDatabaseError,
     RestroomAlreadyExistsError,
     RestroomDoesntExistError,
+    add_cleanliness_rating,
     create_restroom,
     edit_restroom,
     find_nearby_restrooms,
@@ -140,6 +142,20 @@ def get_optional_text(data, name, maximum_length):
     return value, None
 
 
+def get_cleanliness_rating(data):
+    # validate the agreed three-button cleanliness scale used by the frontend.
+    # bool must be rejected explicitly because Python treats true and false as
+    # integers, but neither represents a real user cleanliness vote.
+    cleanliness = data.get("cleanliness")
+    if isinstance(cleanliness, bool) or not isinstance(cleanliness, int):
+        return None, "JSON field 'cleanliness' must be a whole number from 1 to 3."
+
+    if not 1 <= cleanliness <= 3:
+        return None, "JSON field 'cleanliness' must be a whole number from 1 to 3."
+
+    return cleanliness, None
+
+
 def get_new_restroom_data():
     # validate the JSON body accepted by POST /api/restrooms.
     # The frontend submits user-entered data without an ID or distance.
@@ -199,14 +215,19 @@ def get_new_restroom_data():
         unknown_name = sorted(unknown_amenities)[0]
         return None, f"Unknown amenity field: '{unknown_name}'."
 
+    cleanliness_rating = None
     validated_amenities = {}
     for amenity_name, value in amenities.items():
         if amenity_name == "cleanliness":
-            if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 5:
-                return None, "Amenity 'cleanliness' must be a whole number from 1 to 5."
+            cleanliness_rating, error = get_cleanliness_rating(
+                {"cleanliness": value}
+            )
+            if error:
+                return None, error
         elif not isinstance(value, bool):
             return None, f"Amenity '{amenity_name}' must be true or false."
-        validated_amenities[amenity_name] = value
+        else:
+            validated_amenities[amenity_name] = value
 
     return {
         "name": name,
@@ -215,6 +236,7 @@ def get_new_restroom_data():
         # address is not stored until the team chooses a structured address format.
         "address": None,
         "amenities": validated_amenities,
+        "cleanliness_rating": cleanliness_rating,
         "floor": floor,
         "directions": directions,
     }, None
@@ -259,7 +281,12 @@ def get_amended_restroom_data():
         "menstrualProductsAvailable",
         "babyChangingStation",
     }
-    allowed_amenities = allowed_boolean_amenities | {"cleanliness"}
+    if "cleanliness" in amenities:
+        return None, (
+            "Amenity 'cleanliness' must be submitted to the restroom rating endpoint."
+        )
+
+    allowed_amenities = allowed_boolean_amenities
     unknown_amenities = set(amenities) - allowed_amenities
     if unknown_amenities:
         unknown_name = sorted(unknown_amenities)[0]
@@ -267,10 +294,7 @@ def get_amended_restroom_data():
 
     validated_amenities = {}
     for amenity_name, value in amenities.items():
-        if amenity_name == "cleanliness":
-            if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 5:
-                return None, "Amenity 'cleanliness' must be a whole number from 1 to 5."
-        elif not isinstance(value, bool):
+        if not isinstance(value, bool):
             return None, f"Amenity '{amenity_name}' must be true or false."
         validated_amenities[amenity_name] = value
 
@@ -384,3 +408,26 @@ def amend_restroom():
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
     return jsonify({"restroom": restroom}), 200
+
+
+@api.post("/restrooms/<restroom_id>/ratings")
+def rate_restroom(restroom_id):
+    # add one anonymous cleanliness vote to a known restroom.
+    # a rating is intentionally separate from amend because it contributes to a
+    # rolling community average instead of replacing shared restroom details.
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Request body must be a JSON object."}), 400
+
+    cleanliness, error = get_cleanliness_rating(data)
+    if error:
+        return jsonify({"error": error}), 400
+
+    try:
+        restroom, rating_count = add_cleanliness_rating(restroom_id, cleanliness)
+    except RestroomDoesntExistError as error:
+        return jsonify({"error": str(error)}), 409
+    except MongoDatabaseError:
+        return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
+
+    return jsonify({"restroom": restroom, "ratingCount": rating_count}), 201

@@ -60,11 +60,15 @@ export const API_getRestrooms = async (
 export const API_submitRestroom = async (
   longitude: number,
   latitude: number,
+  address: string | undefined,
+  cleanliness: 1 | 2 | 3 | undefined = undefined,
   amenities: AmenitiesList,
 ): Promise<Restroom | null> => {
   const [data, error] = await post<Restroom>('/restrooms', {
     longitude,
     latitude,
+    address,
+    cleanliness,
     amenities,
   });
 

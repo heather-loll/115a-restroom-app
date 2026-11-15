@@ -42,7 +42,13 @@ export default function Index() {
         address: '1415 Pacific Ave, Santa Cruz, CA',
         latitude: 36.975188,
         longitude: -122.026669,
-        amenities: {},
+        amenities: {
+          unisex: true,
+          singleOccupancy: true,
+          babyChangingStation: true,
+          paymentRequired: true,
+          menstrualProductsAvailible: true
+        },
       },
     ]);
   }, []);

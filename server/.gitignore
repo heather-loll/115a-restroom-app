@@ -4,3 +4,5 @@
 # Python creates these cache files while the server and tests run.
 __pycache__/
 *.py[cod]
+
+.idea/
