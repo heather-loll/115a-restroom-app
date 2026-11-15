@@ -1,7 +1,31 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { Transgender } from 'lucide-react-native';
+import {
+  Accessibility,
+  Baby,
+  DoorClosed,
+  Droplets,
+  LockKeyhole,
+  LucideIcon,
+  Transgender,
+  X
+} from 'lucide-react-native';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+
+
+function AmenityItem(props: { shown: boolean, label: string, icon: LucideIcon}) {
+  return(
+    props.shown && (
+      <View style={styles.listItem}> 
+        <props.icon color="#000" size={24} />
+        <Text style={styles.amenityText}>{props.label}</Text>
+      </View>
+    )
+  )
+}
+
+
 export default function RestroomInfoSheet(props: {
   restroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
@@ -35,33 +59,22 @@ export default function RestroomInfoSheet(props: {
       onChange={handleSheetChange}
       index={-1}>
       <BottomSheetView style={styles.sheetContainer}>
+        <Pressable style={styles.closeButton}
+          onPress={() => setActiveRestroom(null)}>
+          <X size={24} color="#85858B"/>
+        </Pressable>
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
         <Text style={styles.sheetSubHeader}>Rate Bathroom</Text>
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
         <View style={styles.amenityContainer}>
-          <View style={styles.listItem}> 
-            {/* temp to show multiple obj layout */}
-            <Transgender color="#000" size={28} />
-            <Text style={styles.amenityText}>Unisex</Text>
-          </View>
-           <View style={styles.listItem}> 
-            <Transgender color="#000" size={28} />
-            <Text style={styles.amenityText}>Unisex</Text>
-          </View>
-           <View style={styles.listItem}> 
-            <Transgender color="#000" size={28} />
-            <Text style={styles.amenityText}>Unisex</Text>
-          </View>
-           <View style={styles.listItem}> 
-            <Transgender color="#000" size={28} />
-            <Text style={styles.amenityText}>Unisex</Text>
-          </View>
-           <View style={styles.listItem}> 
-            <Transgender color="#000" size={28} />
-            <Text style={styles.amenityText}>Unisex</Text>
-          </View>
+          <AmenityItem shown = {localData?.amenities?.paymentRequired === true} label="Customers Only" icon={LockKeyhole} />
+          <AmenityItem shown = {localData?.amenities?.accessible === true} label="Accessible" icon={Accessibility} />
+          <AmenityItem shown = {localData?.amenities?.singleOccupancy === true} label="Single Occupancy" icon={DoorClosed} />
+          <AmenityItem shown = {localData?.amenities?.unisex === true} label="Gender Neutral" icon={Transgender} />
+          <AmenityItem shown = {localData?.amenities?.menstrualProductsAvailible === true} label="Menstrual Products" icon={Droplets} />
+          <AmenityItem shown = {localData?.amenities?.babyChangingStation === true} label="Changing Station" icon={Baby} />
         </View>
       </BottomSheetView>
     </BottomSheet>
@@ -101,6 +114,16 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   amenityText: {
-    fontSize: 16
+    fontSize: 12
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+    marginBottom: -8
   }
 });
