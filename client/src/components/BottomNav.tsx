@@ -5,7 +5,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { useSelectingLocationToCreateStore } from '../utils/stores';
 
-import AddRestroomSheet from './AddRestroomSheet';
+import AddRestroomSheet from './AddRestroomSheet/AddRestroomSheet';
 import SelectLocation from './SelectLocation';
 
 function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
