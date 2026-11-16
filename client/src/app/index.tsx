@@ -47,7 +47,7 @@ export default function Index() {
           singleOccupancy: true,
           babyChangingStation: true,
           paymentRequired: true,
-          menstrualProductsAvailible: true
+          menstrualProductsAvailible: true,
         },
       },
     ]);
