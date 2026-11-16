@@ -331,7 +331,7 @@ def get_report_data():
         if not isinstance(value, bool):
             return None, f"reports '{report_name}' must be true or false."
 
-    return reports
+    return reports, None
 
 
 @api.get("/health")
@@ -433,7 +433,7 @@ def report_restroom(restroom_id):
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
-    return jsonify({"restroom": restroom}), 200
+    return jsonify({"restroom": restroom}), 201
 
 @api.post("/restrooms/amend")
 def amend_restroom():

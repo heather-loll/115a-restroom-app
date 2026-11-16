@@ -160,6 +160,7 @@ def add_cleanliness_average(restroom, summary=None):
 
     return rating_count
 
+
 def create_report_field(restroomId):
     restroom_collection = get_restrooms_collection()
     restroom = restroom_collection.find_one({"restroomId": restroomId})
@@ -174,14 +175,18 @@ def create_report_field(restroomId):
         "nonexistent": [],
     }
 
+
+    id = report_collection.insert_one(document).inserted_id
+
     reports = {
         "broken": False,
         "busy": False,
         "nonexistent": False,
-        "data": document["_id"]
+        "data": id
     }
-    report_collection.insert_one(document)
+
     restroom_collection.update_one({"restroomId": restroomId}, {"$set": {"reports": reports}})
+    return reports
 
 
 
@@ -235,6 +240,11 @@ def document_to_restroom(document, cleanliness_summary=None):
     # these fields are optional in the shared Restroom type, so omit absent data.
     if "address" in document:
         restroom["address"] = document["address"]
+    if "reports" in document:
+        restroom["reports"] = {}
+        restroom["reports"]["busy"] = document["reports"]["busy"]
+        restroom["reports"]["broken"] = document["reports"]["broken"]
+        restroom["reports"]["nonexistent"] = document["reports"]["nonexistent"]
     amenities = stored_amenities(document)
     if amenities:
         restroom["amenities"] = amenities
@@ -321,7 +331,7 @@ def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
 
-def add_restroom_report(restroom_id, reports):
+def add_restroom_report(restroom_id, reports_val):
     #while all report types are unified here, the averaging method is different for each
     #"nonexistent" and "broken" is a list of the last 5 reports made, if they're all for nonexistent, then the bathroom doesn't exist
     # TODO: Schedule nonexistent bathrooms for deletion
@@ -336,11 +346,13 @@ def add_restroom_report(restroom_id, reports):
             "restroomId": restroom_id
         }
     )
+    #make sure the restroom has a reports field, and that it links to a reports object
+
     if document is None:
         raise RestroomDoesntExistError("Restroom doesn't exist.")
     reports_aggregate = document.get("reports", None)
     if reports_aggregate is None:
-        create_report_field(restroom_id)
+        reports_aggregate = create_report_field(restroom_id)
     reportsId = reports_aggregate.get("data", None)
     if reportsId is None:
         raise MongoDatabaseError("Report field with no linked reports object")
@@ -348,13 +360,15 @@ def add_restroom_report(restroom_id, reports):
     reports = reports_collection.find_one({"_id": reportsId})
     if reports is None:
         raise MongoDatabaseError("Report object with no linked reports")
+
+    #assemble query, pushing a reports value and a timestamp to each array in the reports object
     #unixtime internally
     unixtime = time.time()
     timestamp = datetime.datetime.fromtimestamp(unixtime)
     query = {"$push": {}}
-    broken = reports.get("broken", None)
-    busy = reports.get("busy", None)
-    nonexistent = reports.get("nonexistent", None)
+    broken = reports_val.get("broken", None)
+    busy = reports_val.get("busy", None)
+    nonexistent = reports_val.get("nonexistent", None)
     if broken is not None:
         query["$push"]["broken"] = {"status": broken, "timestamp": timestamp}
     if busy is not None:
@@ -362,6 +376,26 @@ def add_restroom_report(restroom_id, reports):
     if nonexistent is not None:
         query["$push"]["nonexistent"] = {"status": nonexistent, "timestamp": timestamp}
     reports_collection.update_one({"_id": reportsId}, query)
+    #get the last 5 reports for each (used) list in a reports object
+    lastFiveReports = reports_collection.find_one(
+        {"_id": reportsId},
+        {"busy": {"$slice": -5},"broken": {"$slice": -5}}
+    )
+    is_busy = all(d["status"] for d in lastFiveReports["busy"])
+    is_broken = all(d["status"] for d in lastFiveReports["busy"])
+
+    #set aggregate field
+    document = restroom_collection.find_one_and_update(
+        {"restroomId": restroom_id},
+        {"$set": {"reports": {"busy": is_busy, "broken": is_broken}}},
+        returnNewDocument=True
+    )
+
+    if document is None:
+        raise MongoDatabaseError("Bad update query")
+
+
+    return document_to_restroom(document)
 
 
 
@@ -380,7 +414,6 @@ def add_cleanliness_rating(restroom_id, cleanliness):
         document = restroom_collection.find_one({"restroomId": restroom_id})
         if document is None:
             raise RestroomDoesntExistError("Restroom doesn't exist.")
-
         get_ratings_collection().insert_one(
             {
                 "restroomId": restroom_id,

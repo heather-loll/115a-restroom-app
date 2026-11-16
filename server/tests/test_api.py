@@ -6,6 +6,8 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 """
 
 import unittest
+from operator import truediv
+
 import mongomock_ng
 from app import create_app
 
@@ -17,7 +19,7 @@ class RestroomApiTests(unittest.TestCase):
         database = mongomock_ng.MongoClient().db
         self.collection = database.restrooms
         self.ratings_collection = database.restroom_ratings
-        self.reports_collection = database.restroom_ratings
+        self.reports_collection = database.restroom_reports
         self.collection.create_index([("geometry", "2dsphere")])
         self.collection.create_index("restroomId")
         self.app = create_app(
@@ -532,6 +534,59 @@ class RestroomApiTests(unittest.TestCase):
 
         self.assertEqual(amend_response.status_code, 400)
         self.assertEqual(self.ratings_collection.count_documents({}), 1)
+
+    def test_s_3_us_1_t_1_creates_reports_object(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        self.assertEqual(self.reports_collection.count_documents({}), 0)
+        self.assertEqual(self.ratings_collection.count_documents({}), 0)
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False,
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+
+
+    def test_s_3_us_1_t_1_skips_duplicate_reports(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False,
+                    "busy": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+
 
 
 if __name__ == "__main__":
