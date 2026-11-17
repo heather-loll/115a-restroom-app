@@ -9,7 +9,7 @@ import time
 
 import datetime
 from flask import current_app
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import PyMongoError
 from math import asin, cos, radians, sin, sqrt
 
@@ -44,22 +44,10 @@ def distance_in_meters(first_latitude, first_longitude, second_latitude, second_
 def format_restroom(element, user_latitude, user_longitude):
     # add distance data while keeping the shared frontend Restroom JSON structure.
 
-    restroom = {
-        # the source/type prefix makes an ID unique across OpenStreetMap record types.
-        "restroomId": element["restroomId"],
-        "name": element["name"],
-        "latitude": element["geometry"]["coordinates"][1],
-        "longitude": element["geometry"]["coordinates"][0],
-        "distanceMeters": round(
-            distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
-        ),
-        # copy amenities so adding a calculated rating never changes the
-        # MongoDB document that was read from the database.
-        "amenities": stored_amenities(element),
-    }
-
-    add_cleanliness_average(restroom)
-    add_location_details(restroom, element)
+    restroom = document_to_restroom(element)
+    restroom["distanceMeters"] = round(
+        distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
+    ),
 
     return restroom
 
@@ -176,13 +164,12 @@ def create_report_field(restroomId):
     }
 
 
-    id = report_collection.insert_one(document).inserted_id
-
+    objid = report_collection.insert_one(document).inserted_id
     reports = {
         "broken": False,
         "busy": False,
         "nonexistent": False,
-        "data": id
+        "data": objid
     }
 
     restroom_collection.update_one({"restroomId": restroomId}, {"$set": {"reports": reports}})
@@ -381,14 +368,14 @@ def add_restroom_report(restroom_id, reports_val):
         {"_id": reportsId},
         {"busy": {"$slice": -5},"broken": {"$slice": -5}}
     )
-    is_busy = all(d["status"] for d in lastFiveReports["busy"])
-    is_broken = all(d["status"] for d in lastFiveReports["busy"])
+    is_busy = len(lastFiveReports["busy"]) == 5 and all(d["status"] == True for d in lastFiveReports["busy"])
+    is_broken = len(lastFiveReports["broken"]) == 5 and all(d["status"] == True for d in lastFiveReports["broken"])
 
     #set aggregate field
     document = restroom_collection.find_one_and_update(
         {"restroomId": restroom_id},
-        {"$set": {"reports": {"busy": is_busy, "broken": is_broken}}},
-        returnNewDocument=True
+        {"$set": {"reports.busy": is_busy, "reports.broken": is_broken}},
+        return_document=ReturnDocument.AFTER
     )
 
     if document is None:

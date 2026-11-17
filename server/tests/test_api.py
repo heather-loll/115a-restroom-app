@@ -587,6 +587,127 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(report_response.status_code, 201)
         self.assertEqual(self.reports_collection.count_documents({}), 1)
 
+    def test_s_3_us_1_t_1_dupe_reports_aggregate(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False
+                }
+            },
+
+        )
+
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+
+    def test_s_3_us_1_t_1_5_dupe_reports_change_flag(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], True)
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["busy"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": False
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["busy"], False)
+
+
+
+
 
 
 if __name__ == "__main__":
