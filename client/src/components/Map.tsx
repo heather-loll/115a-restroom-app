@@ -1,18 +1,24 @@
 import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import MapView, { Marker, MapMarker } from 'react-native-maps';
+import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
+
+import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
+import { ProgressiveBlur } from './ProgressiveBlur';
 
 type PinState = {
   markerId: string | null;
   restroom: Restroom | null;
 } | null;
 
-export default function Map(props: {
+interface MapProps {
   points: Restroom[];
   activeRestroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
-}) {
-  const { points, activeRestroom, setActiveRestroom } = props;
+}
+
+export default function Map({ points, activeRestroom, setActiveRestroom }: MapProps) {
+  const [selectingLocation] = useSelectingLocationToCreateStore();
+  const [currentMapLocation, setCurrentMapLocation] = useCurrentMapLocationStore();
 
   const mapRef = useRef<MapView>(null);
   const [activePin, setActivePin] = useState<PinState>(null);
@@ -53,47 +59,54 @@ export default function Map(props: {
   }, [activeRestroom]);
 
   return (
-    <MapView
-      key={`map-view-${points.length}`}
-      ref={mapRef}
-      style={styles.map}
-      initialRegion={{
-        latitude: 36.974943496456206,
-        longitude: -122.02797529604096,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
-      showsPointsOfInterests={false}
-      appleLogoInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
-      legalLabelInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
-      toolbarEnabled={false}
-      zoomEnabled={activeRestroom === null}
-      scrollEnabled={activeRestroom === null}
-      pitchEnabled={activeRestroom === null}
-      rotateEnabled={activeRestroom === null}
-      onPress={handleMarkerDismiss}
-      // googleMapId={ }
-    >
-      {points.map(restroom => {
-        return (
-          <Marker
-            ref={e => {
-              markerRefs.current[restroom.restroomId] = e;
-            }}
-            coordinate={{
-              latitude: restroom.latitude,
-              longitude: restroom.longitude,
-            }}
-            pinColor="#009966"
-            onSelect={e => {
-              e.stopPropagation();
-              setActivePin({ markerId: restroom.restroomId, restroom });
-            }}
-            key={restroom.restroomId}
-          />
-        );
-      })}
-    </MapView>
+    <>
+      <MapView
+        key={`map-view-${points.length}`}
+        ref={mapRef}
+        style={styles.map}
+        initialRegion={{
+          latitude: 36.974943496456206,
+          longitude: -122.02797529604096,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+        onRegionChangeComplete={({ longitude, latitude }) => {
+          setCurrentMapLocation({ longitude, latitude });
+        }}
+        appleLogoInsets={{ top: -100, left: -100, right: 0, bottom: 0 }}
+        legalLabelInsets={{ top: -100, left: -100, right: 0, bottom: 0 }}
+        showsPointsOfInterests={selectingLocation}
+        toolbarEnabled={false}
+        zoomEnabled={activeRestroom === null}
+        scrollEnabled={activeRestroom === null}
+        pitchEnabled={activeRestroom === null}
+        rotateEnabled={activeRestroom === null}
+        onPress={handleMarkerDismiss}
+        // googleMapId={ }
+      >
+        {!selectingLocation &&
+          points.map(restroom => {
+            return (
+              <Marker
+                ref={e => {
+                  markerRefs.current[restroom.restroomId] = e;
+                }}
+                coordinate={{
+                  latitude: restroom.latitude,
+                  longitude: restroom.longitude,
+                }}
+                pinColor="#009966"
+                onSelect={e => {
+                  e.stopPropagation();
+                  setActivePin({ markerId: restroom.restroomId, restroom });
+                }}
+                key={restroom.restroomId}
+              />
+            );
+          })}
+      </MapView>
+      {/*<ProgressiveBlur direction="bottom-to-top" style={styles.blur} />*/}
+    </>
   );
 }
 
@@ -101,5 +114,14 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  blur: {
+    width: '100%',
+    height: 150,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: undefined,
   },
 });
