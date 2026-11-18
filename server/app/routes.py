@@ -325,6 +325,9 @@ def get_report_data():
         "nonexistent"
     }
 
+    if len(reports.keys()) == 0:
+        return None, "JSON field 'reports' must contain any of keys \"broken\", \"busy\", and \"nonexistent\"."
+
     if len(reports.keys()) > 3 or set(reports.keys()) - allowed_reports:
         return None, "JSON field 'reports' must contain only entries \"broken\", \"busy\", and \"nonexistent\"."
 
