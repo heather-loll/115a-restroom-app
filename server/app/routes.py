@@ -442,6 +442,9 @@ def report_restroom(restroom_id):
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    if restroom is None:
+        return jsonify({"restroom": {"restroomId": restroom_id}}), 200
+
     return jsonify({"restroom": restroom}), 201
 
 @api.post("/restrooms/amend")
