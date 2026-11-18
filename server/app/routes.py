@@ -18,7 +18,7 @@ from .mongodb import (
     create_restroom,
     edit_restroom,
     find_nearby_restrooms,
-    find_nearest_restroom,
+    find_nearest_restroom, add_restroom_report,
 )
 from .preferences import (
     filter_restrooms,
@@ -307,6 +307,36 @@ def get_amended_restroom_data():
         "directions": directions,
     }, None
 
+def get_report_data():
+    # validate the JSON body accepted by POST /api/restrooms/report.
+    # the frontend submits a restroomId and a list of reports (using boolean)
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return None, "Request body must be a JSON object."
+
+    #frontend must submit ALL reports, we weigh how many times it's been reported normally vs. how many times it's been reported as bad
+    reports = data.get("reports")
+    if not isinstance(reports, dict):
+        return None, "JSON field 'reports' must be a dict."
+
+    allowed_reports = {
+        "broken",
+        "busy",
+        "nonexistent"
+    }
+
+    if len(reports.keys()) == 0:
+        return None, "JSON field 'reports' must contain any of keys \"broken\", \"busy\", and \"nonexistent\"."
+
+    if len(reports.keys()) > 3 or set(reports.keys()) - allowed_reports:
+        return None, "JSON field 'reports' must contain only entries \"broken\", \"busy\", and \"nonexistent\"."
+
+    for report_name, value in reports.items():
+        if not isinstance(value, bool):
+            return None, f"reports '{report_name}' must be true or false."
+
+    return reports, None
+
 
 @api.get("/health")
 def health_check():
@@ -397,6 +427,22 @@ def add_restroom():
 
     return jsonify({"restroom": restroom}), 201
 
+@api.post("/restrooms/<restroom_id>/report")
+def report_restroom(restroom_id):
+    # update an existing restroom's name and optional amenity information.
+    reports, error = get_report_data()
+
+    if error:
+        return jsonify({"error": error}), 400
+
+    try:
+        restroom = add_restroom_report(restroom_id, reports)
+    except RestroomDoesntExistError as error:
+        return jsonify({"error": str(error)}), 409
+    except MongoDatabaseError:
+        return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
+
+    return jsonify({"restroom": restroom}), 201
 
 @api.post("/restrooms/amend")
 def amend_restroom():
