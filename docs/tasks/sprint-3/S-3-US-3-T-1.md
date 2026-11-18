@@ -6,7 +6,7 @@ assignee: Callie Zwicker
 estimate_hours: 2
 ---
 
-# Save reports and change restroom report field if enough reports have occured
+# Delete frequently reported restrooms
 
 ## Description
 
