@@ -964,9 +964,161 @@ class RestroomApiTests(unittest.TestCase):
         )
         self.assertEqual(find_response_one.get_json()["restroom"]["reports"]["broken"], True)
 
+    def test_s_3_us_3_t_1_5_separate_reports_delete_restroom(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
 
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
 
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
 
+        )
+        self.assertEqual(report_response.status_code, 200)
+        self.assertEqual(report_response.get_json()["restroom"], {"restroomId": rid})
+
+    def test_s_3_us_3_t_1_deletes_all_data(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        cleanliness_response = self.client.post(
+            f"/api/restrooms/{rid}/ratings",
+            json={"cleanliness": 3},
+        )
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(self.collection.count_documents({}), 0)
+        self.assertEqual(self.reports_collection.count_documents({}), 0)
+        self.assertEqual(self.ratings_collection.count_documents({}), 0)
+
+    def test_s_3_us_3_t_1_edit_prevents_delete(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        amend_response = self.client.post(
+            "/api/restrooms/amend",
+            json={
+                "restroomId": rid,
+                "name": "Updated restroom",
+                "amenities": {"accessible": False, "singleOccupancy": True},
+                "floor": "3",
+                "directions": "At the end of the north hallway.",
+            },
+        )
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+    def test_s_3_us_3_t_1_rate_prevents_delete(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        cleanliness_response = self.client.post(
+            f"/api/restrooms/{rid}/ratings",
+            json={"cleanliness": 3},
+        )
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
 
 
 
