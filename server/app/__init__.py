@@ -5,8 +5,10 @@ routes to the app.
 """
 
 import os
+
 from flask import Flask
 from flask_cors import CORS
+
 from .routes import api
 
 
@@ -18,7 +20,10 @@ def create_app(test_config=None):
     app.config.from_mapping(
         # retained for the OpenStreetMap helper, although current search routes
         # read restroom data from MongoDB.
-        OVERPASS_URL=os.environ.get("OVERPASS_URL", "https://overpass-api.de/api/interpreter"),
+        OVERPASS_URL=os.environ.get(
+            "OVERPASS_URL",
+            "https://overpass-api.de/api/interpreter",
+        ),
         # prevents a slow optional OpenStreetMap request from waiting forever.
         OVERPASS_TIMEOUT_SECONDS=15,
         # MongoDB stores imported and user-submitted restroom records.

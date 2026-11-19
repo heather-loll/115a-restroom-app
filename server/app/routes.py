@@ -5,6 +5,7 @@ HTTP routes for the API.
 POST /api/restrooms saves a user-submitted restroom in MongoDB,
 POST /api/restrooms/amend updates an existing restroom in MongoDB, and
 POST /api/restrooms/<restroom_id>/ratings saves one cleanliness vote.
+POST /api/restrooms/<restroom_id>/report saves restroom condition reports.
 /api/health confirms that the backend is running.
 This file defines the API URLs that the frontend can call.
 """
@@ -15,10 +16,11 @@ from .mongodb import (
     RestroomAlreadyExistsError,
     RestroomDoesntExistError,
     add_cleanliness_rating,
+    add_restroom_report,
     create_restroom,
     edit_restroom,
     find_nearby_restrooms,
-    find_nearest_restroom, add_restroom_report,
+    find_nearest_restroom,
 )
 from .preferences import (
     filter_restrooms,
@@ -29,6 +31,7 @@ from .scores import prioritize_by_cleanliness_score
 
 
 api = Blueprint("api", __name__)
+
 
 def get_number_argument(name, minimum, maximum, default=None):
     # read and validate one numeric query parameter.
@@ -160,7 +163,7 @@ def get_cleanliness_rating(data):
 def get_new_restroom_data():
     # validate the JSON body accepted by POST /api/restrooms.
     # The frontend submits user-entered data without an ID or distance.
-    # Backend generates the ID, and distance is calculated only during a location search.
+    # The backend generates the ID, and distance is calculated during a location search.
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return None, "Request body must be a JSON object."
@@ -193,7 +196,9 @@ def get_new_restroom_data():
     address = data.get("address")
     if address is not None:
         if not isinstance(address, str) or not address.strip():
-            return None, "JSON field 'address' must be a non-empty string when provided."
+            return None, (
+                "JSON field 'address' must be a non-empty string when provided."
+            )
         address = address.strip()
         if len(address) > 200:
             return None, "JSON field 'address' must be 200 characters or fewer."
@@ -307,29 +312,33 @@ def get_amended_restroom_data():
         "directions": directions,
     }, None
 
+
 def get_report_data():
     # validate the JSON body accepted by POST /api/restrooms/report.
-    # the frontend submits a restroomId and a list of reports (using boolean)
+    # the frontend submits a restroom ID and a list of reports (using boolean).
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return None, "Request body must be a JSON object."
 
-    #frontend must submit ALL reports, we weigh how many times it's been reported normally vs. how many times it's been reported as bad
+    # frontend must submit ALL reports, we weigh how many times it's been reported
+    # normally vs. how many times it's been reported as bad.
     reports = data.get("reports")
     if not isinstance(reports, dict):
         return None, "JSON field 'reports' must be a dict."
 
-    allowed_reports = {
-        "broken",
-        "busy",
-        "nonexistent"
-    }
+    allowed_reports = {"broken", "busy", "nonexistent"}
 
-    if len(reports.keys()) == 0:
-        return None, "JSON field 'reports' must contain any of keys \"broken\", \"busy\", and \"nonexistent\"."
+    if not reports:
+        return None, (
+            "JSON field 'reports' must contain any of keys \"broken\", \"busy\", "
+            "and \"nonexistent\"."
+        )
 
-    if len(reports.keys()) > 3 or set(reports.keys()) - allowed_reports:
-        return None, "JSON field 'reports' must contain only entries \"broken\", \"busy\", and \"nonexistent\"."
+    if len(reports) > 3 or set(reports) - allowed_reports:
+        return None, (
+            "JSON field 'reports' must contain only entries \"broken\", "
+            "\"busy\", and \"nonexistent\"."
+        )
 
     for report_name, value in reports.items():
         if not isinstance(value, bool):
@@ -358,7 +367,7 @@ def nearest_restroom():
     restroom = find_nearest_restroom(
         latitude=latitude,
         longitude=longitude,
-        radius_meters=radius_meters
+        radius_meters=radius_meters,
     )
 
     return jsonify(
@@ -387,7 +396,7 @@ def nearby_restrooms():
     restrooms = find_nearby_restrooms(
         latitude=latitude,
         longitude=longitude,
-        radius_meters=radius_meters
+        radius_meters=radius_meters,
     )
 
     # first remove restrooms known not to meet a selected preference. score
@@ -427,6 +436,7 @@ def add_restroom():
 
     return jsonify({"restroom": restroom}), 201
 
+
 @api.post("/restrooms/<restroom_id>/report")
 def report_restroom(restroom_id):
     # update an existing restroom's name and optional amenity information.
@@ -446,6 +456,7 @@ def report_restroom(restroom_id):
         return jsonify({"restroom": {"restroomId": restroom_id}}), 200
 
     return jsonify({"restroom": restroom}), 201
+
 
 @api.post("/restrooms/amend")
 def amend_restroom():

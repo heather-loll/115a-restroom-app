@@ -71,7 +71,6 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(restroom["floor"], "2")
         self.assertEqual(restroom["directions"], "Near the elevators.")
 
-
     def test_returns_all_nearby_restrooms_closest_first(self):
         # the endpoint should return one response item for every mapped restroom,
         # ordered so the frontend can render pins and identify the closest option.
@@ -99,7 +98,6 @@ class RestroomApiTests(unittest.TestCase):
                 }
             ]
         )
-
 
         response = self.client.get(
             "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
@@ -1119,8 +1117,6 @@ class RestroomApiTests(unittest.TestCase):
 
         )
         self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
-
-
 
 
 if __name__ == "__main__":

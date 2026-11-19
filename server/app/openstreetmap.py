@@ -5,16 +5,18 @@ restroom is closest to the provided coordinates, and formats the result for the 
 """
 
 from math import asin, cos, radians, sin, sqrt
+
 import requests
 
 
 class OpenStreetMapError(Exception):
-    """ raised when the Overpass API cannot provide usable data. """
+    """Raised when the Overpass API cannot provide usable data."""
+
 
 def build_overpass_query(latitude, longitude, radius_meters):
     # create an Overpass QL query for toilets around a point.
-    # OpenStreetMap can store a restroom as a node, way, or relation. 
-    # `out center` asks Overpass to include a map coordinate for ways and relations as well.
+    # OpenStreetMap can store a restroom as a node, way, or relation.
+    # `out center` includes a map coordinate for ways and relations as well.
     return f"""
         [out:json][timeout:25];
         (
@@ -25,7 +27,12 @@ def build_overpass_query(latitude, longitude, radius_meters):
         out center tags;
     """
 
-def distance_in_meters(first_latitude, first_longitude, second_latitude, second_longitude):
+def distance_in_meters(
+    first_latitude,
+    first_longitude,
+    second_latitude,
+    second_longitude,
+):
     # calculate straight-line distance with the Haversine formula.
     earth_radius_meters = 6_371_000
     latitude_difference = radians(second_latitude - first_latitude)
@@ -41,6 +48,7 @@ def distance_in_meters(first_latitude, first_longitude, second_latitude, second_
     )
     return 2 * earth_radius_meters * asin(sqrt(haversine_value))
 
+
 def element_coordinates(element):
     # return coordinates for either a node or a centered way/relation.
     if "lat" in element and "lon" in element:
@@ -55,11 +63,8 @@ def element_coordinates(element):
 
 
 def optional_boolean(osm_value):
-    """ convert known OpenStreetMap yes/no tags to booleans.
-    OpenStreetMap can use other values such as ``limited`` or ``unknown``. those
-    must not be treated as True or False, so this function returns None for them.
-    the response formatter then leaves that amenity out of the JSON response.
-    """
+    # OpenStreetMap can use values such as "limited" or "unknown." Those must
+    # remain unknown instead of becoming true or false in the API response.
     if osm_value == "yes":
         return True
     if osm_value == "no":
@@ -108,7 +113,14 @@ def format_restroom(element, user_latitude, user_longitude):
 
     return restroom
 
-def find_nearby_restrooms(latitude, longitude, radius_meters, overpass_url, timeout_seconds):
+
+def find_nearby_restrooms(
+    latitude,
+    longitude,
+    radius_meters,
+    overpass_url,
+    timeout_seconds,
+):
     # return all OpenStreetMap restrooms in the search radius, closest first.
     try:
         response = requests.get(
@@ -136,7 +148,13 @@ def find_nearby_restrooms(latitude, longitude, radius_meters, overpass_url, time
     )
 
 
-def find_nearest_restroom(latitude, longitude, radius_meters, overpass_url, timeout_seconds):
+def find_nearest_restroom(
+    latitude,
+    longitude,
+    radius_meters,
+    overpass_url,
+    timeout_seconds,
+):
     # return the closest restroom in the search radius, or None when none exist.
     restrooms = find_nearby_restrooms(
         latitude,

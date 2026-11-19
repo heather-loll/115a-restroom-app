@@ -5,9 +5,10 @@ from the server directory after installing requirements.
 """
 
 import os
+
 from app import create_app
 
-# keep app in app/__init__.py, makes the API easier to test later
+# keep Flask setup in app/__init__.py so routes are easier to test.
 app = create_app()
 
 if __name__ == "__main__":
