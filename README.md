@@ -189,3 +189,7 @@ An unknown restroom ID returns HTTP status `409`.
 
 With the virtual environment active, run this command from `server/`:
 `python -m unittest discover -s tests`
+
+GitHub Actions also runs this backend test command automatically for pull
+requests that change files in `server/`. Frontend-only pull requests do not run
+the backend test workflow.
