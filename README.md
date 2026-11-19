@@ -56,8 +56,9 @@ before using the restroom endpoints.
    - `db.createCollection("restroom_reports")`
    - `exit`
 1. Once that is setup, source the venv (see "Set Up Local Server")
-1. cd to `115a-restroom-app/server/app/`
-1. Run `PYTHONPATH="../../" python import_overpass_json_mongodb.py` to build the basic Santa Cruz database
+1. cd to `115a-restroom-app/server/app/osm_refuge_import`
+1. Run `PYTHONPATH=../.. python import_overpass_json_mongodb.py` to build the basic Santa Cruz database
+1. To confirm the import, in mongosh, run `db.restrooms.countDocuments()`
 
 The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
 `restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
@@ -162,6 +163,22 @@ separately and returns HTTP status `201` with the updated restroom and `ratingCo
 The returned `restroom.amenities.cleanliness` value is the rolling average of all
 saved votes. The nearest and nearby restroom endpoints include the same average when
 ratings exist, and omit it when there are no votes yet.
+
+### Report-restroom Endpoint
+
+`POST /api/restrooms/<restroomId>/report` lets a user report a condition at an
+existing restroom. Replace `<restroomId>` with the ID returned by a nearby or
+nearest restroom request. The JSON body must contain a non-empty `reports` object
+with one or more of `broken`, `busy`, or `nonexistent`. Each value must be `true`
+or `false`.
+
+The backend saves reports separately and returns the updated restroom with HTTP
+status `201`. A restroom's `reports.broken`, `reports.busy`, or
+`reports.nonexistent` value becomes `true` only after its five most recent reports
+for that condition are all `true`. This helps prevent one report from immediately
+changing what every user sees. When `nonexistent` is confirmed, the backend removes
+that restroom from the database and returns HTTP status `200` with its `restroomId`.
+An unknown restroom ID returns HTTP status `409`.
 
 ### Stop the Backend
 
