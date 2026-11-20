@@ -1,6 +1,7 @@
 import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
+import * as Haptics from 'expo-haptics';
 
 import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
 import { ProgressiveBlur } from './ProgressiveBlur';
@@ -27,6 +28,10 @@ export default function Map({ points, activeRestroom, setActiveRestroom }: MapPr
   // Whenever the active pin changes, pipe changes up by setting a new active restroom
   useEffect(() => {
     setActiveRestroom(activePin?.restroom ?? null);
+
+    if (activePin?.restroom) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
 
     if (activePin?.restroom?.longitude === undefined) return;
     if (activePin?.restroom?.latitude === undefined) return;
