@@ -8,9 +8,17 @@ import {
   LucideIcon,
   Transgender,
   X,
+  ChevronRight,
 } from 'lucide-react-native';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Alert } from 'react-native';
+import { undoToast } from '../utils/toast';
+import { toast } from 'sonner-native';
+
+import RestroomRating from './RestroomRating';
+import CleanlinessRanking from './AddRestroomSheet/CleanlinessRanking';
+
+import { API_rateRestroom } from '../utils/api';
 
 interface AmenityItemProps {
   shown: boolean;
@@ -29,6 +37,25 @@ function AmenityItem({ shown, label, icon }: AmenityItemProps) {
     )
   );
 }
+
+const cleanlinessMessage = (score: number) => {
+  switch (true) {
+    case score === 0:
+      return 'This restroom has not been rated yet';
+    case score >= 1 && score < 1.3:
+      return 'Most users say this restroom is filty.';
+    case score >= 1.3 && score < 1.7:
+      return 'Most users say this restroom is dirty.';
+    case score >= 1.7 && score <= 2.3:
+      return 'Most users say this restroom is average in cleanliness.';
+    case score >= 2.3 && score <= 2.7:
+      return 'Most users say this restroom is clean!';
+    case score >= 2.7 && score <= 3:
+      return 'Most users say this restroom is pristine!';
+    default:
+      return 'Out of range';
+  }
+};
 
 interface RestroomInfoSheetProps {
   restroom: Restroom | null;
@@ -54,6 +81,9 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
     }
   };
 
+  const [cleanlinessEditorOpen, setCleanlinessEditorOpen] = useState(false);
+  const [cleanScore, setCleanScore] = useState<0 | 1 | 2 | 3>(0);
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -67,7 +97,54 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         </Pressable>
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
-        <Text style={styles.sheetSubHeader}>Rate Bathroom</Text>
+
+        <View style={styles.sheetSubHeaderContainer}>
+          <Text style={styles.sheetSubHeader}>Bathroom Rating</Text>
+          <Pressable
+            style={styles.subHeadingButton}
+            onPress={() => {
+              setCleanlinessEditorOpen(!cleanlinessEditorOpen);
+            }}>
+            {cleanlinessEditorOpen ? (
+              <>
+                <Text style={styles.subHeadingButtonText}>Cancel Rating</Text>
+                <X size={18} color="#009966" />
+              </>
+            ) : (
+              <>
+                <Text style={styles.subHeadingButtonText}>Leave A Rating!</Text>
+                <ChevronRight size={18} color="#009966" />
+              </>
+            )}
+          </Pressable>
+        </View>
+
+        {!cleanlinessEditorOpen ? (
+          <>
+            <Text style={styles.sheetHeaderDescription}>
+              {cleanlinessMessage(localData?.amenities.cleanliness ?? 0)}
+            </Text>
+            <RestroomRating rating={localData?.amenities.cleanliness ?? 0} />
+          </>
+        ) : (
+          <CleanlinessRanking
+            state={[cleanScore, setCleanScore]}
+            callback={() => {
+              if (!localData) return;
+              setCleanlinessEditorOpen(false);
+              const timeout = setTimeout(async () => {
+                const res = await API_rateRestroom(localData.restroomId, cleanScore);
+                if (!res) {
+                  toast.error('Unable to send restroom rating due to a network error');
+                }
+              }, 4500);
+              setCleanScore(0);
+              undoToast('Rating Submitted!', () => {
+                clearTimeout(timeout);
+              });
+            }}
+          />
+        )}
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
         <View style={styles.amenityContainer}>
@@ -116,16 +193,37 @@ const styles = StyleSheet.create({
   sheetHeader: {
     fontWeight: 800,
     fontSize: 24,
-    marginBottom: 4,
+  },
+  sheetSubHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    //   alignItems: 'center',
   },
   sheetSubHeader: {
     fontSize: 20,
     fontWeight: 700,
     marginBottom: 8,
   },
+  sheetHeaderDescription: {
+    color: 'gray',
+    fontSize: 14,
+    marginTop: -6,
+    marginBottom: 10,
+  },
+  subHeadingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  subHeadingButtonText: {
+    textTransform: 'uppercase',
+    color: '#009966',
+    fontWeight: 700,
+  },
   sheetAddress: {
     color: 'gray',
     fontSize: 14,
+    marginBottom: 20,
   },
   amenityContainer: {
     flexDirection: 'row',
