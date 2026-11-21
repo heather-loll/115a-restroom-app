@@ -32,6 +32,25 @@ function AmenityItem({ shown, label, icon }: AmenityItemProps) {
   );
 }
 
+const cleanlinessMessage = (score: number) => {
+  switch (true) {
+    case score === 0:
+      return 'This restroom has not been rated yet';
+    case score >= 1 && score < 1.3:
+      return 'Most users say this restroom is filty.';
+    case score >= 1.3 && score < 1.7:
+      return 'Most users say this restroom is dirty.';
+    case score >= 1.7 && score <= 2.3:
+      return 'Most users say this restroom is average in cleanliness.';
+    case score >= 2.3 && score <= 2.7:
+      return 'Most users say this restroom is clean!';
+    case score >= 2.7 && score <= 3:
+      return 'Most users say this restroom is pristine!';
+    default:
+      return 'Out of range';
+  }
+};
+
 interface RestroomInfoSheetProps {
   restroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
@@ -71,6 +90,9 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
 
         <Text style={styles.sheetSubHeader}>Bathroom Rating</Text>
+        <Text style={styles.sheetHeaderDescription}>
+          {cleanlinessMessage(localData?.amenities.cleanliness ?? 0)}
+        </Text>
         <RestroomRating rating={localData?.amenities.cleanliness ?? 0} />
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
@@ -120,16 +142,23 @@ const styles = StyleSheet.create({
   sheetHeader: {
     fontWeight: 800,
     fontSize: 24,
-    marginBottom: 4,
+    // marginBottom: 2,
   },
   sheetSubHeader: {
     fontSize: 20,
     fontWeight: 700,
     marginBottom: 8,
   },
+  sheetHeaderDescription: {
+    color: 'gray',
+    fontSize: 14,
+    marginTop: -6,
+    marginBottom: 10,
+  },
   sheetAddress: {
     color: 'gray',
     fontSize: 14,
+    marginBottom: 20,
   },
   amenityContainer: {
     flexDirection: 'row',
