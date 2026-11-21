@@ -45,3 +45,18 @@ export const API_submitRestroom = async (
 
   return data;
 };
+
+export const API_rateRestroom = async (
+  restroomId: string,
+  cleanliness: 0 | 1 | 2 | 3,
+): Promise<boolean> => {
+  const [data, error] = await post(`/restrooms/${restroomId}/ratings`, {
+    cleanliness,
+  });
+
+  if (error || !data) {
+    return false;
+  }
+
+  return true;
+};

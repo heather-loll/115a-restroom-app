@@ -11,10 +11,14 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Alert } from 'react-native';
+import { undoToast } from '../utils/toast';
+import { toast } from 'sonner-native';
 
 import RestroomRating from './RestroomRating';
 import CleanlinessRanking from './AddRestroomSheet/CleanlinessRanking';
+
+import { API_rateRestroom } from '../utils/api';
 
 interface AmenityItemProps {
   shown: boolean;
@@ -126,8 +130,18 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
           <CleanlinessRanking
             state={[cleanScore, setCleanScore]}
             callback={() => {
+              if (!localData) return;
               setCleanlinessEditorOpen(false);
+              const timeout = setTimeout(async () => {
+                const res = await API_rateRestroom(localData.restroomId, cleanScore);
+                if (!res) {
+                  toast.error('Unable to send restroom rating due to a network error');
+                }
+              }, 4500);
               setCleanScore(0);
+              undoToast('Rating Submitted!', () => {
+                clearTimeout(timeout);
+              });
             }}
           />
         )}
