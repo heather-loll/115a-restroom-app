@@ -5,8 +5,11 @@ input, while these functions search, create, update, and rate restroom documents
 """
 
 from uuid import uuid4
+import time
+
+import datetime
 from flask import current_app
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import PyMongoError
 from math import asin, cos, radians, sin, sqrt
 
@@ -41,22 +44,10 @@ def distance_in_meters(first_latitude, first_longitude, second_latitude, second_
 def format_restroom(element, user_latitude, user_longitude):
     # add distance data while keeping the shared frontend Restroom JSON structure.
 
-    restroom = {
-        # the source/type prefix makes an ID unique across OpenStreetMap record types.
-        "restroomId": element["restroomId"],
-        "name": element["name"],
-        "latitude": element["geometry"]["coordinates"][1],
-        "longitude": element["geometry"]["coordinates"][0],
-        "distanceMeters": round(
-            distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
-        ),
-        # copy amenities so adding a calculated rating never changes the
-        # MongoDB document that was read from the database.
-        "amenities": stored_amenities(element),
-    }
-
-    add_cleanliness_average(restroom)
-    add_location_details(restroom, element)
+    restroom = document_to_restroom(element)
+    restroom["distanceMeters"] = round(
+        distance_in_meters(user_latitude, user_longitude, element["geometry"]["coordinates"][1], element["geometry"]["coordinates"][0])
+    ),
 
     return restroom
 
@@ -109,6 +100,17 @@ def get_ratings_collection():
     restrooms_collection = get_restrooms_collection()
     return restrooms_collection.database["restroom_ratings"]
 
+def get_reports_collection():
+    # return the collection containing reports.
+    # stores list of reports made for each restroom along with a timestamp
+    test_collection = current_app.config.get("REPORTS_COLLECTION")
+    if test_collection is not None:
+        return test_collection
+
+    restrooms_collection = get_restrooms_collection()
+    return restrooms_collection.database["restroom_reports"]
+
+
 
 def get_cleanliness_summary(restroom_id):
     # calculate the average and count for one restroom's saved votes.
@@ -146,6 +148,42 @@ def add_cleanliness_average(restroom, summary=None):
 
     return rating_count
 
+
+def create_report_field(restroomId):
+    restroom_collection = get_restrooms_collection()
+    restroom = restroom_collection.find_one({"restroomId": restroomId})
+    if restroom is None:
+        raise RestroomDoesntExistError("Restroom doesn't exist.")
+
+    report_collection = get_reports_collection()
+    document = {
+        "restroomId": restroomId,
+        "broken": [],
+        "busy": [],
+        "nonexistent": [],
+    }
+
+
+    objid = report_collection.insert_one(document).inserted_id
+    reports = {
+        "broken": False,
+        "busy": False,
+        "nonexistent": False,
+        "data": objid
+    }
+
+    restroom_collection.update_one({"restroomId": restroomId}, {"$set": {"reports": reports}})
+    return reports
+
+def delete_restroom(restroomId):
+    restroom_collection = get_restrooms_collection()
+    restroom = restroom_collection.find_one_and_delete({"restroomId": restroomId})
+    if restroom is None:
+        raise RestroomDoesntExistError("Restroom doesn't exist.")
+    if restroom.get("reports", None) is not None:
+        reportsobj = restroom["reports"]["data"]
+        get_reports_collection().delete_one({"_id": reportsobj})
+    get_ratings_collection().delete_one({"restroomId": restroomId})
 
 def build_restroom_document(
     name,
@@ -197,6 +235,11 @@ def document_to_restroom(document, cleanliness_summary=None):
     # these fields are optional in the shared Restroom type, so omit absent data.
     if "address" in document:
         restroom["address"] = document["address"]
+    if "reports" in document:
+        restroom["reports"] = {}
+        restroom["reports"]["busy"] = document["reports"]["busy"]
+        restroom["reports"]["broken"] = document["reports"]["broken"]
+        restroom["reports"]["nonexistent"] = document["reports"]["nonexistent"]
     amenities = stored_amenities(document)
     if amenities:
         restroom["amenities"] = amenities
@@ -272,6 +315,8 @@ def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
     )
     if document is None:
         raise RestroomDoesntExistError("Restroom doesn't exist.")
+    #add report that this restroom exists
+    add_restroom_report(restroomId, {"nonexistent": False})
     document["name"] = name
     if amenities:
         document["amenities"] = amenities
@@ -282,6 +327,82 @@ def edit_restroom(restroomId, name, amenities, floor=None, directions=None):
         document["directions"] = directions
     collection.replace_one({"restroomId": restroomId}, document)
     return document_to_restroom(document)
+
+def add_restroom_report(restroom_id, reports_val):
+    #while all report types are unified here, the averaging method is different for each
+    #"nonexistent" and "broken" is a list of the last 5 reports made, if they're all for nonexistent, then the bathroom doesn't exist
+    # TODO: Schedule nonexistent bathrooms for deletion
+    #"busy" calculates a rolling standard deviation of all busy/non-busy report minutes
+    #if the standard deviation of busy is higher than not busy, then the bathroom is busy
+    # TODO: Actually implement busy once we're settled on what we want with that
+
+    # find relevant restroom document to update the report score from
+    restroom_collection = get_restrooms_collection()
+    document = restroom_collection.find_one(
+        {
+            "restroomId": restroom_id
+        }
+    )
+    #make sure the restroom has a reports field, and that it links to a reports object
+
+    if document is None:
+        raise RestroomDoesntExistError("Restroom doesn't exist.")
+    reports_aggregate = document.get("reports", None)
+    if reports_aggregate is None:
+        reports_aggregate = create_report_field(restroom_id)
+    reportsId = reports_aggregate.get("data", None)
+    if reportsId is None:
+        raise MongoDatabaseError("Report field with no linked reports object")
+    reports_collection = get_reports_collection()
+    reports = reports_collection.find_one({"_id": reportsId})
+    if reports is None:
+        raise MongoDatabaseError("Report object with no linked reports")
+
+    #assemble query, pushing a reports value and a timestamp to each array in the reports object
+    #unixtime internally
+    unixtime = time.time()
+    timestamp = datetime.datetime.fromtimestamp(unixtime)
+    query = {"$push": {}}
+    broken = reports_val.get("broken", None)
+    busy = reports_val.get("busy", None)
+    nonexistent = reports_val.get("nonexistent", None)
+    if broken is not None:
+        query["$push"]["broken"] = {"status": broken, "timestamp": timestamp}
+    if busy is not None:
+        query["$push"]["busy"] = {"status": busy, "timestamp": timestamp}
+    if nonexistent is not None:
+        query["$push"]["nonexistent"] = {"status": nonexistent, "timestamp": timestamp}
+    reports_collection.update_one({"_id": reportsId}, query)
+    #get the last 5 reports for each (used) list in a reports object
+    lastFiveReports = reports_collection.find_one(
+        {"_id": reportsId},
+        {"busy": {"$slice": -5},"broken": {"$slice": -5}, "nonexistent": {"$slice": -5}}
+    )
+    is_busy = len(lastFiveReports["busy"]) == 5 and all(d["status"] == True for d in lastFiveReports["busy"])
+    is_broken = len(lastFiveReports["broken"]) == 5 and all(d["status"] == True for d in lastFiveReports["broken"])
+    is_nonexistent = len(lastFiveReports["nonexistent"]) == 5 and all(d["status"] == True for d in lastFiveReports["nonexistent"])
+
+    #set aggregate field
+    document = restroom_collection.find_one_and_update(
+        {"restroomId": restroom_id},
+        {"$set": {"reports.busy": is_busy, "reports.broken": is_broken, "reports.nonexistent": is_nonexistent}},
+        return_document=ReturnDocument.AFTER
+    )
+
+    if document is None:
+        raise MongoDatabaseError("Bad update query")
+
+    if is_nonexistent:
+        delete_restroom(restroom_id)
+        return None
+
+    return document_to_restroom(document)
+
+
+
+
+
+
 
 
 def add_cleanliness_rating(restroom_id, cleanliness):
@@ -294,7 +415,8 @@ def add_cleanliness_rating(restroom_id, cleanliness):
         document = restroom_collection.find_one({"restroomId": restroom_id})
         if document is None:
             raise RestroomDoesntExistError("Restroom doesn't exist.")
-
+        # add report that this restroom exists
+        add_restroom_report(restroom_id, {"nonexistent": False})
         get_ratings_collection().insert_one(
             {
                 "restroomId": restroom_id,

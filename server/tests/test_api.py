@@ -6,6 +6,8 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 """
 
 import unittest
+from operator import truediv
+
 import mongomock_ng
 from app import create_app
 
@@ -17,6 +19,7 @@ class RestroomApiTests(unittest.TestCase):
         database = mongomock_ng.MongoClient().db
         self.collection = database.restrooms
         self.ratings_collection = database.restroom_ratings
+        self.reports_collection = database.restroom_reports
         self.collection.create_index([("geometry", "2dsphere")])
         self.collection.create_index("restroomId")
         self.app = create_app(
@@ -24,6 +27,7 @@ class RestroomApiTests(unittest.TestCase):
                 "TESTING": True,
                 "RESTROOMS_COLLECTION": self.collection,
                 "RATINGS_COLLECTION": self.ratings_collection,
+                "REPORTS_COLLECTION": self.reports_collection,
             }
         )
         self.client = self.app.test_client()
@@ -530,6 +534,593 @@ class RestroomApiTests(unittest.TestCase):
 
         self.assertEqual(amend_response.status_code, 400)
         self.assertEqual(self.ratings_collection.count_documents({}), 1)
+
+    def test_us_2_t_1_nearby_prioritizes_cleanliness_scores(self):
+        # the database returns nearby restrooms by distance, but the nearby
+        # endpoint should list a better known cleanliness score first. an
+        # unrated restroom stays available after the scored restrooms.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "low-score",
+                    "name": "Low score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                },
+                {
+                    "restroomId": "high-score",
+                    "name": "High score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9801],
+                    },
+                },
+                {
+                    "restroomId": "unrated",
+                    "name": "Unrated restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0302, 36.9802],
+                    },
+                },
+            ]
+        )
+        self.ratings_collection.insert_many(
+            [
+                {"restroomId": "low-score", "cleanliness": 1},
+                {"restroomId": "high-score", "cleanliness": 3},
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        restroom_ids = [
+            restroom["restroomId"] for restroom in response.get_json()["restrooms"]
+        ]
+        self.assertEqual(restroom_ids, ["high-score", "low-score", "unrated"])
+
+    def test_us_2_t_1_nearest_remains_distance_based(self):
+        # the new score ordering applies only to nearby results. nearest keeps
+        # returning the physically closest restroom even when its score is lower.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "closest-low-score",
+                    "name": "Closest low score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                },
+                {
+                    "restroomId": "farther-high-score",
+                    "name": "Farther high score restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0302, 36.9802],
+                    },
+                },
+            ]
+        )
+        self.ratings_collection.insert_many(
+            [
+                {"restroomId": "closest-low-score", "cleanliness": 1},
+                {"restroomId": "farther-high-score", "cleanliness": 3},
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearest?latitude=36.9750&longitude=-122.0300"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.get_json()["restroom"]["restroomId"],
+            "closest-low-score",
+        )
+
+    def test_us_2_t_1_nearby_preferences_rank_before_scores(self):
+        # a confirmed user preference should come before a higher-scored
+        # restroom with unknown preference information. cleanliness still
+        # orders restrooms that have the same preference rank.
+        self.collection.insert_many(
+            [
+                {
+                    "restroomId": "high-score-unknown-accessibility",
+                    "name": "High score unknown restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0300, 36.9800],
+                    },
+                },
+                {
+                    "restroomId": "low-score-accessible",
+                    "name": "Low score accessible restroom",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-122.0301, 36.9801],
+                    },
+                    "amenities": {"accessible": True},
+                },
+            ]
+        )
+        self.ratings_collection.insert_many(
+            [
+                {
+                    "restroomId": "high-score-unknown-accessibility",
+                    "cleanliness": 3,
+                },
+                {"restroomId": "low-score-accessible", "cleanliness": 1},
+            ]
+        )
+
+        response = self.client.get(
+            "/api/restrooms/nearby?latitude=36.9750&longitude=-122.0300"
+            "&accessible=true"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        restroom_ids = [
+            restroom["restroomId"] for restroom in response.get_json()["restrooms"]
+        ]
+        self.assertEqual(
+            restroom_ids,
+            ["low-score-accessible", "high-score-unknown-accessibility"],
+        )
+
+    def test_s_3_us_1_t_1_new_restrooms_have_no_reports(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        reports = add_response.get_json()["restroom"].get("reports", None)
+        self.assertEqual(reports, None)
+
+
+    def test_s_3_us_1_t_1_creates_reports_object(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        self.assertEqual(self.reports_collection.count_documents({}), 0)
+        self.assertEqual(self.ratings_collection.count_documents({}), 0)
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False,
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 201)
+        self.assertNotEqual(report_response.get_json()["restroom"].get("reports", None), None)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+
+    def test_s_3_us_1_t_1_skips_duplicate_reports(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False,
+                    "busy": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+
+    def test_s_3_us_1_t_1_error_no_reports(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 400)
+        self.assertEqual(self.reports_collection.count_documents({}), 0)
+
+    def test_s_3_us_1_t_1_errors_unknown_reports(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "whawhat": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 400)
+        self.assertEqual(self.reports_collection.count_documents({}), 0)
+
+    def test_s_3_us_1_t_1_dupe_reports_aggregate(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False
+                }
+            },
+
+        )
+
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True,
+                    "busy": False
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(self.reports_collection.count_documents({}), 1)
+
+    def test_s_3_us_1_t_1_5_dupe_reports_change_flag(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0,4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "broken": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], True)
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["busy"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": False
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["busy"], False)
+
+        for i in range(0,4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "broken": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["broken"], True)
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["busy"], False)
+
+    def test_s_3_us_1_t_1_5_separate_reports_change_separate_flags(self):
+        add_response_one = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+
+        add_response_two = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "Newer restroom",
+                "latitude": 36.9920,
+                "longitude": -122.0610,
+            },
+        )
+
+        ridone = add_response_one.get_json()["restroom"]["restroomId"]
+        ridtwo = add_response_two.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response_one = self.client.post(
+                f"/api/restrooms/{ridone}/report",
+                json={
+                    "reports": {
+                        "broken": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response_one.get_json()["restroom"]["reports"]["broken"], False)
+
+            report_response_two = self.client.post(
+                f"/api/restrooms/{ridtwo}/report",
+                json={
+                    "reports": {
+                        "broken": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response_two.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response_one = self.client.post(
+            f"/api/restrooms/{ridone}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response_one.get_json()["restroom"]["reports"]["broken"], True)
+        find_response_two = self.client.get(
+            "/api/restrooms/nearest?latitude=36.9920&longitude=-122.0610"
+        )
+        self.assertEqual(find_response_two.get_json()["restroom"]["reports"]["broken"], False)
+
+        report_response_two = self.client.post(
+            f"/api/restrooms/{ridtwo}/report",
+            json={
+                "reports": {
+                    "broken": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response_two.get_json()["restroom"]["reports"]["broken"], True)
+        find_response_one = self.client.get(
+            "/api/restrooms/nearest?latitude=36.9910&longitude=-122.0600"
+        )
+        self.assertEqual(find_response_one.get_json()["restroom"]["reports"]["broken"], True)
+
+    def test_s_3_us_3_t_1_5_separate_reports_delete_restroom(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 200)
+        self.assertEqual(report_response.get_json()["restroom"], {"restroomId": rid})
+
+    def test_s_3_us_3_t_1_deletes_all_data(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+
+        cleanliness_response = self.client.post(
+            f"/api/restrooms/{rid}/ratings",
+            json={"cleanliness": 3},
+        )
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(self.collection.count_documents({}), 0)
+        self.assertEqual(self.reports_collection.count_documents({}), 0)
+        self.assertEqual(self.ratings_collection.count_documents({}), 0)
+
+    def test_s_3_us_3_t_1_edit_prevents_delete(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        amend_response = self.client.post(
+            "/api/restrooms/amend",
+            json={
+                "restroomId": rid,
+                "name": "Updated restroom",
+                "amenities": {"accessible": False, "singleOccupancy": True},
+                "floor": "3",
+                "directions": "At the end of the north hallway.",
+            },
+        )
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+    def test_s_3_us_3_t_1_rate_prevents_delete(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        for i in range(0, 4):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+        cleanliness_response = self.client.post(
+            f"/api/restrooms/{rid}/ratings",
+            json={"cleanliness": 3},
+        )
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+
 
 
 if __name__ == "__main__":

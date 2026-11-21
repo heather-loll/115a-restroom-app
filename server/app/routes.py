@@ -1,7 +1,7 @@
 """
 HTTP routes for the API.
 /api/restrooms/nearest returns the closest MongoDB restroom,
-/api/restrooms/nearby returns nearby map pins optionally matched to preferences,
+/api/restrooms/nearby returns nearby map pins prioritized by preferences and scores,
 POST /api/restrooms saves a user-submitted restroom in MongoDB,
 POST /api/restrooms/amend updates an existing restroom in MongoDB, and
 POST /api/restrooms/<restroom_id>/ratings saves one cleanliness vote.
@@ -18,13 +18,14 @@ from .mongodb import (
     create_restroom,
     edit_restroom,
     find_nearby_restrooms,
-    find_nearest_restroom,
+    find_nearest_restroom, add_restroom_report,
 )
 from .preferences import (
     filter_restrooms,
     preference_amenities,
     prioritize_restrooms,
 )
+from .scores import prioritize_by_cleanliness_score
 
 
 api = Blueprint("api", __name__)
@@ -306,6 +307,36 @@ def get_amended_restroom_data():
         "directions": directions,
     }, None
 
+def get_report_data():
+    # validate the JSON body accepted by POST /api/restrooms/report.
+    # the frontend submits a restroomId and a list of reports (using boolean)
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return None, "Request body must be a JSON object."
+
+    #frontend must submit ALL reports, we weigh how many times it's been reported normally vs. how many times it's been reported as bad
+    reports = data.get("reports")
+    if not isinstance(reports, dict):
+        return None, "JSON field 'reports' must be a dict."
+
+    allowed_reports = {
+        "broken",
+        "busy",
+        "nonexistent"
+    }
+
+    if len(reports.keys()) == 0:
+        return None, "JSON field 'reports' must contain any of keys \"broken\", \"busy\", and \"nonexistent\"."
+
+    if len(reports.keys()) > 3 or set(reports.keys()) - allowed_reports:
+        return None, "JSON field 'reports' must contain only entries \"broken\", \"busy\", and \"nonexistent\"."
+
+    for report_name, value in reports.items():
+        if not isinstance(value, bool):
+            return None, f"reports '{report_name}' must be true or false."
+
+    return reports, None
+
 
 @api.get("/health")
 def health_check():
@@ -359,9 +390,14 @@ def nearby_restrooms():
         radius_meters=radius_meters
     )
 
-    # first remove restrooms known not to meet a selected preference. then rank
-    # confirmed matches before restrooms whose amenity information is unknown.
+    # first remove restrooms known not to meet a selected preference. score
+    # ordering then ranks better-rated restrooms within each preference group.
     restrooms = filter_restrooms(restrooms, preferences)
+    restrooms = prioritize_by_cleanliness_score(restrooms)
+
+    # preference ranking runs last so confirmed user preferences stay easiest
+    # to find. when preferences are equal or absent, it preserves the
+    # cleanliness ordering created above.
     restrooms = prioritize_restrooms(restrooms, preferences)
 
     return jsonify(
@@ -391,6 +427,25 @@ def add_restroom():
 
     return jsonify({"restroom": restroom}), 201
 
+@api.post("/restrooms/<restroom_id>/report")
+def report_restroom(restroom_id):
+    # update an existing restroom's name and optional amenity information.
+    reports, error = get_report_data()
+
+    if error:
+        return jsonify({"error": error}), 400
+
+    try:
+        restroom = add_restroom_report(restroom_id, reports)
+    except RestroomDoesntExistError as error:
+        return jsonify({"error": str(error)}), 409
+    except MongoDatabaseError:
+        return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
+
+    if restroom is None:
+        return jsonify({"restroom": {"restroomId": restroom_id}}), 200
+
+    return jsonify({"restroom": restroom}), 201
 
 @api.post("/restrooms/amend")
 def amend_restroom():

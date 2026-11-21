@@ -1,13 +1,17 @@
 import axios from 'axios';
 
 const BASE_URI = 'http://10.0.0.210:5001/api';
+const HTTP_TIMEOUT_SECONDS = 15;
 
 export const get = async <T = any>(
   endpoint: string,
   params: any,
 ): Promise<[T | null, Error | null]> => {
   try {
-    const response = await axios.get(`${BASE_URI}${endpoint}`, { params });
+    const response = await axios.get(`${BASE_URI}${endpoint}`, {
+      params,
+      timeout: HTTP_TIMEOUT_SECONDS * 1000,
+    });
     return [response.data, null];
   } catch (err) {
     console.error(err);
@@ -25,7 +29,9 @@ export const post = async <T = any>(
   body: any,
 ): Promise<[T | null, Error | null]> => {
   try {
-    const response = await axios.post(`${BASE_URI}${endpoint}`, body);
+    const response = await axios.post(`${BASE_URI}${endpoint}`, body, {
+      timeout: HTTP_TIMEOUT_SECONDS * 1000,
+    });
     return [response.data, null];
   } catch (err) {
     console.error(err);
