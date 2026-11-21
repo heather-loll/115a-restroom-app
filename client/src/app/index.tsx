@@ -31,6 +31,7 @@ export default function Index() {
         latitude: 36.97326466616349,
         longitude: -122.02507860065315,
         amenities: {
+          cleanliness: 1.3,
           unisex: true,
           singleOccupancy: true,
           babyChangingStation: false,

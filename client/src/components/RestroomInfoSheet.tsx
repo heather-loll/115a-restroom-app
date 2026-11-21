@@ -12,6 +12,8 @@ import {
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import RestroomRating from './RestroomRating';
+
 interface AmenityItemProps {
   shown: boolean;
   label: string;
@@ -67,7 +69,9 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         </Pressable>
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
-        <Text style={styles.sheetSubHeader}>Rate Bathroom</Text>
+
+        <Text style={styles.sheetSubHeader}>Bathroom Rating</Text>
+        <RestroomRating rating={localData?.amenities.cleanliness ?? 0} />
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
         <View style={styles.amenityContainer}>
