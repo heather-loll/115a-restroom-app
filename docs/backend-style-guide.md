@@ -23,10 +23,18 @@ It applies to files in `server/app/` and backend tests in `server/tests/`.
   requests, while MongoDB helper functions handle database work.
 - Avoid adding a package unless the existing Python standard library or current
   dependencies cannot do the job.
+- Put standard-library imports first, third-party imports second, and local app
+  imports last. Leave one blank line between each import group.
+- Remove imports and assigned variables that are no longer used.
+- Leave two blank lines between top-level classes and functions. Within a
+  function, use one blank line to separate readable groups of related steps.
+- Wrap long function signatures, calls, dictionaries, and error messages over
+  multiple lines instead of making one difficult-to-read line. Include trailing
+  commas in multi-line calls, dictionaries, and collections.
 
 ## Comments and Documentation
 
-- Use `#` comments inside functions.
+- Use `#` comments inside functions, with one space after the `#`.
 - Explain why a decision exists, especially for validation, missing data, or a
   database rule. Do not repeat what an obvious line of code already says.
 - Update `README.md` when an endpoint, request field, response field, or local
