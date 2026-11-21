@@ -94,17 +94,26 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
 
-        <Text style={styles.sheetSubHeader}>
-          Bathroom Rating
+        <View style={styles.sheetSubHeaderContainer}>
+          <Text style={styles.sheetSubHeader}>Bathroom Rating</Text>
           <Pressable
             style={styles.subHeadingButton}
             onPress={() => {
-              setCleanlinessEditorOpen(true);
+              setCleanlinessEditorOpen(!cleanlinessEditorOpen);
             }}>
-            <Text>Leave A Rating!</Text>
-            <ChevronRight size={24} color="009966" />
+            {cleanlinessEditorOpen ? (
+              <>
+                <Text style={styles.subHeadingButtonText}>Cancel Rating</Text>
+                <X size={18} color="#009966" />
+              </>
+            ) : (
+              <>
+                <Text style={styles.subHeadingButtonText}>Leave A Rating!</Text>
+                <ChevronRight size={18} color="#009966" />
+              </>
+            )}
           </Pressable>
-        </Text>
+        </View>
 
         {!cleanlinessEditorOpen ? (
           <>
@@ -170,7 +179,11 @@ const styles = StyleSheet.create({
   sheetHeader: {
     fontWeight: 800,
     fontSize: 24,
-    // marginBottom: 2,
+  },
+  sheetSubHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    //   alignItems: 'center',
   },
   sheetSubHeader: {
     fontSize: 20,
@@ -185,6 +198,13 @@ const styles = StyleSheet.create({
   },
   subHeadingButton: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  subHeadingButtonText: {
+    textTransform: 'uppercase',
+    color: '#009966',
+    fontWeight: 700,
   },
   sheetAddress: {
     color: 'gray',
