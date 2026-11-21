@@ -10,7 +10,7 @@ export default function RestroomRatingProps({ rating }: RestroomRatingProps) {
   const PERCENT_BUFFER = 5;
   const visualScaledPercentage = PERCENT_BUFFER + (percentage / 100) * (100 - PERCENT_BUFFER);
   return (
-    <View>
+    <View aria-hidden={true}>
       <View style={styles.rangeTrack}>
         {rating !== 0 && (
           <View style={[styles.rangeThumb, { marginInlineStart: `${visualScaledPercentage}%` }]} />
@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 999,
     justifyContent: 'center',
-    // alignItems: 'center',
   },
   rangeThumb: {
     backgroundColor: 'white',

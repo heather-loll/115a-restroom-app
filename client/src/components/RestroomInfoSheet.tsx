@@ -8,11 +8,13 @@ import {
   LucideIcon,
   Transgender,
   X,
+  ChevronRight,
 } from 'lucide-react-native';
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import RestroomRating from './RestroomRating';
+import CleanlinessRanking from './AddRestroomSheet/CleanlinessRanking';
 
 interface AmenityItemProps {
   shown: boolean;
@@ -75,6 +77,9 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
     }
   };
 
+  const [cleanlinessEditorOpen, setCleanlinessEditorOpen] = useState(false);
+  const [cleanScore, setCleanScore] = useState<0 | 1 | 2 | 3>(0);
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -89,11 +94,34 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
 
-        <Text style={styles.sheetSubHeader}>Bathroom Rating</Text>
-        <Text style={styles.sheetHeaderDescription}>
-          {cleanlinessMessage(localData?.amenities.cleanliness ?? 0)}
+        <Text style={styles.sheetSubHeader}>
+          Bathroom Rating
+          <Pressable
+            style={styles.subHeadingButton}
+            onPress={() => {
+              setCleanlinessEditorOpen(true);
+            }}>
+            <Text>Leave A Rating!</Text>
+            <ChevronRight size={24} color="009966" />
+          </Pressable>
         </Text>
-        <RestroomRating rating={localData?.amenities.cleanliness ?? 0} />
+
+        {!cleanlinessEditorOpen ? (
+          <>
+            <Text style={styles.sheetHeaderDescription}>
+              {cleanlinessMessage(localData?.amenities.cleanliness ?? 0)}
+            </Text>
+            <RestroomRating rating={localData?.amenities.cleanliness ?? 0} />
+          </>
+        ) : (
+          <CleanlinessRanking
+            state={[cleanScore, setCleanScore]}
+            callback={() => {
+              setCleanlinessEditorOpen(false);
+              setCleanScore(0);
+            }}
+          />
+        )}
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
         <View style={styles.amenityContainer}>
@@ -154,6 +182,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: -6,
     marginBottom: 10,
+  },
+  subHeadingButton: {
+    flexDirection: 'row',
   },
   sheetAddress: {
     color: 'gray',
