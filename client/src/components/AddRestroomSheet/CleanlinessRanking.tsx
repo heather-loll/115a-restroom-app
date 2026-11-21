@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { Germ, ThumbsUp, MopSparkles } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
 
 const BORDER = 2;
 
@@ -31,7 +32,10 @@ export default function CleanlinessRanking(props: {
         return (
           <Pressable
             key={id}
-            onPress={() => setSelected(selected === id ? 0 : id)}
+            onPress={() => {
+              setSelected(selected === id ? 0 : id);
+              Haptics.selectionAsync();
+            }}
             // android_ripple={{ color: !selected ? '#ffffff50' : '#0099331a', foreground: true }}
             style={[
               styles.cleanlinessOption,
