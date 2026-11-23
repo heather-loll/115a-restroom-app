@@ -8,6 +8,12 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
+from .limiter import limiter
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+
+
 
 from .routes import api
 
@@ -35,10 +41,16 @@ def create_app(test_config=None):
         MONGODB_TIMEOUT_MS=5_000,
         # tests can replace MongoDB with a small in-memory fake collection.
         RESTROOMS_COLLECTION=None,
+        RATELIMIT_STORAGE_URI="memory://",
+        RATELIMIT_HEADERS_ENABLED=True,
+        RATELIMIT_DEFAULT=""
     )
 
     if test_config:
         app.config.update(test_config)
+
+
+    limiter.init_app(app)
 
     # the Expo app and this server use different local ports during development.
     # restrict allowed origins before product deployment.

@@ -10,6 +10,7 @@ from operator import truediv
 
 import mongomock_ng
 from app import create_app
+from app.limiter import limiter
 
 
 class RestroomApiTests(unittest.TestCase):
@@ -28,6 +29,7 @@ class RestroomApiTests(unittest.TestCase):
                 "RESTROOMS_COLLECTION": self.collection,
                 "RATINGS_COLLECTION": self.ratings_collection,
                 "REPORTS_COLLECTION": self.reports_collection,
+                "RATELIMIT_ENABLED": False
             }
         )
         self.client = self.app.test_client()
@@ -1117,7 +1119,6 @@ class RestroomApiTests(unittest.TestCase):
 
         )
         self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
-
 
 if __name__ == "__main__":
     unittest.main()
