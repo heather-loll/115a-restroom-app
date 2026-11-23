@@ -9,6 +9,10 @@ import os
 from flask import Flask
 from flask_cors import CORS
 
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 from .routes import api
 
 
@@ -16,6 +20,11 @@ def create_app(test_config=None):
     # build the Flask app. keeps configuration in one place.
     # lets automated tests create an isolated app without starting a real web server.
     app = Flask(__name__)
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        storage_uri="memory://",
+    )
 
     app.config.from_mapping(
         # retained for the OpenStreetMap helper, although current search routes

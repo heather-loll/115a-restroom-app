@@ -30,6 +30,7 @@ class RestroomApiTests(unittest.TestCase):
                 "REPORTS_COLLECTION": self.reports_collection,
             }
         )
+        self.app.config.update(RATELIMIT_ENABLED=False)
         self.client = self.app.test_client()
 
     def test_returns_closest_restroom(self):
@@ -1117,6 +1118,196 @@ class RestroomApiTests(unittest.TestCase):
 
         )
         self.assertEqual(report_response.get_json()["restroom"]["reports"]["nonexistent"], False)
+
+    def test_s_4_us_4_t_2_rate_limiting_reports(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        self.app.config.update(RATELIMIT_ENABLED=True)
+        for i in range(0, 3):
+            report_response = self.client.post(
+                f"/api/restrooms/{rid}/report",
+                json={
+                    "reports": {
+                        "nonexistent": True
+                    }
+                },
+
+            )
+            self.assertEqual(report_response.status_code, 201)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{rid}/report",
+            json={
+                "reports": {
+                    "nonexistent": True
+                }
+            },
+
+        )
+        self.assertEqual(report_response.status_code, 429)
+
+    def test_s_4_us_4_t_2_rate_limiting_ratings(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        self.app.config.update(RATELIMIT_ENABLED=True)
+        for i in range(0, 3):
+            rating_response = self.client.post(
+                f"/api/restrooms/{rid}/ratings",
+                json={"cleanliness": 3},
+            )
+            self.assertEqual(rating_response.status_code, 201)
+
+        rating_response = self.client.post(
+            f"/api/restrooms/{rid}/ratings",
+            json={"cleanliness": 3},
+        )
+        self.assertEqual(rating_response.status_code, 429)
+
+    def test_s_4_us_4_t_2_rate_limiting_amends(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid = add_response.get_json()["restroom"]["restroomId"]
+        self.app.config.update(RATELIMIT_ENABLED=True)
+        for i in range(0, 3):
+            amend_response = self.client.post(
+                "/api/restrooms/amend",
+                json={
+                    "restroomId": rid,
+                    "name": "Updated restroom",
+                    "amenities": {"accessible": False, "singleOccupancy": True},
+                    "floor": "3",
+                    "directions": "At the end of the north hallway.",
+                },
+            )
+            self.assertEqual(amend_response.status_code, 20)
+
+        amend_response = self.client.post(
+            "/api/restrooms/amend",
+            json={
+                "restroomId": rid,
+                "name": "Updated restroom",
+                "amenities": {"accessible": False, "singleOccupancy": True},
+                "floor": "3",
+                "directions": "At the end of the north hallway.",
+            },
+        )
+        self.assertEqual(amend_response.status_code, 429)
+
+    def test_s_4_us_4_t_2_rate_limiting_new_restrooms(self):
+        self.app.config.update(RATELIMIT_ENABLED=True)
+        for i in range(0,10):
+            add_response = self.client.post(
+                "/api/restrooms",
+                json={
+                    "name": f"New restroom{i}",
+                    "latitude": 36.9910+i,
+                    "longitude": -122.0600+i,
+                },
+            )
+            self.assertEqual(add_response.status_code, 201)
+
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": f"Newer restroom",
+                "latitude": 36.9900,
+                "longitude": -122.0500,
+            },
+        )
+        self.assertEqual(add_response.status_code, 429)
+
+
+        amend_response = self.client.post(
+            "/api/restrooms/amend",
+            json={
+                "restroomId": rid,
+                "name": "Updated restroom",
+                "amenities": {"accessible": False, "singleOccupancy": True},
+                "floor": "3",
+                "directions": "At the end of the north hallway.",
+            },
+        )
+        self.assertEqual(amend_response.status_code, 429)
+
+    def test_s_4_us_4_t_2_not_rate_limiting_multiple_ratings(self):
+        add_response1 = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        rid1 = add_response1.get_json()["restroom"]["restroomId"]
+        add_response2 = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "Newer restroom",
+                "latitude": 36.9920,
+                "longitude": -122.0610,
+            },
+        )
+        rid2 = add_response2.get_json()["restroom"]["restroomId"]
+        self.app.config.update(RATELIMIT_ENABLED=True)
+        for i in range(0, 3):
+            rating_response = self.client.post(
+                f"/api/restrooms/{rid1}/ratings",
+                json={"cleanliness": 3},
+            )
+            self.assertEqual(rating_response.status_code, 201)
+            rating_response = self.client.post(
+                f"/api/restrooms/{rid2}/ratings",
+                json={"cleanliness": 3},
+            )
+            self.assertEqual(rating_response.status_code, 201)
+
+
+        rating_response = self.client.post(
+            f"/api/restrooms/{rid1}/ratings",
+            json={"cleanliness": 3},
+        )
+        self.assertEqual(rating_response.status_code, 429)
+        rating_response = self.client.post(
+            f"/api/restrooms/{rid2}/ratings",
+            json={"cleanliness": 3},
+        )
+        self.assertEqual(rating_response.status_code, 429)
+
+    def test_s_4_us_4_t_2_not_rate_limiting_nearest(self):
+        add_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom",
+                "latitude": 36.9910,
+                "longitude": -122.0600,
+            },
+        )
+        self.app.config.update(RATELIMIT_ENABLED=True)
+        for i in range(0, 100):
+            nearest_response = self.client.get(
+                "/api/restrooms/nearest?latitude=36.9910&longitude=-122.0600"
+            )
+            self.assertEqual(nearest_response.status_code, 200)
 
 
 if __name__ == "__main__":
