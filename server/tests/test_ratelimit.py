@@ -11,7 +11,6 @@ from unittest.mock import patch
 
 import mongomock_ng
 from app import create_app
-from app.limiter import limiter
 
 
 class RestroomRateLimitTests(unittest.TestCase):
@@ -29,7 +28,8 @@ class RestroomRateLimitTests(unittest.TestCase):
                 "TESTING": True,
                 "RESTROOMS_COLLECTION": self.collection,
                 "RATINGS_COLLECTION": self.ratings_collection,
-                "REPORTS_COLLECTION": self.reports_collection
+                "REPORTS_COLLECTION": self.reports_collection,
+                "RATELIMIT_ENABLED": True,
             }
         )
         self.client = self.app.test_client()
@@ -48,7 +48,6 @@ class RestroomRateLimitTests(unittest.TestCase):
             },
         )
         rid = add_response.get_json()["restroom"]["restroomId"]
-        limiter.enabled = True
         for i in range(0, 3):
             report_response = self.client.post(
                 f"/api/restrooms/{rid}/report",
@@ -85,7 +84,6 @@ class RestroomRateLimitTests(unittest.TestCase):
             },
         )
         rid = add_response.get_json()["restroom"]["restroomId"]
-        limiter.enabled = True
         for i in range(0, 5):
             rating_response = self.client.post(
                 f"/api/restrooms/{rid}/ratings",
@@ -111,7 +109,6 @@ class RestroomRateLimitTests(unittest.TestCase):
             },
         )
         rid = add_response.get_json()["restroom"]["restroomId"]
-        limiter.enabled = True
         for i in range(0, 5):
             amend_response = self.client.post(
                 "/api/restrooms/amend",
@@ -141,7 +138,6 @@ class RestroomRateLimitTests(unittest.TestCase):
     @patch("app.routes.get_remote_addr")
     def test_s_4_us_4_t_2_rate_limiting_new_restrooms(self, get_remote_addr_mock):
         get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
-        limiter.enabled = True
         for i in range(0,10):
             add_response = self.client.post(
                 "/api/restrooms",
@@ -185,7 +181,6 @@ class RestroomRateLimitTests(unittest.TestCase):
             },
         )
         rid2 = add_response2.get_json()["restroom"]["restroomId"]
-        limiter.enabled = True
         for i in range(0, 5):
             rating_response = self.client.post(
                 f"/api/restrooms/{rid1}/ratings",
@@ -222,7 +217,6 @@ class RestroomRateLimitTests(unittest.TestCase):
                 "longitude": -122.0600,
             },
         )
-        limiter.enabled = True
         for i in range(0, 100):
             nearest_response = self.client.get(
                 "/api/restrooms/nearest?latitude=36.9910&longitude=-122.0600"
