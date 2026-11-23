@@ -1,0 +1,46 @@
+---
+id: S-4-US-1-T-2
+story: US-4.1
+sprint: 4
+assignee: Thalia Eischeid
+estimate_hours: 4
+---
+
+# Cache recent restroom searches on the backend
+
+## Description
+
+Serves US 4.1 by avoiding repeated MongoDB searches when the backend has recently returned the same restroom search result. This task caches the `GET /api/restrooms/nearby` map results and `GET /api/restrooms/nearest` result for five minutes. Five minutes is long enough for recent searches to be helpful, but short enough that restroom information does not stay outdated for long. Successful create, amend, rating, and report requests also clear the cache so normal changes appear sooner. Frontend device caching, offline map use, MongoDB geospatial indexes, and deployment caching are out of scope.
+
+## Specs
+
+- `server/app/cache.py` provides the backend cache used by the restroom-search routes. It stores JSON-ready results from successful HTTP `200` search responses in memory for five minutes.
+- `GET /api/restrooms/nearby` caches and reuses its complete successful response data, including the `search` object and `restrooms` list. Its existing query parameters, HTTP status codes, and response field names do not change.
+- `GET /api/restrooms/nearest` caches and reuses its complete successful response data, including the `search` object and `restroom` value. Its existing query parameters, HTTP status codes, and response field names do not change.
+- A cache key includes the route name, `latitude`, `longitude`, `radius_meters`, and every valid nearby preference parameter with its boolean value. Requests with different search values or preferences must not reuse each other's results.
+- Only successful HTTP `200` search responses are cached. Invalid search requests and database-error responses are not cached.
+- A cached entry expires five minutes after it is stored. The next identical valid request after expiration performs a new MongoDB search and stores a fresh result.
+- A successful `POST /api/restrooms`, `POST /api/restrooms/amend`, `POST /api/restrooms/<restroom_id>/ratings`, or `POST /api/restrooms/<restroom_id>/report` clears cached search results so later searches can include changed restroom data.
+- Tests in `server/tests/test_cache.py` cover the cache helper. Route-level tests in `server/tests/test_api.py` verify the search and invalidation behavior through the existing Flask API routes.
+
+## Requirements
+
+- Use only the Python standard library and existing project dependencies.
+- Keep cached results in backend process memory. Do not add another database collection, or a new external service.
+- Do not change the existing MongoDB search queries, their geospatial indexes or the shared frontend response structure.
+- Do not cache invalid requests, `503` database-error responses, or mutation responses.
+- Keep all existing backend tests passing.
+- Add at least one test for every acceptance criterion.
+
+## Acceptance criteria
+
+1. A second identical valid `GET /api/restrooms/nearby` request made within five minutes returns HTTP `200` with the same `search` and `restrooms` fields without performing another MongoDB nearby-restroom search.
+2. A second identical valid `GET /api/restrooms/nearest` request made within five minutes returns HTTP `200` with the same `search` and `restroom` fields without performing another MongoDB nearest-restroom search.
+3. Nearby-search requests with different coordinates, radius values, or selected preference values do not reuse each other's cached result.
+4. An identical valid search made after its five-minute cache lifetime performs a new MongoDB search and returns a newly stored result.
+5. An invalid search request that returns HTTP `400` is not cached.
+6. A database-error search request that returns HTTP `503` is not cached.
+7. After a successful `POST /api/restrooms` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+8. After a successful `POST /api/restrooms/amend` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+9. After a successful `POST /api/restrooms/<restroom_id>/ratings` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+10. After a successful `POST /api/restrooms/<restroom_id>/report` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
