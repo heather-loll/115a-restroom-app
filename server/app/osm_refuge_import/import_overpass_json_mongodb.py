@@ -31,7 +31,7 @@ def amenities_from_osm(properties):
         else:
             amenities["paymentRequired"] = False
     if "wheelchair" in properties:
-        if properties.get("wheelchair") == "yes" or properties.get("wheelchair") == "limited":
+        if properties.get("wheelchair") in {"yes", "limited"}:
             amenities["accessible"] = True
         else:
             amenities["accessible"] = False
