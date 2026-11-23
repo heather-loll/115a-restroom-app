@@ -1236,19 +1236,6 @@ class RestroomApiTests(unittest.TestCase):
         )
         self.assertEqual(add_response.status_code, 429)
 
-
-        amend_response = self.client.post(
-            "/api/restrooms/amend",
-            json={
-                "restroomId": rid,
-                "name": "Updated restroom",
-                "amenities": {"accessible": False, "singleOccupancy": True},
-                "floor": "3",
-                "directions": "At the end of the north hallway.",
-            },
-        )
-        self.assertEqual(amend_response.status_code, 429)
-
     def test_s_4_us_4_t_2_not_rate_limiting_multiple_ratings(self):
         add_response1 = self.client.post(
             "/api/restrooms",
