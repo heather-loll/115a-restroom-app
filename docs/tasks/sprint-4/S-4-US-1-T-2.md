@@ -36,11 +36,13 @@ Serves US 4.1 by avoiding repeated MongoDB searches when the backend has recentl
 
 1. A second identical valid `GET /api/restrooms/nearby` request made within five minutes returns HTTP `200` with the same `search` and `restrooms` fields without performing another MongoDB nearby-restroom search.
 2. A second identical valid `GET /api/restrooms/nearest` request made within five minutes returns HTTP `200` with the same `search` and `restroom` fields without performing another MongoDB nearest-restroom search.
-3. Nearby-search requests with different coordinates, radius values, or selected preference values do not reuse each other's cached result.
-4. An identical valid search made after its five-minute cache lifetime performs a new MongoDB search and returns a newly stored result.
-5. An invalid search request that returns HTTP `400` is not cached.
-6. A database-error search request that returns HTTP `503` is not cached.
-7. After a successful `POST /api/restrooms` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
-8. After a successful `POST /api/restrooms/amend` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
-9. After a successful `POST /api/restrooms/<restroom_id>/ratings` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
-10. After a successful `POST /api/restrooms/<restroom_id>/report` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+3. A nearby-search request with different coordinates does not reuse another search's cached result.
+4. A nearby-search request with a different radius value does not reuse another search's cached result.
+5. A nearby-search request with different selected preference values does not reuse another search's cached result.
+6. An identical valid search made after its five-minute cache lifetime performs a new MongoDB search and returns a newly stored result.
+7. An invalid search request that returns HTTP `400` is not cached.
+8. A database-error search request that returns HTTP `503` is not cached.
+9. After a successful `POST /api/restrooms` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+10. After a successful `POST /api/restrooms/amend` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+11. After a successful `POST /api/restrooms/<restroom_id>/ratings` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+12. After a successful `POST /api/restrooms/<restroom_id>/report` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
