@@ -361,11 +361,14 @@ def get_report_data():
 
     return reports, None
 
+def get_remote_addr():
+    return request.remote_addr
+
 def get_ip_key():
     #FYI: this is a claude snippet.
     # I don't wanna hinge our network stability on code that's easy to work around and this includes some error handling
     # that I wouldn't have done normally
-    raw = request.remote_addr or "unknown"
+    raw = get_remote_addr() or "unknown"
     try:
         ip = ipaddress.ip_address(raw)
     except ValueError:

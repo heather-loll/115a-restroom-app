@@ -7,6 +7,7 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 
 import unittest
 from operator import truediv
+from unittest.mock import patch
 
 import mongomock_ng
 from app import create_app
@@ -33,7 +34,11 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.client = self.app.test_client()
 
-    def test_s_4_us_4_t_2_rate_limiting_reports(self):
+
+    @patch("app.routes.get_remote_addr")
+    def test_s_4_us_4_t_2_rate_limiting_reports(self, get_remote_addr_mock):
+        #random ipv6 I came up with
+        get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
         add_response = self.client.post(
             "/api/restrooms",
             json={
@@ -67,7 +72,10 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.assertEqual(report_response.status_code, 429)
 
-    def test_s_4_us_4_t_2_rate_limiting_ratings(self):
+
+    @patch("app.routes.get_remote_addr")
+    def test_s_4_us_4_t_2_rate_limiting_ratings(self, get_remote_addr_mock):
+        get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
         add_response = self.client.post(
             "/api/restrooms",
             json={
@@ -91,7 +99,9 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.assertEqual(rating_response.status_code, 429)
 
-    def test_s_4_us_4_t_2_rate_limiting_amends(self):
+    @patch("app.routes.get_remote_addr")
+    def test_s_4_us_4_t_2_rate_limiting_amends(self, get_remote_addr_mock):
+        get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
         add_response = self.client.post(
             "/api/restrooms",
             json={
@@ -127,7 +137,10 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.assertEqual(amend_response.status_code, 429)
 
-    def test_s_4_us_4_t_2_rate_limiting_new_restrooms(self):
+
+    @patch("app.routes.get_remote_addr")
+    def test_s_4_us_4_t_2_rate_limiting_new_restrooms(self, get_remote_addr_mock):
+        get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
         limiter.enabled = True
         for i in range(0,10):
             add_response = self.client.post(
@@ -150,7 +163,10 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.assertEqual(add_response.status_code, 429)
 
-    def test_s_4_us_4_t_2_not_rate_limiting_multiple_ratings(self):
+
+    @patch("app.routes.get_remote_addr")
+    def test_s_4_us_4_t_2_not_rate_limiting_multiple_ratings(self, get_remote_addr_mock):
+        get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
         add_response1 = self.client.post(
             "/api/restrooms",
             json={
@@ -194,7 +210,10 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.assertEqual(rating_response.status_code, 429)
 
-    def test_s_4_us_4_t_2_not_rate_limiting_nearest(self):
+
+    @patch("app.routes.get_remote_addr")
+    def test_s_4_us_4_t_2_not_rate_limiting_nearest(self, get_remote_addr_mock):
+        get_remote_addr_mock.return_value = "2a0e:4f7c:81d3:5b29:c6a1:e4d:93f2:7b18"
         add_response = self.client.post(
             "/api/restrooms",
             json={
