@@ -9,8 +9,11 @@ POST /api/restrooms/<restroom_id>/report saves restroom condition reports.
 /api/health confirms that the backend is running.
 This file defines the API URLs that the frontend can call.
 """
+import ipaddress
 
 from flask import Blueprint, jsonify, request
+from .limiter import limiter
+
 from .mongodb import (
     MongoDatabaseError,
     RestroomAlreadyExistsError,
@@ -28,6 +31,7 @@ from .preferences import (
     prioritize_restrooms,
 )
 from .scores import prioritize_by_cleanliness_score
+
 
 
 api = Blueprint("api", __name__)
@@ -357,6 +361,29 @@ def get_report_data():
 
     return reports, None
 
+def get_ip_key():
+    #FYI: this is a claude snippet.
+    # I don't wanna hinge our network stability on code that's easy to work around and this includes some error handling
+    # that I wouldn't have done normally
+    raw = request.remote_addr or "unknown"
+    try:
+        ip = ipaddress.ip_address(raw)
+    except ValueError:
+        return raw
+
+    if ip.version == 6:
+        # Treat ::ffff:1.2.3.4 as the IPv4 address it wraps
+        if ip.ipv4_mapped:
+            return str(ip.ipv4_mapped)
+        # Bucket by network prefix (default /64)
+        net = ipaddress.ip_network(f"{ip}/64", strict=False)
+        return str(net)
+
+    return str(ip)
+
+def get_ip_restroom_key(restroom_id):
+    return f"{restroom_id}{get_ip_key()}"
+
 
 @api.get("/health")
 def health_check():
@@ -430,6 +457,7 @@ def nearby_restrooms():
 
 
 @api.post("/restrooms")
+@limiter.limit("10/hour",key_func=get_ip_key)
 def add_restroom():
     # save a user-submitted restroom in MongoDB.
     # The request body uses the shared Restroom fields except restroomId and
@@ -449,6 +477,7 @@ def add_restroom():
 
 
 @api.post("/restrooms/<restroom_id>/report")
+@limiter.limit("3/hour",key_func=lambda: get_ip_restroom_key(request.view_args["restroom_id"]))
 def report_restroom(restroom_id):
     # update an existing restroom's name and optional amenity information.
     reports, error = get_report_data()
@@ -470,6 +499,7 @@ def report_restroom(restroom_id):
 
 
 @api.post("/restrooms/amend")
+@limiter.limit("5/hour",key_func=lambda: get_ip_restroom_key(request.get_json(silent=True).get("restroomId", "")))
 def amend_restroom():
     # update an existing restroom's name and optional amenity information.
     restroom_data, error = get_amended_restroom_data()
@@ -488,6 +518,7 @@ def amend_restroom():
 
 
 @api.post("/restrooms/<restroom_id>/ratings")
+@limiter.limit("5/hour",key_func=lambda: get_ip_restroom_key(request.view_args["restroom_id"]))
 def rate_restroom(restroom_id):
     # add one anonymous cleanliness vote to a known restroom.
     # a rating is intentionally separate from amend because it contributes to a

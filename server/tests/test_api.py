@@ -10,6 +10,7 @@ from operator import truediv
 
 import mongomock_ng
 from app import create_app
+from app.limiter import limiter
 
 
 class RestroomApiTests(unittest.TestCase):
@@ -28,9 +29,9 @@ class RestroomApiTests(unittest.TestCase):
                 "RESTROOMS_COLLECTION": self.collection,
                 "RATINGS_COLLECTION": self.ratings_collection,
                 "REPORTS_COLLECTION": self.reports_collection,
+                "RATELIMIT_ENABLED": False
             }
         )
-        self.app.config.update(RATELIMIT_ENABLED=False)
         self.client = self.app.test_client()
 
     def test_returns_closest_restroom(self):
@@ -1129,7 +1130,7 @@ class RestroomApiTests(unittest.TestCase):
             },
         )
         rid = add_response.get_json()["restroom"]["restroomId"]
-        self.app.config.update(RATELIMIT_ENABLED=True)
+        limiter.enabled = True
         for i in range(0, 3):
             report_response = self.client.post(
                 f"/api/restrooms/{rid}/report",
@@ -1163,7 +1164,7 @@ class RestroomApiTests(unittest.TestCase):
             },
         )
         rid = add_response.get_json()["restroom"]["restroomId"]
-        self.app.config.update(RATELIMIT_ENABLED=True)
+        limiter.enabled = True
         for i in range(0, 3):
             rating_response = self.client.post(
                 f"/api/restrooms/{rid}/ratings",
@@ -1187,7 +1188,7 @@ class RestroomApiTests(unittest.TestCase):
             },
         )
         rid = add_response.get_json()["restroom"]["restroomId"]
-        self.app.config.update(RATELIMIT_ENABLED=True)
+        limiter.enabled = True
         for i in range(0, 3):
             amend_response = self.client.post(
                 "/api/restrooms/amend",
@@ -1199,7 +1200,7 @@ class RestroomApiTests(unittest.TestCase):
                     "directions": "At the end of the north hallway.",
                 },
             )
-            self.assertEqual(amend_response.status_code, 20)
+            self.assertEqual(amend_response.status_code, 200)
 
         amend_response = self.client.post(
             "/api/restrooms/amend",
@@ -1214,7 +1215,7 @@ class RestroomApiTests(unittest.TestCase):
         self.assertEqual(amend_response.status_code, 429)
 
     def test_s_4_us_4_t_2_rate_limiting_new_restrooms(self):
-        self.app.config.update(RATELIMIT_ENABLED=True)
+        limiter.enabled = True
         for i in range(0,10):
             add_response = self.client.post(
                 "/api/restrooms",
@@ -1255,7 +1256,7 @@ class RestroomApiTests(unittest.TestCase):
             },
         )
         rid2 = add_response2.get_json()["restroom"]["restroomId"]
-        self.app.config.update(RATELIMIT_ENABLED=True)
+        limiter.enabled = True
         for i in range(0, 3):
             rating_response = self.client.post(
                 f"/api/restrooms/{rid1}/ratings",
@@ -1289,7 +1290,7 @@ class RestroomApiTests(unittest.TestCase):
                 "longitude": -122.0600,
             },
         )
-        self.app.config.update(RATELIMIT_ENABLED=True)
+        limiter.enabled = True
         for i in range(0, 100):
             nearest_response = self.client.get(
                 "/api/restrooms/nearest?latitude=36.9910&longitude=-122.0600"

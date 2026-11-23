@@ -17,7 +17,7 @@ When combined with task 1 of this user story, this will make spam to delete or p
 
 - Limit by IPv6 /64 subnet first (should be per device), fallback to IPv4 otherwise
 - `POST /api/restrooms/<restroom_id>/report` only accepts 3 reports per restroom per IP per hour
-- `POST /api/restrooms/<restroom_id>/ratings` only accepts 5 ratings per restroom  per IP per hour
+- `POST /api/restrooms/<restroom_id>/ratings` only accepts 5 ratings per restroom per IP per hour
 - `POST /api/restrooms/<restroom_id>/amend` only accepts 5 amends per restroom per IP per hour
 - `POST /api/restroom` only accepts 10 new restrooms per IP per hour
 - When rate-limited, the endpoint will return http code 429
