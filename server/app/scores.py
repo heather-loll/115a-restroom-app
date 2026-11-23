@@ -27,6 +27,8 @@ def cleanliness_score_sort_key(restroom):
         or not isinstance(score, (int, float))
         or not 1 <= score <= 3
     ):
-        return (1, 0)  # 1 puts unknown scores after known scores, 0 is a placeholder
+        # 1 puts unknown scores after known scores, 0 is a placeholder value.
+        return (1, 0)
 
-    return (0, -score)  # 0 puts known scores first
+    # 0 puts known scores first, and the negative score sorts highest-to-lowest.
+    return (0, -score)
