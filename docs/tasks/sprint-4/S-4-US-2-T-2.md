@@ -35,4 +35,6 @@ When combined with task 1 of this user story, this will make spam to delete or p
 1. Rate limiting on `POST /api/restrooms/<restroom_id>/report` triggers on the 4th report
 2. Rate limiting on `POST /api/restrooms/<restroom_id>/ratings` triggers on the 6th rating
 3. Rate limiting on `POST /api/restrooms/<restroom_id>/amend` triggers on the 6th amend
-4. Rate limiting on `POST /api/restrooms/<restroom_id>/ratings` does not trigger when making 5 ratings for multiple restrooms
+4. Rate limiting on `POST /api/restroom` triggers on the 11th new restroom
+5. Rate limiting on `POST /api/restrooms/<restroom_id>/ratings` does not trigger when making 5 ratings for multiple restrooms
+6. Rate limiting does not trigger on `GET /api/restrooms/nearest`
