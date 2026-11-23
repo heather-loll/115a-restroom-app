@@ -11,7 +11,8 @@ estimate_hours: 2
 ## Description
 
 Add rate limiting to the API for all editing operations on restrooms, helping to prevent excessive reports from going through and messing up the data.
-When combined with task 1 of this user story, this will make spam to delete or poorly mark a restroom difficult to achieve.
+When combined with task 1 of this user story, this will make spam to delete or poorly mark a restroom difficult to achieve. Out of scope is 
+weighing reports less based on time.
 
 ## Specs
 
