@@ -4,17 +4,12 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 '''
 
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import mongomock_ng
 from app import create_app
 from app.cache import RestroomSearchCache
-from app.mongodb import (
-    MongoDatabaseError,
-    find_nearby_restrooms,
-    find_nearest_restroom,
-)
-from pymongo.errors import PyMongoError
+from app.mongodb import MongoDatabaseError
 
 
 class RestroomSearchCacheTests(unittest.TestCase):
