@@ -4,12 +4,17 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 '''
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import mongomock_ng
 from app import create_app
 from app.cache import RestroomSearchCache
-from app.mongodb import MongoDatabaseError
+from app.mongodb import (
+    MongoDatabaseError,
+    find_nearby_restrooms,
+    find_nearest_restroom,
+)
+from pymongo.errors import PyMongoError
 
 
 class RestroomSearchCacheTests(unittest.TestCase):
@@ -383,6 +388,28 @@ class RestroomSearchCacheTests(unittest.TestCase):
 
         current_time[0] = 301  # seconds, past the 5 mins.
         self.assertIsNone(cache.get(cache_key))
+
+    def test_s_4_us_1_t_2_removes_oldest_result_at_cache_limit(self):
+        # criterion 14: keeping a maximum prevents map searches from
+        # using unlimited memory during a long-running backend session.
+        current_time = [0]
+        cache = RestroomSearchCache(
+            max_entries=2,
+            time_function=lambda: current_time[0],
+        )
+        first_key = ("nearby", 36.9749, -122.0308, 1_000, ())
+        second_key = ("nearby", 36.9750, -122.0308, 1_000, ())
+        third_key = ("nearby", 36.9760, -122.0308, 1_000, ())
+
+        cache.store(first_key, {"name": "First result"})
+        current_time[0] = 1
+        cache.store(second_key, {"name": "Second result"})
+        current_time[0] = 2
+        cache.store(third_key, {"name": "Third result"})
+
+        self.assertIsNone(cache.get(first_key))
+        self.assertEqual(cache.get(second_key), {"name": "Second result"})
+        self.assertEqual(cache.get(third_key), {"name": "Third result"})
 
 
 if __name__ == "__main__":

@@ -454,20 +454,26 @@ def add_cleanliness_rating(restroom_id, cleanliness):
 
 
 def find_nearest_restroom(latitude, longitude, radius_meters):
-    collection = get_restrooms_collection()
-    document = collection.find_one(
-        {
-            "geometry": {
-                "$near": {
-                    "$geometry": {
-                        "type": "Point",
-                        "coordinates": [longitude, latitude],
-                    },
-                    "$maxDistance": radius_meters,
+    # convert driver errors into the backend's shared database error so routes
+    # can return a consistent temporary-unavailable response to the frontend.
+    try:
+        collection = get_restrooms_collection()
+        document = collection.find_one(
+            {
+                "geometry": {
+                    "$near": {
+                        "$geometry": {
+                            "type": "Point",
+                            "coordinates": [longitude, latitude],
+                        },
+                        "$maxDistance": radius_meters,
+                    }
                 }
             }
-        }
-    )
+        )
+    except PyMongoError as error:
+        raise MongoDatabaseError("Could not search for the nearest restroom.") from error
+
     # a search with no database match returns None for the API response.
     if document is None:
         return None
@@ -475,22 +481,28 @@ def find_nearest_restroom(latitude, longitude, radius_meters):
 
 
 def find_nearby_restrooms(latitude, longitude, radius_meters):
-    collection = get_restrooms_collection()
-    documents = collection.find(
-        {
-            "geometry": {
-                "$near": {
-                    "$geometry": {
-                        "type": "Point",
-                        "coordinates": [longitude, latitude],
-                    },
-                    "$maxDistance": radius_meters,
+    # MongoDB can raise while the cursor is being read, so include both the
+    # query and formatting loop in the error handling block.
+    try:
+        collection = get_restrooms_collection()
+        documents = collection.find(
+            {
+                "geometry": {
+                    "$near": {
+                        "$geometry": {
+                            "type": "Point",
+                            "coordinates": [longitude, latitude],
+                        },
+                        "$maxDistance": radius_meters,
+                    }
                 }
             }
-        }
-    )
-    restrooms = []
-    for document in documents:
-        formatted_restroom = format_restroom(document, latitude, longitude)
-        restrooms.append(formatted_restroom)
+        )
+        restrooms = []
+        for document in documents:
+            formatted_restroom = format_restroom(document, latitude, longitude)
+            restrooms.append(formatted_restroom)
+    except PyMongoError as error:
+        raise MongoDatabaseError("Could not search for nearby restrooms.") from error
+
     return restrooms

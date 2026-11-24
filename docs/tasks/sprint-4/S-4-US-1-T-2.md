@@ -14,7 +14,7 @@ Serves US 4.1 by avoiding repeated MongoDB searches when the backend has recentl
 
 ## Specs
 
-- `server/app/cache.py` provides the backend cache used by the restroom-search routes. Its `RestroomSearchCache.store(key, result)` method saves JSON-ready results from successful HTTP `200` search responses in memory for five minutes, and `RestroomSearchCache.get(key)` returns a matching unexpired result or `None`.
+- `server/app/cache.py` provides the backend cache used by the restroom-search routes. Its `RestroomSearchCache.store(key, result)` method saves JSON-ready results from successful HTTP `200` search responses in memory for five minutes, and `RestroomSearchCache.get(key)` returns a matching unexpired result or `None`. The cache keeps at most 100 results and removes the oldest result before adding another when full.
 - `GET /api/restrooms/nearby` caches and reuses its complete successful response data, including the `search` object and `restrooms` list. Its existing query parameters, HTTP status codes, and response field names do not change.
 - `GET /api/restrooms/nearest` caches and reuses its complete successful response data, including the `search` object and `restroom` value. Its existing query parameters, HTTP status codes, and response field names do not change.
 - A cache key includes the route name, `latitude`, `longitude`, `radius_meters`, and every valid nearby preference parameter with its boolean value. Requests with different search values or preferences must not reuse each other's results.
@@ -47,3 +47,4 @@ Serves US 4.1 by avoiding repeated MongoDB searches when the backend has recentl
 11. After a successful `POST /api/restrooms/<restroom_id>/ratings` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
 12. After a successful `POST /api/restrooms/<restroom_id>/report` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
 13. `RestroomSearchCache.get(key)` returns a stored result before its five-minute lifetime ends and returns `None` after that lifetime expires.
+14. When the cache reaches its 100-result limit, saving a new result removes the oldest result while keeping newer results available, to prevent using unlimited memory.
