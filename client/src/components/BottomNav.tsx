@@ -1,11 +1,10 @@
-import { useRef, useState } from 'react';
-import { View, StyleSheet, Pressable, Text } from 'react-native';
-import { Plus, Settings, ListFilter } from 'lucide-react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-
+import { ListFilter, Plus, Settings } from 'lucide-react-native';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSelectingLocationToCreateStore } from '../utils/stores';
-
 import AddRestroomSheet from './AddRestroomSheet';
+import FilterSheet, { amenityFilters } from './FilterSheet';
 import SelectLocation from './SelectLocation';
 
 function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
@@ -18,21 +17,17 @@ function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | n
   );
 }
 
-function FilterSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
-  return (
-    <BottomSheet ref={sheetRef} snapPoints={['35%']} index={-1} enablePanDownToClose={true}>
-      <BottomSheetView style={styles.sheetContainer}>
-        <Text>Filers</Text>
-      </BottomSheetView>
-    </BottomSheet>
-  );
-}
 
-export default function BottomNav() {
+export default function BottomNav(props: {
+  amenitiesApplied: amenityFilters;
+  setAmenitiesApplied: Dispatch<SetStateAction<amenityFilters>>;
+}
+) {
   const [addRestroomSheetOpen, setAddRestroomSheetOpen] = useState(false);
 
   const settingsSheetRef = useRef<BottomSheet>(null);
-  const filterSheetRef = useRef<BottomSheet>(null);
+
+  const [FilterSheetOpen, setFilterSheetOpen] = useState(false);
 
   const [selectingLocation, setSelectingLocation] = useSelectingLocationToCreateStore();
 
@@ -53,7 +48,9 @@ export default function BottomNav() {
             android_ripple={{ color: '#ffffff33', foreground: true }}
             accessibilityRole="button"
             accessibilityLabel="Open filter options"
-            onPress={() => filterSheetRef.current?.snapToIndex(1)}>
+            onPress={() => {
+              setFilterSheetOpen(true);
+            }}>
             <ListFilter color="#fff" size={20} />
           </Pressable>
           <Pressable
@@ -69,7 +66,15 @@ export default function BottomNav() {
       )}
 
       <SettingsSheet sheetRef={settingsSheetRef} />
-      <FilterSheet sheetRef={filterSheetRef} />
+
+      {FilterSheetOpen && (
+        <FilterSheet
+        applied={props.amenitiesApplied}
+        setApplied={props.setAmenitiesApplied}
+        setFilterSheetOpen={setFilterSheetOpen}
+        />
+      )}
+
       {selectingLocation && <SelectLocation setAddRestroomSheetOpen={setAddRestroomSheetOpen} />}
       {addRestroomSheetOpen && (
         <AddRestroomSheet setAddRestroomSheetOpen={setAddRestroomSheetOpen} />

@@ -1,20 +1,36 @@
-import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
-import { StyleSheet, Alert } from 'react-native';
-import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import MapView, { MapMarker, Marker } from 'react-native-maps';
 
-import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
+import { useCurrentMapLocationStore, useSelectingLocationToCreateStore } from '../utils/stores';
+import { amenityFilters } from './FilterSheet';
 
 type PinState = {
   markerId: string | null;
   restroom: Restroom | null;
 } | null;
 
+function amenityFilter(amenities: AmenitiesList, filter: amenityFilters) {
+  //if filter amenity true then, amenity in amenitieslist has to be true
+  const keys = Object.keys(filter) as (keyof amenityFilters)[];
+  return keys.every(key => amenities[key] || !filter[key])
+}
+
+
+function pointFilter (points: Restroom[], filter: amenityFilters){
+  const filteredPoints = points.filter(point => {
+    return amenityFilter(point.amenities, filter) 
+  })
+  return filteredPoints;
+}
+
 export default function Map(props: {
   points: Restroom[];
   activeRestroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
+  amenitiesApplied: amenityFilters;
 }) {
-  const { points, activeRestroom, setActiveRestroom } = props;
+  const { points, activeRestroom, setActiveRestroom, amenitiesApplied } = props;
   const [selectingLocation] = useSelectingLocationToCreateStore();
   const [currentMapLocation, setCurrentMapLocation] = useCurrentMapLocationStore();
 
@@ -82,7 +98,7 @@ export default function Map(props: {
       // googleMapId={ }
     >
       {!selectingLocation &&
-        points.map(restroom => {
+        pointFilter(points, amenitiesApplied).map(restroom => {
           return (
             <Marker
               ref={e => {

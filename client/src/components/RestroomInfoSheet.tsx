@@ -1,4 +1,4 @@
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetHandle, BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import {
   Accessibility,
   Baby,
@@ -9,7 +9,7 @@ import {
   Transgender,
   X
 } from 'lucide-react-native';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 
@@ -51,18 +51,30 @@ export default function RestroomInfoSheet(props: {
     }
   };
 
+  //modifies the actual top bar to contain the back button so that it doesnt get covered up
+  const renderHandle = useCallback(
+    (BottomSheetHandleProp: BottomSheetHandleProps) => (
+      <View>
+        <BottomSheetHandle {...BottomSheetHandleProp} />
+        <Pressable style={styles.closeButton}
+          onPress={() => setActiveRestroom(null)}>
+          <X size={24} color="#85858B"/>
+        </Pressable>
+      </View>
+    ),
+    [setActiveRestroom]
+  );
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
       snapPoints={[250, '35%', '93%']}
       enablePanDownToClose={true}
       onChange={handleSheetChange}
+      handleComponent={renderHandle}
       index={-1}>
       <BottomSheetView style={styles.sheetContainer}>
-        <Pressable style={styles.closeButton}
-          onPress={() => setActiveRestroom(null)}>
-          <X size={24} color="#85858B"/>
-        </Pressable>
+
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
         <Text style={styles.sheetSubHeader}>Rate Bathroom</Text>
@@ -117,13 +129,17 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   closeButton: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: '#F2F2F7',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'flex-end',
-    marginBottom: -8
+    //ios and android layering, didn't fix my issue but it adds a neat shadow
+    zIndex: 2,
+    elevation: 2,
   }
 });
