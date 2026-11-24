@@ -1,5 +1,5 @@
 '''
-Tests backend caching behavior without requiring a live mongodb server.
+Tests backend caching behavior without requiring a live MongoDB server.
 Run with: `python -m unittest discover -s tests` in the virtual environment.
 '''
 
