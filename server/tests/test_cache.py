@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import mongomock_ng
 from app import create_app
+from app.cache import RestroomSearchCache
 from app.mongodb import MongoDatabaseError
 
 
@@ -192,8 +193,6 @@ class RestroomSearchCacheTests(unittest.TestCase):
         # criterion 6: use a controlled clock so this test can move past the
         # five-minute lifetime immediately instead of waiting in real time.
         # an expired entry searches MongoDB again and returns a new stored result.
-        from app.cache import RestroomSearchCache
-
         current_time = [0]
         self.app.config["RESTROOM_SEARCH_CACHE"] = RestroomSearchCache(
             time_function=lambda: current_time[0],
@@ -370,6 +369,20 @@ class RestroomSearchCacheTests(unittest.TestCase):
         self.assertEqual(report_response.status_code, 201)
         self.assertEqual(refreshed_response.status_code, 200)
         self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    def test_s_4_us_1_t_2_returns_only_unexpired_cache_results(self):
+        # criterion 13: the helper returns a stored result before the lifetime
+        # ends and returns none after five minutes have passed.
+        current_time = [0]
+        cache = RestroomSearchCache(time_function=lambda: current_time[0])
+        cache_key = ("nearby", 36.9749, -122.0308, 1_000, ())
+        stored_result = {"restrooms": [self.nearby_restroom()]}
+
+        cache.store(cache_key, stored_result)
+        self.assertEqual(cache.get(cache_key), stored_result)
+
+        current_time[0] = 301  # seconds, past the 5 mins.
+        self.assertIsNone(cache.get(cache_key))
 
 
 if __name__ == "__main__":

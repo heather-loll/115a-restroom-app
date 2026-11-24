@@ -3,7 +3,7 @@ id: S-4-US-1-T-2
 story: US-4.1
 sprint: 4
 assignee: Thalia Eischeid
-estimate_hours: 4
+estimate_hours: 5
 ---
 
 # Cache recent restroom searches on the backend
@@ -14,7 +14,7 @@ Serves US 4.1 by avoiding repeated MongoDB searches when the backend has recentl
 
 ## Specs
 
-- `server/app/cache.py` provides the backend cache used by the restroom-search routes. It stores JSON-ready results from successful HTTP `200` search responses in memory for five minutes.
+- `server/app/cache.py` provides the backend cache used by the restroom-search routes. Its `RestroomSearchCache.store(key, result)` method saves JSON-ready results from successful HTTP `200` search responses in memory for five minutes, and `RestroomSearchCache.get(key)` returns a matching unexpired result or `None`.
 - `GET /api/restrooms/nearby` caches and reuses its complete successful response data, including the `search` object and `restrooms` list. Its existing query parameters, HTTP status codes, and response field names do not change.
 - `GET /api/restrooms/nearest` caches and reuses its complete successful response data, including the `search` object and `restroom` value. Its existing query parameters, HTTP status codes, and response field names do not change.
 - A cache key includes the route name, `latitude`, `longitude`, `radius_meters`, and every valid nearby preference parameter with its boolean value. Requests with different search values or preferences must not reuse each other's results.
@@ -40,9 +40,10 @@ Serves US 4.1 by avoiding repeated MongoDB searches when the backend has recentl
 4. A nearby-search request with a different radius value does not reuse another search's cached result.
 5. A nearby-search request with different selected preference values does not reuse another search's cached result.
 6. An identical valid search made after its five-minute cache lifetime performs a new MongoDB search and returns a newly stored result.
-7. An invalid search request that returns HTTP `400` is not cached. A later valid request must still search normally once, then cache its successful response.
-8. A database-error search request that returns HTTP `503` is not cached. After the database recovers, a successful result can be cached.
+7. An invalid search request that returns HTTP `400` is not cached, so a later valid request performs one normal MongoDB search and then caches its successful response.
+8. A database-error search request that returns HTTP `503` is not cached, so after the database recovers, a successful request performs one normal MongoDB search and then caches its result.
 9. After a successful `POST /api/restrooms` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
 10. After a successful `POST /api/restrooms/amend` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
 11. After a successful `POST /api/restrooms/<restroom_id>/ratings` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
 12. After a successful `POST /api/restrooms/<restroom_id>/report` request, the next matching restroom search performs a new MongoDB search instead of returning the previous cached search result.
+13. `RestroomSearchCache.get(key)` returns a stored result before its five-minute lifetime ends and returns `None` after that lifetime expires.
