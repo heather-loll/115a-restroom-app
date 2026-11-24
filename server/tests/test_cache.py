@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from app import create_app
+from app.mongodb import MongoDatabaseError
 
 
 class RestroomSearchCacheTests(unittest.TestCase):
@@ -154,6 +155,82 @@ class RestroomSearchCacheTests(unittest.TestCase):
         self.assertEqual(first_response.status_code, 200)
         self.assertEqual(repeated_response.status_code, 200)
         self.assertEqual(accessible_response.status_code, 200)
+        self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_refreshes_an_expired_search(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 6: use a controlled clock so this test can move past the
+        # five-minute lifetime immediately instead of waiting in real time.
+        # an expired entry searches MongoDB again and returns a new stored result.
+        from app.cache import RestroomSearchCache
+
+        current_time = [0]
+        self.app.config["RESTROOM_SEARCH_CACHE"] = RestroomSearchCache(
+            time_function=lambda: current_time[0],
+        )
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        first_response = self.client.get(url)
+        current_time[0] = 301  # seconds, past 5 mins.
+        expired_response = self.client.get(url)
+        # the expired request performs the second search and saves a fresh
+        # result, so this immediate third request does not search again.
+        refreshed_response = self.client.get(url)
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(expired_response.status_code, 200)
+        self.assertEqual(refreshed_response.status_code, 200)
+        self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_does_not_cache_invalid_searches(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 7: an invalid request returns 400. a later valid request
+        # must still search normally once, then cache its successful response.
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        invalid_url = "/api/restrooms/nearby?latitude=not-a-number&longitude=-122.0308"
+        valid_url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        invalid_response = self.client.get(invalid_url)
+        first_valid_response = self.client.get(valid_url)
+        repeated_valid_response = self.client.get(valid_url)
+
+        self.assertEqual(invalid_response.status_code, 400)
+        self.assertEqual(first_valid_response.status_code, 200)
+        self.assertEqual(repeated_valid_response.status_code, 200)
+        find_nearby_restrooms_mock.assert_called_once_with(
+            latitude=36.9749,
+            longitude=-122.0308,
+            radius_meters=1_000,
+        )
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_does_not_cache_database_errors(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 8: a temporary database failure returns 503 but is not
+        # saved. after the database recovers, a successful result can be cached.
+        find_nearby_restrooms_mock.side_effect = MongoDatabaseError(
+            "Database is temporarily unavailable."
+        )
+        url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        error_response = self.client.get(url)
+        find_nearby_restrooms_mock.side_effect = None
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        first_valid_response = self.client.get(url)
+        repeated_valid_response = self.client.get(url)
+
+        self.assertEqual(error_response.status_code, 503)
+        self.assertEqual(first_valid_response.status_code, 200)
+        self.assertEqual(repeated_valid_response.status_code, 200)
         self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
 
 
