@@ -6,6 +6,7 @@ Run with: `python -m unittest discover -s tests` in the virtual environment.
 import unittest
 from unittest.mock import patch
 
+import mongomock_ng
 from app import create_app
 from app.mongodb import MongoDatabaseError
 
@@ -14,11 +15,22 @@ class RestroomSearchCacheTests(unittest.TestCase):
     # test the cache through the existing flask routes so these tests verify
     # both the stored data and the behavior a frontend request receives.
     def setUp(self):
+        # use in-memory collections so mutation tests never add data to a real
+        # MongoDB database and stay independent from one another.
+        database = mongomock_ng.MongoClient().db
+        self.collection = database.restrooms
+        self.ratings_collection = database.restroom_ratings
+        self.reports_collection = database.restroom_reports
+        self.collection.create_index([("geometry", "2dsphere")])
+        self.collection.create_index("restroomId")
         self.app = create_app(
             {
                 "TESTING": True,
                 # cache tests must not be blocked by the separate rate-limit task.
                 "RATELIMIT_ENABLED": False,
+                "RESTROOMS_COLLECTION": self.collection,
+                "RATINGS_COLLECTION": self.ratings_collection,
+                "REPORTS_COLLECTION": self.reports_collection,
             }
         )
         self.client = self.app.test_client()
@@ -42,6 +54,21 @@ class RestroomSearchCacheTests(unittest.TestCase):
             "longitude": -122.0308,
             "distanceMeters": 100,
         }
+
+    def create_test_restroom(self):
+        # add one real in-memory restroom for amend, rating, and report requests.
+        response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "Restroom changed by a cache test",
+                "latitude": 36.9749,
+                "longitude": -122.0308,
+                "amenities": {"accessible": True},
+            },
+        )
+
+        self.assertEqual(response.status_code, 201)
+        return response.get_json()["restroom"]["restroomId"]
 
     @patch("app.routes.find_nearby_restrooms")
     def test_s_4_us_1_t_2_reuses_recent_nearby_search(
@@ -231,6 +258,117 @@ class RestroomSearchCacheTests(unittest.TestCase):
         self.assertEqual(error_response.status_code, 503)
         self.assertEqual(first_valid_response.status_code, 200)
         self.assertEqual(repeated_valid_response.status_code, 200)
+        self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_clears_searches_after_creating_a_restroom(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 9: after a restroom is created, next matching restroom search
+        # performs new search instead of returning previous cached result.
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        first_search_response = self.client.get(url)
+        cached_search_response = self.client.get(url)
+
+        create_response = self.client.post(
+            "/api/restrooms",
+            json={
+                "name": "New restroom after cached search",
+                "latitude": 36.9750,
+                "longitude": -122.0308,
+            },
+        )
+        refreshed_response = self.client.get(url)
+
+        self.assertEqual(first_search_response.status_code, 200)
+        self.assertEqual(cached_search_response.status_code, 200)
+        self.assertEqual(create_response.status_code, 201)
+        self.assertEqual(refreshed_response.status_code, 200)
+        self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_clears_searches_after_amending_a_restroom(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 10: after an amendment, next matching restroom search
+        # performs new search instead of returning previous cached result.
+        restroom_id = self.create_test_restroom()
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        first_search_response = self.client.get(url)
+        cached_search_response = self.client.get(url)
+
+        amend_response = self.client.post(
+            "/api/restrooms/amend",
+            json={
+                "restroomId": restroom_id,
+                "name": "Amended restroom name",
+                "amenities": {"accessible": True},
+            },
+        )
+        refreshed_response = self.client.get(url)
+
+        self.assertEqual(first_search_response.status_code, 200)
+        self.assertEqual(cached_search_response.status_code, 200)
+        self.assertEqual(amend_response.status_code, 200)
+        self.assertEqual(refreshed_response.status_code, 200)
+        self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_clears_searches_after_rating_a_restroom(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 11: after a new cleanliness vote, next matching restroom
+        # search performs new search instead of returning previous cached result.
+        restroom_id = self.create_test_restroom()
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        first_search_response = self.client.get(url)
+        cached_search_response = self.client.get(url)
+
+        rating_response = self.client.post(
+            f"/api/restrooms/{restroom_id}/ratings",
+            json={"cleanliness": 3},
+        )
+        refreshed_response = self.client.get(url)
+
+        self.assertEqual(first_search_response.status_code, 200)
+        self.assertEqual(cached_search_response.status_code, 200)
+        self.assertEqual(rating_response.status_code, 201)
+        self.assertEqual(refreshed_response.status_code, 200)
+        self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
+
+    @patch("app.routes.find_nearby_restrooms")
+    def test_s_4_us_1_t_2_clears_searches_after_reporting_a_restroom(
+        self,
+        find_nearby_restrooms_mock,
+    ):
+        # criterion 12: after new report info, next matching restroom search
+        # performs new search instead of returning previous cached result.
+        restroom_id = self.create_test_restroom()
+        find_nearby_restrooms_mock.return_value = [self.nearby_restroom()]
+        url = "/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308"
+
+        first_search_response = self.client.get(url)
+        cached_search_response = self.client.get(url)
+
+        report_response = self.client.post(
+            f"/api/restrooms/{restroom_id}/report",
+            json={"reports": {"broken": True}},
+        )
+        refreshed_response = self.client.get(url)
+
+        self.assertEqual(first_search_response.status_code, 200)
+        self.assertEqual(cached_search_response.status_code, 200)
+        self.assertEqual(report_response.status_code, 201)
+        self.assertEqual(refreshed_response.status_code, 200)
         self.assertEqual(find_nearby_restrooms_mock.call_count, 2)
 
 
