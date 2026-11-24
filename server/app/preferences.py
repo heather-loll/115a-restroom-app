@@ -1,9 +1,8 @@
 """
-Removes restrooms with a confirmed amenity conflict, and 
-keeps restrooms with missing/unknown amenity data. Also 
-ranks restrooms using the amenity preferences selected by a user.
-This does not access flask or mongodb, so an API route can reuse it
-without duplicating the matching rules or changing the stored restroom data.
+Removes restrooms with confirmed amenity conflicts, keeps restrooms with
+missing or unknown amenity data, and ranks restrooms using user preferences.
+This module does not access Flask or MongoDB, so API routes can reuse it
+without duplicating the matching rules or changing stored restroom data.
 """
 
 
