@@ -33,7 +33,6 @@ from .preferences import (
 from .scores import prioritize_by_cleanliness_score
 
 
-
 api = Blueprint("api", __name__)
 
 # these are the amenity fields stored directly on a restroom. cleanliness is
@@ -146,6 +145,12 @@ def search_cache_key(route_name, latitude, longitude, radius_meters, preferences
 def get_search_cache():
     # return the cache stored in this app's configuration.
     return current_app.config["RESTROOM_SEARCH_CACHE"]
+
+
+def clear_search_cache():
+    # any successful restroom change can affect map pins, scores, or details.
+    # clear saved searches so the next request receives current database data.
+    get_search_cache().clear()
 
 
 def get_json_number(data, name, minimum, maximum):
@@ -520,6 +525,7 @@ def add_restroom():
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     return jsonify({"restroom": restroom}), 201
 
 
@@ -539,6 +545,7 @@ def report_restroom(restroom_id):
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     if restroom is None:
         return jsonify({"restroom": {"restroomId": restroom_id}}), 200
 
@@ -561,6 +568,7 @@ def amend_restroom():
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     return jsonify({"restroom": restroom}), 200
 
 
@@ -585,4 +593,5 @@ def rate_restroom(restroom_id):
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     return jsonify({"restroom": restroom, "ratingCount": rating_count}), 201
