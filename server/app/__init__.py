@@ -11,8 +11,30 @@ from flask_cors import CORS
 from .limiter import limiter
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import requests
+from requests.auth import HTTPDigestAuth
 
 
+#snippet taken from python anywhere
+def get_public_ip():
+    response = requests.get("https://api.ipify.org")
+    return response.text
+
+def add_atlas_ip(pubkey, privkey, group_id):
+    ip = get_public_ip()
+
+    resp = requests.post(
+        "https://cloud.mongodb.com/api/atlas/v1.0/groups/{atlas_group_id}/accessList".format(
+            atlas_group_id=group_id),
+        auth=HTTPDigestAuth(pubkey, privkey),
+        json=[{'ipAddress': ip, 'comment': 'From PythonAnywhere'}]  # the comment is optional
+    )
+    if resp.status_code in (200, 201):
+        print("MongoDB Atlas accessList request successful", flush=True)
+    else:
+        raise EnvironmentError("MongoDB Atlas accessList request problem: status code was {status_code}, content was {content}".format(
+                status_code=resp.status_code, content=resp.content
+            ))
 
 
 from .routes import api
@@ -22,6 +44,14 @@ def create_app(test_config=None):
     # build the Flask app. keeps configuration in one place.
     # lets automated tests create an isolated app without starting a real web server.
     app = Flask(__name__)
+
+    PYTHON_ANYWHERE = app.config.get("PYTHON_ANYWHERE", None)
+    ATLAS_PUBKEY = app.config.get("ATLAS_PUBKEY", None)
+    ATLAS_PRIVKEY = app.config.get("ATLAS_PRIVKEY", None)
+    ATLAS_GID = app.config.get("ATLAS_GID", None)
+
+    if PYTHON_ANYWHERE is not None:
+        add_atlas_ip(ATLAS_PUBKEY, ATLAS_PRIVKEY, ATLAS_GID)
 
     app.config.from_mapping(
         # retained for the OpenStreetMap helper, although current search routes
