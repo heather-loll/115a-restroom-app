@@ -1,7 +1,7 @@
 ---
 id: S-4-US-2-T-2
 story: US-4.2
-sprint: 3
+sprint: 4
 assignee: Callie Zwicker
 estimate_hours: 2
 ---
