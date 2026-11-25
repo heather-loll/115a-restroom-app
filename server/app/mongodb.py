@@ -13,6 +13,14 @@ from flask import current_app
 from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import PyMongoError
 
+client: MongoClient
+
+def init_client(uri, timeout):
+    global client
+    client = MongoClient(
+        uri,
+        serverSelectionTimeoutMS=timeout,
+    )
 
 class RestroomAlreadyExistsError(Exception):
     """Raised when a restroom already uses the submitted coordinates."""
@@ -93,10 +101,6 @@ def get_restrooms_collection():
     if test_collection is not None:
         return test_collection
 
-    client = MongoClient(
-        current_app.config["MONGODB_URI"],
-        serverSelectionTimeoutMS=current_app.config["MONGODB_TIMEOUT_MS"],
-    )
     database = client[current_app.config["MONGODB_DATABASE"]]
     return database[current_app.config["MONGODB_RESTROOMS_COLLECTION"]]
 
@@ -490,6 +494,8 @@ def find_nearby_restrooms(latitude, longitude, radius_meters):
         }
     )
     restrooms = []
+    #convert to list all at once since pymongo uses a server pointer internally and dereferencing by iteration is slow
+    documents = list(documents)
     for document in documents:
         formatted_restroom = format_restroom(document, latitude, longitude)
         restrooms.append(formatted_restroom)
