@@ -46,12 +46,14 @@ def create_app(test_config=None):
     app = Flask(__name__)
 
     PYTHON_ANYWHERE = os.environ.get("PYTHON_ANYWHERE", None)
+    #this key should have project owner access
     ATLAS_PUBKEY = os.environ.get("ATLAS_PUBKEY", None)
     ATLAS_PRIVKEY = os.environ.get("ATLAS_PRIVKEY", None)
-    ATLAS_GID = os.environ.get("ATLAS_GID", None)
+    #atlas project ID
+    ATLAS_PID = os.environ.get("ATLAS_PID", None)
 
     if PYTHON_ANYWHERE is not None:
-        add_atlas_ip(ATLAS_PUBKEY, ATLAS_PRIVKEY, ATLAS_GID)
+        add_atlas_ip(ATLAS_PUBKEY, ATLAS_PRIVKEY, ATLAS_PID)
 
     app.config.from_mapping(
         # retained for the OpenStreetMap helper, although current search routes
