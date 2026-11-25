@@ -45,10 +45,10 @@ def create_app(test_config=None):
     # lets automated tests create an isolated app without starting a real web server.
     app = Flask(__name__)
 
-    PYTHON_ANYWHERE = app.config.get("PYTHON_ANYWHERE", None)
-    ATLAS_PUBKEY = app.config.get("ATLAS_PUBKEY", None)
-    ATLAS_PRIVKEY = app.config.get("ATLAS_PRIVKEY", None)
-    ATLAS_GID = app.config.get("ATLAS_GID", None)
+    PYTHON_ANYWHERE = os.environ.get("PYTHON_ANYWHERE", None)
+    ATLAS_PUBKEY = os.environ.get("ATLAS_PUBKEY", None)
+    ATLAS_PRIVKEY = os.environ.get("ATLAS_PRIVKEY", None)
+    ATLAS_GID = os.environ.get("ATLAS_GID", None)
 
     if PYTHON_ANYWHERE is not None:
         add_atlas_ip(ATLAS_PUBKEY, ATLAS_PRIVKEY, ATLAS_GID)
