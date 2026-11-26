@@ -36,9 +36,6 @@ class RestroomRateLimitTests(unittest.TestCase):
         )
         self.client = self.app.test_client()
 
-    def tearDown(self):
-        app.mongodb.client.close()
-
     @patch("app.routes.get_remote_addr")
     def test_s_4_us_4_t_2_rate_limiting_reports(self, get_remote_addr_mock):
         #random ipv6 I came up with

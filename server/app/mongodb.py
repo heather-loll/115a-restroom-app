@@ -13,14 +13,16 @@ from flask import current_app
 from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import PyMongoError
 
-client: MongoClient
+client= None
 
-def init_client(uri, timeout):
+def get_client():
     global client
-    client = MongoClient(
-        uri,
-        serverSelectionTimeoutMS=timeout,
-    )
+    if client is None:
+        client = MongoClient(
+            current_app.config["MONGODB_URI"],
+            serverSelectionTimeoutMS=current_app.config["MONGODB_TIMEOUT_MS"],
+        )
+    return client
 
 class RestroomAlreadyExistsError(Exception):
     """Raised when a restroom already uses the submitted coordinates."""
@@ -101,7 +103,8 @@ def get_restrooms_collection():
     if test_collection is not None:
         return test_collection
 
-    database = client[current_app.config["MONGODB_DATABASE"]]
+    my_client = get_client()
+    database = my_client[current_app.config["MONGODB_DATABASE"]]
     return database[current_app.config["MONGODB_RESTROOMS_COLLECTION"]]
 
 

@@ -9,7 +9,6 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from .limiter import limiter
-from .mongodb import init_client
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import requests
@@ -82,7 +81,6 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
-    init_client(app.config["MONGODB_URI"], app.config["MONGODB_TIMEOUT_MS"])
     limiter.init_app(app)
 
     # the Expo app and this server use different local ports during development.
