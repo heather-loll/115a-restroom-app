@@ -1,19 +1,18 @@
+import { Dispatch, SetStateAction } from 'react';
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import { ArrowRight, Crosshair } from 'lucide-react-native';
+import { Crosshair } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getNearestAddress } from '../utils/location';
 
 import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
+import { ProgressiveBlur } from './ProgressiveBlur';
 
-// This will show the user a centralized map pin.
-// As they pan around on the map we can get the address of where they are pointed at.
-// This should also hide the BottomNav and other map pins
-// This component renders a preview of the address and a button to continue
-// When continue is pressed, this view closes, all other views return to normal, and an AddRestroomSheet is rendered
+interface SelectLocationProps {
+  setAddRestroomSheetOpen: Dispatch<SetStateAction<boolean>>;
+}
 
-export default function SelectLocation(props: { setAddRestroomSheetOpen: any }) {
-  const { setAddRestroomSheetOpen } = props;
+export default function SelectLocation({ setAddRestroomSheetOpen }: SelectLocationProps) {
   const insets = useSafeAreaInsets();
   const [selectingLocation, setSelectingLocation] = useSelectingLocationToCreateStore();
   const [currentMapLocation] = useCurrentMapLocationStore();
@@ -49,6 +48,7 @@ export default function SelectLocation(props: { setAddRestroomSheetOpen: any }) 
 
   return (
     <>
+      <ProgressiveBlur style={styles.blur} />
       <View style={[styles.topAddressContainer, { paddingTop: insets.top }]}>
         <Text style={styles.topAddressText}>{currentDisplayedAddress ?? ''}</Text>
         <Text style={styles.topCoordsText}>
@@ -123,5 +123,14 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 1)',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
+  },
+  blur: {
+    width: '100%',
+    height: 180,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: undefined,
   },
 });

@@ -5,8 +5,16 @@ routes to the app.
 """
 
 import os
+
 from flask import Flask
 from flask_cors import CORS
+from .limiter import limiter
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+
+
+
 from .routes import api
 
 
@@ -18,7 +26,10 @@ def create_app(test_config=None):
     app.config.from_mapping(
         # retained for the OpenStreetMap helper, although current search routes
         # read restroom data from MongoDB.
-        OVERPASS_URL=os.environ.get("OVERPASS_URL", "https://overpass-api.de/api/interpreter"),
+        OVERPASS_URL=os.environ.get(
+            "OVERPASS_URL",
+            "https://overpass-api.de/api/interpreter",
+        ),
         # prevents a slow optional OpenStreetMap request from waiting forever.
         OVERPASS_TIMEOUT_SECONDS=15,
         # MongoDB stores imported and user-submitted restroom records.
@@ -30,10 +41,16 @@ def create_app(test_config=None):
         MONGODB_TIMEOUT_MS=5_000,
         # tests can replace MongoDB with a small in-memory fake collection.
         RESTROOMS_COLLECTION=None,
+        RATELIMIT_STORAGE_URI="memory://",
+        RATELIMIT_HEADERS_ENABLED=True,
+        RATELIMIT_DEFAULT=""
     )
 
     if test_config:
         app.config.update(test_config)
+
+
+    limiter.init_app(app)
 
     # the Expo app and this server use different local ports during development.
     # restrict allowed origins before product deployment.

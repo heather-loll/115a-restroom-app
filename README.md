@@ -52,7 +52,13 @@ before using the restroom endpoints.
 1. In mongosh, run the following:
    - `use ToiletApp` (creates the database "ToiletApp")
    - `db.createCollection("restrooms")` (creates the collection "restrooms")
-1. Once that is setup, run the python script `server/app/osm_refuge_import/import_overpass_json_mongodb.py` from the venv to build the sample database of Santa Cruz data
+   - `db.createCollection("restroom_ratings")`
+   - `db.createCollection("restroom_reports")`
+   - `exit`
+1. Once that is setup, source the venv (see "Set Up Local Server")
+1. cd to `115a-restroom-app/server/app/osm_refuge_import`
+1. Run `PYTHONPATH=../.. python import_overpass_json_mongodb.py` to build the basic Santa Cruz database
+1. To confirm the import, in mongosh, run `db.restrooms.countDocuments()`
 
 The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
 `restrooms` collection by default. Set `MONGODB_URI`, `MONGODB_DATABASE`, or
@@ -95,10 +101,12 @@ To find every restroom within a search radius:
 
 `curl "http://127.0.0.1:5001/api/restrooms/nearby?latitude=36.9749&longitude=-122.0308&radius_meters=1000"`
 
-This response uses the same `Restroom` structure as the nearest-restroom endpoint,
-but returns a `restrooms` list sorted from closest to farthest. The Expo map can
-create one pin for each item in that list. If no restroom is found, `restrooms`
-is an empty list (`[]`).
+This response uses the same `Restroom` structure as the nearest-restroom endpoint.
+Without selected preferences, restrooms with known cleanliness averages are listed
+first from highest to lowest. Restrooms without ratings remain available after rated
+restrooms. Equal or unknown scores keep the existing nearby order, which begins with
+the closest locations. The Expo map can create one pin for each item in the list. If
+no restroom is found, `restrooms` is an empty list (`[]`).
 
 #### Optional Preferences
 
@@ -111,7 +119,7 @@ Supported preferences are `paymentRequired`, `accessible`, `unisex`,
 `singleOccupancy`, `menstrualProductsAvailable`, and `babyChangingStation`.
 Use only `true` or `false` as values. The endpoint removes restrooms with a known
 conflict, keeps restrooms with missing amenity data, and places confirmed matches
-first. Without preference parameters, the endpoint keeps its normal distance order.
+first. Cleanliness scores then order restrooms with the same preference rank.
 
 ### Add-restroom Endpoint
 
@@ -156,6 +164,22 @@ The returned `restroom.amenities.cleanliness` value is the rolling average of al
 saved votes. The nearest and nearby restroom endpoints include the same average when
 ratings exist, and omit it when there are no votes yet.
 
+### Report-restroom Endpoint
+
+`POST /api/restrooms/<restroomId>/report` lets a user report a condition at an
+existing restroom. Replace `<restroomId>` with the ID returned by a nearby or
+nearest restroom request. The JSON body must contain a non-empty `reports` object
+with one or more of `broken`, `busy`, or `nonexistent`. Each value must be `true`
+or `false`.
+
+The backend saves reports separately and returns the updated restroom with HTTP
+status `201`. A restroom's `reports.broken`, `reports.busy`, or
+`reports.nonexistent` value becomes `true` only after its five most recent reports
+for that condition are all `true`. This helps prevent one report from immediately
+changing what every user sees. When `nonexistent` is confirmed, the backend removes
+that restroom from the database and returns HTTP status `200` with its `restroomId`.
+An unknown restroom ID returns HTTP status `409`.
+
 ### Stop the Backend
 
 1. In the terminal running `python run.py`, `Control` + `C` to stop the Flask server
@@ -165,3 +189,7 @@ ratings exist, and omit it when there are no votes yet.
 
 With the virtual environment active, run this command from `server/`:
 `python -m unittest discover -s tests`
+
+GitHub Actions also runs this backend test command automatically for pull
+requests that change files in `server/`. Frontend-only pull requests do not run
+the backend test workflow.

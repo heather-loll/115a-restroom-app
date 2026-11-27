@@ -3,15 +3,49 @@ import { ListFilter, Plus, Settings } from 'lucide-react-native';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSelectingLocationToCreateStore } from '../utils/stores';
-import AddRestroomSheet from './AddRestroomSheet';
+import AddRestroomSheet from './AddRestroomSheet/AddRestroomSheet';
 import FilterSheet, { amenityFilters } from './FilterSheet';
 import SelectLocation from './SelectLocation';
+import { restroomsCache } from '../utils/cache';
 
 function SettingsSheet({ sheetRef }: { sheetRef: React.RefObject<BottomSheet | null> }) {
   return (
     <BottomSheet ref={sheetRef} snapPoints={['93%']} index={-1} enablePanDownToClose={true}>
       <BottomSheetView style={styles.sheetContainer}>
         <Text>Settings</Text>
+        <Pressable
+          onPress={() => {
+            restroomsCache.set([
+              {
+                restroomId: 's',
+                name: 'Front & Soquel Restrooms',
+                address: '315 Front Street, Santa Cruz, CA',
+                latitude: 36.97326466616349,
+                longitude: -122.02507860065315,
+                amenities: {
+                  unisex: true,
+                  singleOccupancy: true,
+                  babyChangingStation: false,
+                },
+              },
+              {
+                restroomId: 'constance',
+                name: 'Pleasure Pizza',
+                address: '1415 Pacific Ave, Santa Cruz, CA',
+                latitude: 36.975188,
+                longitude: -122.026669,
+                amenities: {
+                  unisex: true,
+                  singleOccupancy: true,
+                  babyChangingStation: true,
+                  paymentRequired: true,
+                  menstrualProductsAvailible: true,
+                },
+              },
+            ]);
+          }}>
+          <Text>Load demo data into cache!</Text>
+        </Pressable>
       </BottomSheetView>
     </BottomSheet>
   );

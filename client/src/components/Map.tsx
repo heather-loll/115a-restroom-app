@@ -1,9 +1,10 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import MapView, { MapMarker, Marker } from 'react-native-maps';
+import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-import { useCurrentMapLocationStore, useSelectingLocationToCreateStore } from '../utils/stores';
+import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
 import { amenityFilters } from './FilterSheet';
+import { ProgressiveBlur } from './ProgressiveBlur';
 
 type PinState = {
   markerId: string | null;
@@ -24,13 +25,14 @@ function pointFilter (points: Restroom[], filter: amenityFilters){
   return filteredPoints;
 }
 
-export default function Map(props: {
+
+interface MapProps {
   points: Restroom[];
   activeRestroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
-  amenitiesApplied: amenityFilters;
-}) {
-  const { points, activeRestroom, setActiveRestroom, amenitiesApplied } = props;
+}
+
+export default function Map({ points, activeRestroom, setActiveRestroom }: MapProps) {
   const [selectingLocation] = useSelectingLocationToCreateStore();
   const [currentMapLocation, setCurrentMapLocation] = useCurrentMapLocationStore();
 
@@ -73,31 +75,32 @@ export default function Map(props: {
   }, [activeRestroom]);
 
   return (
-    <MapView
-      key={`map-view-${points.length}`}
-      ref={mapRef}
-      style={styles.map}
-      initialRegion={{
-        latitude: 36.974943496456206,
-        longitude: -122.02797529604096,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}
-      onRegionChangeComplete={({ longitude, latitude }) => {
-        setCurrentMapLocation({ longitude, latitude });
-      }}
-      showsPointsOfInterests={selectingLocation}
-      appleLogoInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
-      legalLabelInsets={{ left: 10, bottom: -50, right: 0, top: 0 }}
-      toolbarEnabled={false}
-      zoomEnabled={activeRestroom === null}
-      scrollEnabled={activeRestroom === null}
-      pitchEnabled={activeRestroom === null}
-      rotateEnabled={activeRestroom === null}
-      onPress={handleMarkerDismiss}
-      // googleMapId={ }
-    >
-      {!selectingLocation &&
+    <>
+      <MapView
+        key={`map-view-${points.length}`}
+        ref={mapRef}
+        style={styles.map}
+        initialRegion={{
+          latitude: 36.974943496456206,
+          longitude: -122.02797529604096,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+        onRegionChangeComplete={({ longitude, latitude }) => {
+          setCurrentMapLocation({ longitude, latitude });
+        }}
+        appleLogoInsets={{ top: -100, left: -100, right: 0, bottom: 0 }}
+        legalLabelInsets={{ top: -100, left: -100, right: 0, bottom: 0 }}
+        showsPointsOfInterests={selectingLocation}
+        toolbarEnabled={false}
+        zoomEnabled={activeRestroom === null}
+        scrollEnabled={activeRestroom === null}
+        pitchEnabled={activeRestroom === null}
+        rotateEnabled={activeRestroom === null}
+        onPress={handleMarkerDismiss}
+        // googleMapId={ }
+      >
+        {!selectingLocation &&
         pointFilter(points, amenitiesApplied).map(restroom => {
           return (
             <Marker
@@ -117,7 +120,9 @@ export default function Map(props: {
             />
           );
         })}
-    </MapView>
+      </MapView>
+      {/*<ProgressiveBlur direction="bottom-to-top" style={styles.blur} />*/}
+    </>
   );
 }
 
@@ -125,5 +130,14 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  blur: {
+    width: '100%',
+    height: 150,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: undefined,
   },
 });
