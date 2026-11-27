@@ -5,6 +5,14 @@
 [Restroom Finder+ Google Drive folder](https://drive.google.com/drive/u/1/folders/1H2LagVsONhPuw8UMwInsZ76GlX-lh1uF)  
 *Access is limited to UC Santa Cruz accounts.*
 
+[Restroom Finder+ Figma designs](https://www.figma.com/design/Qlip0OGx2eUdv8k8W41XXL/Restroom-Finder?node-id=0-1&p=f&t=UlTu3mlv1KqON87L-0)
+
+## Dependencies
+
+Frontend dependencies are listed in [client/package.json](client/package.json).
+
+Backend dependencies are listed in [server/requirements.txt](server/requirements.txt).
+
 ## Run Frontend Locally
 
 1. [Install Node.js](https://nodejs.org/en/download)
