@@ -11,7 +11,7 @@ This file defines the API URLs that the frontend can call.
 """
 import ipaddress
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from .limiter import limiter
 
 from .mongodb import (
@@ -31,7 +31,6 @@ from .preferences import (
     prioritize_restrooms,
 )
 from .scores import prioritize_by_cleanliness_score
-
 
 
 api = Blueprint("api", __name__)
@@ -128,6 +127,30 @@ def search_metadata(latitude, longitude, radius_meters):
         "longitude": longitude,
         "radiusMeters": radius_meters,
     }
+
+
+def search_cache_key(route_name, latitude, longitude, radius_meters, preferences=None):
+    # create one stable key for a search result. sorting preference items means
+    # URLs with the same preferences in a different order use the same cache key.
+    preference_items = tuple(sorted((preferences or {}).items()))
+    return (
+        route_name,
+        latitude,
+        longitude,
+        radius_meters,
+        preference_items,
+    )
+
+
+def get_search_cache():
+    # return the cache stored in this app's configuration.
+    return current_app.config["RESTROOM_SEARCH_CACHE"]
+
+
+def clear_search_cache():
+    # any successful restroom change can affect map pins, scores, or details.
+    # clear saved searches so the next request receives current database data.
+    get_search_cache().clear()
 
 
 def get_json_number(data, name, minimum, maximum):
@@ -404,19 +427,28 @@ def nearest_restroom():
         return jsonify({"error": error}), 400
 
     latitude, longitude, radius_meters = search_arguments
+    cache_key = search_cache_key("nearest", latitude, longitude, radius_meters)
+    cached_response = get_search_cache().get(cache_key)
+    if cached_response is not None:
+        return jsonify(cached_response)
 
-    restroom = find_nearest_restroom(
-        latitude=latitude,
-        longitude=longitude,
-        radius_meters=radius_meters,
-    )
+    try:
+        restroom = find_nearest_restroom(
+            latitude=latitude,
+            longitude=longitude,
+            radius_meters=radius_meters,
+        )
+    except MongoDatabaseError:
+        # a temporary database failure must not be saved as a cache result.
+        return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
-    return jsonify(
-        {
-            "search": search_metadata(latitude, longitude, radius_meters),
-            "restroom": restroom,
-        }
-    )
+    response_data = {
+        "search": search_metadata(latitude, longitude, radius_meters),
+        "restroom": restroom,
+    }
+    # only successful search data reaches this point, so it is safe to cache.
+    get_search_cache().store(cache_key, response_data)
+    return jsonify(response_data)
 
 
 @api.get("/restrooms/nearby")
@@ -434,11 +466,26 @@ def nearby_restrooms():
     if error:
         return jsonify({"error": error}), 400
 
-    restrooms = find_nearby_restrooms(
-        latitude=latitude,
-        longitude=longitude,
-        radius_meters=radius_meters,
+    cache_key = search_cache_key(
+        "nearby",
+        latitude,
+        longitude,
+        radius_meters,
+        preferences,
     )
+    cached_response = get_search_cache().get(cache_key)
+    if cached_response is not None:
+        return jsonify(cached_response)
+
+    try:
+        restrooms = find_nearby_restrooms(
+            latitude=latitude,
+            longitude=longitude,
+            radius_meters=radius_meters,
+        )
+    except MongoDatabaseError:
+        # a temporary database failure must not be saved as a cache result.
+        return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
     # first remove restrooms known not to meet a selected preference. score
     # ordering then ranks better-rated restrooms within each preference group.
@@ -450,13 +497,15 @@ def nearby_restrooms():
     # cleanliness ordering created above.
     restrooms = prioritize_restrooms(restrooms, preferences)
 
-    return jsonify(
-        {
-            "search": search_metadata(latitude, longitude, radius_meters),
-            # an empty list when the selected area has no mapped restrooms.
-            "restrooms": restrooms,
-        }
-    )
+    response_data = {
+        "search": search_metadata(latitude, longitude, radius_meters),
+        # an empty list when the selected area has no mapped restrooms.
+        "restrooms": restrooms,
+    }
+    # validation and the database search both succeeded, so save this complete
+    # frontend response in the cache for another matching nearby request.
+    get_search_cache().store(cache_key, response_data)
+    return jsonify(response_data)
 
 
 @api.post("/restrooms")
@@ -476,6 +525,7 @@ def add_restroom():
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     return jsonify({"restroom": restroom}), 201
 
 
@@ -495,6 +545,7 @@ def report_restroom(restroom_id):
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     if restroom is None:
         return jsonify({"restroom": {"restroomId": restroom_id}}), 200
 
@@ -517,6 +568,7 @@ def amend_restroom():
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     return jsonify({"restroom": restroom}), 200
 
 
@@ -541,4 +593,5 @@ def rate_restroom(restroom_id):
     except MongoDatabaseError:
         return jsonify({"error": "Restroom database is temporarily unavailable."}), 503
 
+    clear_search_cache()
     return jsonify({"restroom": restroom, "ratingCount": rating_count}), 201

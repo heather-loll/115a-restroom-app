@@ -134,6 +134,15 @@ Use only `true` or `false` as values. The endpoint removes restrooms with a know
 conflict, keeps restrooms with missing amenity data, and places confirmed matches
 first. Cleanliness scores then order restrooms with the same preference rank.
 
+#### Backend Search Cache
+
+The backend temporarily saves successful nearest and nearby search responses for
+five minutes. Repeating the same search can then skip another MongoDB query. A
+successful restroom create, amend, rating, or report request clears the saved
+searches so changed restroom information appears on the next search. This cache
+keeps at most 100 recent search results and exists only while one backend server is
+running, so it is separate from any frontend or offline caching.
+
 ### Add-restroom Endpoint
 
 `POST /api/restrooms` saves a user-submitted restroom in the local MongoDB
