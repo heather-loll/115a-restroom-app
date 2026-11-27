@@ -1,4 +1,6 @@
 import { get, post } from './http';
+import { restroomsCache } from './cache';
+
 // Error unwrapping: always returns an array of [ResponseObject?, Error?]
 // If there's no error, it will be [ResponseObject, null]
 // If there is an error, it will be [null, Error]
@@ -18,9 +20,16 @@ export const API_getRestrooms = async (
   });
 
   if (error || !data) {
-    return [];
+    const cachedRestrooms = restroomsCache.get();
+    if (cachedRestrooms === null) {
+      // API error and cache miss !!
+      return [];
+    } else {
+      return cachedRestrooms;
+    }
   }
 
+  restroomsCache.set(data.restrooms);
   return data.restrooms;
 };
 
@@ -44,4 +53,19 @@ export const API_submitRestroom = async (
   }
 
   return data;
+};
+
+export const API_rateRestroom = async (
+  restroomId: string,
+  cleanliness: 0 | 1 | 2 | 3,
+): Promise<boolean> => {
+  const [data, error] = await post(`/restrooms/${restroomId}/ratings`, {
+    cleanliness,
+  });
+
+  if (error || !data) {
+    return false;
+  }
+
+  return true;
 };

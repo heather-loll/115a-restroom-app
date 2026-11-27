@@ -5,20 +5,25 @@ HTTP routes for the API.
 POST /api/restrooms saves a user-submitted restroom in MongoDB,
 POST /api/restrooms/amend updates an existing restroom in MongoDB, and
 POST /api/restrooms/<restroom_id>/ratings saves one cleanliness vote.
+POST /api/restrooms/<restroom_id>/report saves restroom condition reports.
 /api/health confirms that the backend is running.
 This file defines the API URLs that the frontend can call.
 """
+import ipaddress
 
 from flask import Blueprint, jsonify, request
+from .limiter import limiter
+
 from .mongodb import (
     MongoDatabaseError,
     RestroomAlreadyExistsError,
     RestroomDoesntExistError,
     add_cleanliness_rating,
+    add_restroom_report,
     create_restroom,
     edit_restroom,
     find_nearby_restrooms,
-    find_nearest_restroom, add_restroom_report,
+    find_nearest_restroom,
 )
 from .preferences import (
     filter_restrooms,
@@ -28,7 +33,22 @@ from .preferences import (
 from .scores import prioritize_by_cleanliness_score
 
 
+
 api = Blueprint("api", __name__)
+
+# these are the amenity fields stored directly on a restroom. cleanliness is
+# handled separately because it is saved as an individual community rating.
+boolean_amenities = frozenset(
+    {
+        "paymentRequired",
+        "accessible",
+        "unisex",
+        "singleOccupancy",
+        "menstrualProductsAvailable",
+        "babyChangingStation",
+    }
+)
+
 
 def get_number_argument(name, minimum, maximum, default=None):
     # read and validate one numeric query parameter.
@@ -143,6 +163,19 @@ def get_optional_text(data, name, maximum_length):
     return value, None
 
 
+def get_required_text(data, name, maximum_length=None):
+    # read required user-entered text such as a restroom name or restroom ID.
+    value = data.get(name)
+    if not isinstance(value, str) or not value.strip():
+        return None, f"JSON field '{name}' must be a non-empty string."
+
+    value = value.strip()
+    if maximum_length is not None and len(value) > maximum_length:
+        return None, f"JSON field '{name}' must be {maximum_length} characters or fewer."
+
+    return value, None
+
+
 def get_cleanliness_rating(data):
     # validate the agreed three-button cleanliness scale used by the frontend.
     # bool must be rejected explicitly because Python treats true and false as
@@ -157,20 +190,56 @@ def get_cleanliness_rating(data):
     return cleanliness, None
 
 
+def get_restroom_amenities(data, accepts_cleanliness):
+    # validate shared restroom amenities for both new-restroom and amend requests.
+    # new restrooms may include a first cleanliness vote, while amendments cannot
+    # replace the community average through the amenities object.
+    amenities = data.get("amenities", {})
+    if not isinstance(amenities, dict):
+        return None, None, "JSON field 'amenities' must be an object when provided."
+
+    if "cleanliness" in amenities and not accepts_cleanliness:
+        return None, None, (
+            "Amenity 'cleanliness' must be submitted to the restroom rating endpoint."
+        )
+
+    allowed_amenities = boolean_amenities
+    if accepts_cleanliness:
+        allowed_amenities = boolean_amenities | {"cleanliness"}
+
+    unknown_amenities = set(amenities) - allowed_amenities
+    if unknown_amenities:
+        unknown_name = sorted(unknown_amenities)[0]
+        return None, None, f"Unknown amenity field: '{unknown_name}'."
+
+    cleanliness_rating = None
+    validated_amenities = {}
+    for amenity_name, value in amenities.items():
+        if amenity_name == "cleanliness":
+            cleanliness_rating, error = get_cleanliness_rating(
+                {"cleanliness": value}
+            )
+            if error:
+                return None, None, error
+        elif not isinstance(value, bool):
+            return None, None, f"Amenity '{amenity_name}' must be true or false."
+        else:
+            validated_amenities[amenity_name] = value
+
+    return validated_amenities, cleanliness_rating, None
+
+
 def get_new_restroom_data():
     # validate the JSON body accepted by POST /api/restrooms.
     # The frontend submits user-entered data without an ID or distance.
-    # Backend generates the ID, and distance is calculated only during a location search.
+    # The backend generates the ID, and distance is calculated during a location search.
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return None, "Request body must be a JSON object."
 
-    name = data.get("name")
-    if not isinstance(name, str) or not name.strip():
-        return None, "JSON field 'name' must be a non-empty string."
-    name = name.strip()
-    if len(name) > 120:
-        return None, "JSON field 'name' must be 120 characters or fewer."
+    name, error = get_required_text(data, "name", maximum_length=120)
+    if error:
+        return None, error
 
     latitude, error = get_json_number(data, "latitude", -90, 90)
     if error:
@@ -193,42 +262,19 @@ def get_new_restroom_data():
     address = data.get("address")
     if address is not None:
         if not isinstance(address, str) or not address.strip():
-            return None, "JSON field 'address' must be a non-empty string when provided."
+            return None, (
+                "JSON field 'address' must be a non-empty string when provided."
+            )
         address = address.strip()
         if len(address) > 200:
             return None, "JSON field 'address' must be 200 characters or fewer."
 
-    amenities = data.get("amenities", {})
-    if not isinstance(amenities, dict):
-        return None, "JSON field 'amenities' must be an object when provided."
-
-    allowed_boolean_amenities = {
-        "paymentRequired",
-        "accessible",
-        "unisex",
-        "singleOccupancy",
-        "menstrualProductsAvailable",
-        "babyChangingStation",
-    }
-    allowed_amenities = allowed_boolean_amenities | {"cleanliness"}
-    unknown_amenities = set(amenities) - allowed_amenities
-    if unknown_amenities:
-        unknown_name = sorted(unknown_amenities)[0]
-        return None, f"Unknown amenity field: '{unknown_name}'."
-
-    cleanliness_rating = None
-    validated_amenities = {}
-    for amenity_name, value in amenities.items():
-        if amenity_name == "cleanliness":
-            cleanliness_rating, error = get_cleanliness_rating(
-                {"cleanliness": value}
-            )
-            if error:
-                return None, error
-        elif not isinstance(value, bool):
-            return None, f"Amenity '{amenity_name}' must be true or false."
-        else:
-            validated_amenities[amenity_name] = value
+    validated_amenities, cleanliness_rating, error = get_restroom_amenities(
+        data,
+        accepts_cleanliness=True,
+    )
+    if error:
+        return None, error
 
     return {
         "name": name,
@@ -250,17 +296,13 @@ def get_amended_restroom_data():
     if not isinstance(data, dict):
         return None, "Request body must be a JSON object."
 
-    name = data.get("name")
-    if not isinstance(name, str) or not name.strip():
-        return None, "JSON field 'name' must be a non-empty string."
-    name = name.strip()
-    if len(name) > 120:
-        return None, "JSON field 'name' must be 120 characters or fewer."
+    name, error = get_required_text(data, "name", maximum_length=120)
+    if error:
+        return None, error
 
-    id = data.get("restroomId")
-    if not isinstance(id, str) or not id.strip():
-        return None, "JSON field 'restroomId' must be a non-empty string."
-    id = id.strip()
+    restroom_id, error = get_required_text(data, "restroomId")
+    if error:
+        return None, error
 
     floor, error = get_optional_text(data, "floor", 5)
     if error:
@@ -270,72 +312,80 @@ def get_amended_restroom_data():
     if error:
         return None, error
 
-    amenities = data.get("amenities", {})
-    if not isinstance(amenities, dict):
-        return None, "JSON field 'amenities' must be an object when provided."
-
-    allowed_boolean_amenities = {
-        "paymentRequired",
-        "accessible",
-        "unisex",
-        "singleOccupancy",
-        "menstrualProductsAvailable",
-        "babyChangingStation",
-    }
-    if "cleanliness" in amenities:
-        return None, (
-            "Amenity 'cleanliness' must be submitted to the restroom rating endpoint."
-        )
-
-    allowed_amenities = allowed_boolean_amenities
-    unknown_amenities = set(amenities) - allowed_amenities
-    if unknown_amenities:
-        unknown_name = sorted(unknown_amenities)[0]
-        return None, f"Unknown amenity field: '{unknown_name}'."
-
-    validated_amenities = {}
-    for amenity_name, value in amenities.items():
-        if not isinstance(value, bool):
-            return None, f"Amenity '{amenity_name}' must be true or false."
-        validated_amenities[amenity_name] = value
+    validated_amenities, _, error = get_restroom_amenities(
+        data,
+        accepts_cleanliness=False,
+    )
+    if error:
+        return None, error
 
     return {
-        "restroomId": id,
+        "restroomId": restroom_id,
         "name": name,
         "amenities": validated_amenities,
         "floor": floor,
         "directions": directions,
     }, None
 
+
 def get_report_data():
     # validate the JSON body accepted by POST /api/restrooms/report.
-    # the frontend submits a restroomId and a list of reports (using boolean)
+    # the frontend submits a restroom ID and a list of reports (using boolean).
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return None, "Request body must be a JSON object."
 
-    #frontend must submit ALL reports, we weigh how many times it's been reported normally vs. how many times it's been reported as bad
+    # frontend must submit ALL reports, we weigh how many times it's been reported
+    # normally vs. how many times it's been reported as bad.
     reports = data.get("reports")
     if not isinstance(reports, dict):
         return None, "JSON field 'reports' must be a dict."
 
-    allowed_reports = {
-        "broken",
-        "busy",
-        "nonexistent"
-    }
+    allowed_reports = {"broken", "busy", "nonexistent"}
 
-    if len(reports.keys()) == 0:
-        return None, "JSON field 'reports' must contain any of keys \"broken\", \"busy\", and \"nonexistent\"."
+    if not reports:
+        return None, (
+            "JSON field 'reports' must contain any of keys \"broken\", \"busy\", "
+            "and \"nonexistent\"."
+        )
 
-    if len(reports.keys()) > 3 or set(reports.keys()) - allowed_reports:
-        return None, "JSON field 'reports' must contain only entries \"broken\", \"busy\", and \"nonexistent\"."
+    if len(reports) > 3 or set(reports) - allowed_reports:
+        return None, (
+            "JSON field 'reports' must contain only entries \"broken\", "
+            "\"busy\", and \"nonexistent\"."
+        )
 
     for report_name, value in reports.items():
         if not isinstance(value, bool):
             return None, f"reports '{report_name}' must be true or false."
 
     return reports, None
+
+def get_remote_addr():
+    return request.remote_addr
+
+def get_ip_key():
+    #FYI: this is a claude snippet.
+    # I don't wanna hinge our network stability on code that's easy to work around and this includes some error handling
+    # that I wouldn't have done normally
+    raw = get_remote_addr() or "unknown"
+    try:
+        ip = ipaddress.ip_address(raw)
+    except ValueError:
+        return raw
+
+    if ip.version == 6:
+        # Treat ::ffff:1.2.3.4 as the IPv4 address it wraps
+        if ip.ipv4_mapped:
+            return str(ip.ipv4_mapped)
+        # Bucket by network prefix (default /64)
+        net = ipaddress.ip_network(f"{ip}/64", strict=False)
+        return str(net)
+
+    return str(ip)
+
+def get_ip_restroom_key(restroom_id):
+    return f"{restroom_id}{get_ip_key()}"
 
 
 @api.get("/health")
@@ -358,7 +408,7 @@ def nearest_restroom():
     restroom = find_nearest_restroom(
         latitude=latitude,
         longitude=longitude,
-        radius_meters=radius_meters
+        radius_meters=radius_meters,
     )
 
     return jsonify(
@@ -387,7 +437,7 @@ def nearby_restrooms():
     restrooms = find_nearby_restrooms(
         latitude=latitude,
         longitude=longitude,
-        radius_meters=radius_meters
+        radius_meters=radius_meters,
     )
 
     # first remove restrooms known not to meet a selected preference. score
@@ -410,6 +460,7 @@ def nearby_restrooms():
 
 
 @api.post("/restrooms")
+@limiter.limit("10/hour",key_func=get_ip_key)
 def add_restroom():
     # save a user-submitted restroom in MongoDB.
     # The request body uses the shared Restroom fields except restroomId and
@@ -427,7 +478,9 @@ def add_restroom():
 
     return jsonify({"restroom": restroom}), 201
 
+
 @api.post("/restrooms/<restroom_id>/report")
+@limiter.limit("3/hour",key_func=lambda: get_ip_restroom_key(request.view_args["restroom_id"]))
 def report_restroom(restroom_id):
     # update an existing restroom's name and optional amenity information.
     reports, error = get_report_data()
@@ -447,7 +500,9 @@ def report_restroom(restroom_id):
 
     return jsonify({"restroom": restroom}), 201
 
+
 @api.post("/restrooms/amend")
+@limiter.limit("5/hour",key_func=lambda: get_ip_restroom_key(request.get_json(silent=True).get("restroomId", "")))
 def amend_restroom():
     # update an existing restroom's name and optional amenity information.
     restroom_data, error = get_amended_restroom_data()
@@ -466,6 +521,7 @@ def amend_restroom():
 
 
 @api.post("/restrooms/<restroom_id>/ratings")
+@limiter.limit("5/hour",key_func=lambda: get_ip_restroom_key(request.view_args["restroom_id"]))
 def rate_restroom(restroom_id):
     # add one anonymous cleanliness vote to a known restroom.
     # a rating is intentionally separate from amend because it contributes to a

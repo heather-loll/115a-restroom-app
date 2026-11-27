@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Toaster } from 'sonner-native';
 
 import { getUserLocation } from '../utils/location';
 import Map from '../components/Map';
@@ -31,6 +32,7 @@ export default function Index() {
         latitude: 36.97326466616349,
         longitude: -122.02507860065315,
         amenities: {
+          cleanliness: 1.3,
           unisex: true,
           singleOccupancy: true,
           babyChangingStation: false,
@@ -64,6 +66,28 @@ export default function Index() {
       <BottomNav />
 
       <RestroomInfoSheet restroom={activeRestroom} setActiveRestroom={setActiveRestroom} />
+
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          toastContentStyle: {
+            alignItems: 'center', // Vertically centers the icon with the row
+          },
+          textContainerStyle: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flex: 1,
+            gap: 12,
+          },
+          titleStyle: {
+            flex: 1, // Allows long text to wrap instead of pushing the button off-screen
+          },
+          buttonsStyle: {
+            marginTop: 0, // Removes default top spacing meant for stacked buttons
+          },
+        }}
+      />
     </GestureHandlerRootView>
   );
 }

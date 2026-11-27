@@ -1,5 +1,5 @@
 import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Haptics from 'expo-haptics';
 
@@ -24,6 +24,8 @@ export default function Map({ points, activeRestroom, setActiveRestroom }: MapPr
   const mapRef = useRef<MapView>(null);
   const [activePin, setActivePin] = useState<PinState>(null);
   const markerRefs = useRef<{ [key: string]: MapMarker | null }>({});
+
+  const MAP_PADDING = Platform.OS === 'ios' ? 100 : 0;
 
   // Whenever the active pin changes, pipe changes up by setting a new active restroom
   useEffect(() => {
@@ -75,22 +77,31 @@ export default function Map({ points, activeRestroom, setActiveRestroom }: MapPr
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
+        mapPadding={{
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: activePin ? MAP_PADDING : 0,
+        }}
         onRegionChangeComplete={({ longitude, latitude }) => {
           setCurrentMapLocation({ longitude, latitude });
         }}
-        appleLogoInsets={{ top: -100, left: -100, right: 0, bottom: 0 }}
-        legalLabelInsets={{ top: -100, left: -100, right: 0, bottom: 0 }}
+        appleLogoInsets={{ top: -100, left: -100, right: 0, bottom: activePin ? -MAP_PADDING : 0 }}
+        legalLabelInsets={{ top: -100, left: -100, right: 0, bottom: activePin ? -MAP_PADDING : 0 }}
         showsPointsOfInterests={selectingLocation}
         toolbarEnabled={false}
         zoomEnabled={activeRestroom === null}
         scrollEnabled={activeRestroom === null}
         pitchEnabled={activeRestroom === null}
         rotateEnabled={activeRestroom === null}
-        onPress={handleMarkerDismiss}
-        // googleMapId={ }
-      >
+        onPress={handleMarkerDismiss}>
         {!selectingLocation &&
           points.map(restroom => {
+            const handleOpenPin = (e: any) => {
+              e.stopPropagation();
+              setActivePin({ markerId: restroom.restroomId, restroom });
+            };
+
             return (
               <Marker
                 ref={e => {
@@ -100,10 +111,19 @@ export default function Map({ points, activeRestroom, setActiveRestroom }: MapPr
                   latitude: restroom.latitude,
                   longitude: restroom.longitude,
                 }}
-                pinColor="#009966"
-                onSelect={e => {
-                  e.stopPropagation();
-                  setActivePin({ markerId: restroom.restroomId, restroom });
+                // No animation on android for selected pin so we change the color!
+                pinColor={
+                  activePin?.markerId === restroom.restroomId && Platform.OS === 'android'
+                    ? '#ffffff'
+                    : '#009966'
+                }
+                zIndex={activePin?.markerId === restroom.restroomId ? 999 : 1}
+                onSelect={handleOpenPin}
+                onPress={handleOpenPin}
+                onDeselect={() => {
+                  if (activePin?.markerId === restroom.restroomId) {
+                    handleMarkerDismiss();
+                  }
                 }}
                 key={restroom.restroomId}
               />
