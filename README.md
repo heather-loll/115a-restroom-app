@@ -5,6 +5,14 @@
 [Restroom Finder+ Google Drive folder](https://drive.google.com/drive/u/1/folders/1H2LagVsONhPuw8UMwInsZ76GlX-lh1uF)  
 *Access is limited to UC Santa Cruz accounts.*
 
+[Restroom Finder+ Figma designs](https://www.figma.com/design/Qlip0OGx2eUdv8k8W41XXL/Restroom-Finder?node-id=0-1&p=f&t=UlTu3mlv1KqON87L-0)
+
+## Dependencies
+
+Frontend dependencies are listed in [client/package.json](client/package.json).
+
+Backend dependencies are listed in [server/requirements.txt](server/requirements.txt).
+
 ## Run Frontend Locally
 
 1. [Install Node.js](https://nodejs.org/en/download)
@@ -57,7 +65,10 @@ before using the restroom endpoints.
    - `exit`
 1. Once that is setup, source the venv (see "Set Up Local Server")
 1. cd to `115a-restroom-app/server/app/osm_refuge_import`
-1. Run `PYTHONPATH=../.. python import_overpass_json_mongodb.py` to build the basic Santa Cruz database
+1. Run the import command for your terminal to build the basic Santa Cruz database:
+   - macOS/Linux: `PYTHONPATH=../.. python import_overpass_json_mongodb.py`
+   - Windows PowerShell: `$env:PYTHONPATH='../..'; python import_overpass_json_mongodb.py`
+   - Windows Command Prompt: `set PYTHONPATH=../..` followed by `python import_overpass_json_mongodb.py`
 1. To confirm the import, in mongosh, run `db.restrooms.countDocuments()`
 
 The backend uses `mongodb://localhost:27017`, the `ToiletApp` database, and the
@@ -88,7 +99,9 @@ To find the closest restroom near a location, make the request from a second ter
 `curl "http://127.0.0.1:5001/api/restrooms/nearest?latitude=36.9749&longitude=-122.0308"`
 
 The required query parameters are `latitude` and `longitude`. The numbers in the
-example URL are not fixed: replace them with the location you want to search. Later, the Expo app will get the phone’s current GPS coordinates and build this URL automatically, so users will not type coordinates themselves.
+example URL are not fixed: replace them with the location you want to search.
+The Expo app requests the phone's location and uses its coordinates to request
+nearby restrooms, so users do not need to type coordinates themselves.
 
 `radius_meters` is optional and defaults to 1000 (allowed range: 100 to 5000).
 For example, add `&radius_meters=500` to search within 500 meters. The response
