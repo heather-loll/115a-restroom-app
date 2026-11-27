@@ -1,5 +1,6 @@
 import { get, post } from './http';
 import { restroomsCache } from './cache';
+import { errorToast } from './toast';
 
 // Error unwrapping: always returns an array of [ResponseObject?, Error?]
 // If there's no error, it will be [ResponseObject, null]
@@ -23,6 +24,7 @@ export const API_getRestrooms = async (
     const cachedRestrooms = restroomsCache.get();
     if (cachedRestrooms === null) {
       // API error and cache miss !!
+      errorToast('A network error occured!');
       return [];
     } else {
       return cachedRestrooms;

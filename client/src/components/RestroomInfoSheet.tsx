@@ -1,4 +1,8 @@
-import BottomSheet, { BottomSheetHandle, BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetHandle,
+  BottomSheetHandleProps,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import {
   Accessibility,
   Baby,
@@ -11,7 +15,7 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, Alert } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { undoToast } from '../utils/toast';
 import { toast } from 'sonner-native';
 
@@ -22,6 +26,7 @@ import { API_rateRestroom } from '../utils/api';
 
 import { useSharedValue, useAnimatedReaction } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
+import FeedbackCard from './FeedbackCard';
 
 interface AmenityItemProps {
   shown: boolean;
@@ -72,7 +77,7 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
   useEffect(() => {
     if (restroom !== null) {
       setLocalData(restroom);
-      bottomSheetRef.current?.snapToIndex(2);
+      bottomSheetRef.current?.snapToIndex(0);
     } else {
       bottomSheetRef.current?.close();
     }
@@ -116,22 +121,22 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
     (BottomSheetHandleProp: BottomSheetHandleProps) => (
       <View>
         <BottomSheetHandle {...BottomSheetHandleProp} />
-        <Pressable style={styles.closeButton}
-          onPress={() => setActiveRestroom(null)}>
-          <X size={24} color="#85858B"/>
+        <Pressable style={styles.closeButton} onPress={() => setActiveRestroom(null)}>
+          <X size={24} color="#85858B" />
         </Pressable>
       </View>
     ),
-    [setActiveRestroom]
+    [setActiveRestroom],
   );
-    
+
   const [cleanlinessEditorOpen, setCleanlinessEditorOpen] = useState(false);
   const [cleanScore, setCleanScore] = useState<0 | 1 | 2 | 3>(0);
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      snapPoints={[250, '35%', '93%']}
+      snapPoints={[340, '93%']}
+      enableDynamicSizing={false}
       enablePanDownToClose={true}
       onClose={onEventualClose}
       animatedIndex={animatedIndex}
@@ -167,9 +172,9 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         {!cleanlinessEditorOpen ? (
           <>
             <Text style={styles.sheetHeaderDescription}>
-              {cleanlinessMessage(localData?.amenities.cleanliness ?? 0)}
+              {cleanlinessMessage(localData?.amenities?.cleanliness ?? 0)}
             </Text>
-            <RestroomRating rating={localData?.amenities.cleanliness ?? 0} />
+            <RestroomRating rating={localData?.amenities?.cleanliness ?? 0} />
           </>
         ) : (
           <CleanlinessRanking
@@ -193,6 +198,9 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
         <View style={styles.amenityContainer}>
+          {Object.keys(localData?.amenities ?? {}).length === 0 && (
+            <Text>This restroom has no amenities on record.</Text>
+          )}
           <AmenityItem
             shown={localData?.amenities?.paymentRequired === true}
             label="Customers Only"
@@ -222,6 +230,26 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
             shown={localData?.amenities?.babyChangingStation === true}
             label="Changing Station"
             icon={Baby}
+          />
+        </View>
+        <Text style={styles.sheetSubHeader}>Tell us more!</Text>
+        <View>
+          <FeedbackCard
+            question="Does this restroom exist?"
+            yesCallback={() => {}}
+            noCallback={() => {}}
+          />
+
+          <FeedbackCard
+            question="Is this restroom currently busy?"
+            yesCallback={() => {}}
+            noCallback={() => {}}
+          />
+
+          <FeedbackCard
+            question="Does this restroom have broken equipment?"
+            yesCallback={() => {}}
+            noCallback={() => {}}
           />
         </View>
       </BottomSheetView>
@@ -274,6 +302,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginBlockEnd: 18,
   },
   listItem: {
     width: '50%',

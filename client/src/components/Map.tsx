@@ -1,7 +1,9 @@
+import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
+import { StyleSheet, Platform } from 'react-native';
+// import MapView from 'react-native-map-clustering';
+import MapView, { Marker, MapMarker } from 'react-native-maps';
+import type RNMapView from 'react-native-maps';
 import * as Haptics from 'expo-haptics';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
-import MapView, { MapMarker, Marker } from 'react-native-maps';
 
 import { useCurrentMapLocationStore, useSelectingLocationToCreateStore } from '../utils/stores';
 import { amenityFilters } from './FilterSheet';
@@ -14,17 +16,15 @@ type PinState = {
 function amenityFilter(amenities: AmenitiesList, filter: amenityFilters) {
   //if filter amenity true then, amenity in amenitieslist has to be true
   const keys = Object.keys(filter) as (keyof amenityFilters)[];
-  return keys.every(key => amenities[key] || !filter[key])
+  return keys.every(key => amenities?.[key] || !filter?.[key]);
 }
 
-
-function pointFilter (points: Restroom[], filter: amenityFilters){
+function pointFilter(points: Restroom[], filter: amenityFilters) {
   const filteredPoints = points.filter(point => {
-    return amenityFilter(point.amenities, filter) 
-  })
+    return amenityFilter(point.amenities, filter);
+  });
   return filteredPoints;
 }
-
 
 interface MapProps {
   points: Restroom[];
@@ -33,11 +33,16 @@ interface MapProps {
   amenitiesApplied: amenityFilters;
 }
 
-export default function Map({ points, activeRestroom, setActiveRestroom, amenitiesApplied}: MapProps) {
+export default function Map({
+  points,
+  activeRestroom,
+  setActiveRestroom,
+  amenitiesApplied,
+}: MapProps) {
   const [selectingLocation] = useSelectingLocationToCreateStore();
-  const [currentMapLocation, setCurrentMapLocation] = useCurrentMapLocationStore();
+  const [, setCurrentMapLocation] = useCurrentMapLocationStore();
 
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<RNMapView>(null);
   const [activePin, setActivePin] = useState<PinState>(null);
   const markerRefs = useRef<{ [key: string]: MapMarker | null }>({});
 
@@ -82,72 +87,69 @@ export default function Map({ points, activeRestroom, setActiveRestroom, ameniti
   }, [activeRestroom]);
 
   return (
-    <>
-      <MapView
-        key={`map-view-${points.length}`}
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={{
-          latitude: 36.974943496456206,
-          longitude: -122.02797529604096,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        mapPadding={{
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: activePin ? MAP_PADDING : 0,
-        }}
-        onRegionChangeComplete={({ longitude, latitude }) => {
-          setCurrentMapLocation({ longitude, latitude });
-        }}
-        appleLogoInsets={{ top: -100, left: -100, right: 0, bottom: activePin ? -MAP_PADDING : 0 }}
-        legalLabelInsets={{ top: -100, left: -100, right: 0, bottom: activePin ? -MAP_PADDING : 0 }}
-        showsPointsOfInterests={selectingLocation}
-        toolbarEnabled={false}
-        zoomEnabled={activeRestroom === null}
-        scrollEnabled={activeRestroom === null}
-        pitchEnabled={activeRestroom === null}
-        rotateEnabled={activeRestroom === null}
-        onPress={handleMarkerDismiss}>
-        {!selectingLocation &&
-          pointFilter(points, amenitiesApplied).map(restroom => {
-            const handleOpenPin = (e: any) => {
-              e.stopPropagation();
-              setActivePin({ markerId: restroom.restroomId, restroom });
-            };
+    <MapView
+      ref={mapRef}
+      style={styles.map}
+      initialRegion={{
+        latitude: 36.974943496456206,
+        longitude: -122.02797529604096,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      }}
+      showsUserLocation={true}
+      mapPadding={{
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: activePin ? MAP_PADDING : 0,
+      }}
+      onRegionChangeComplete={({ longitude, latitude }) => {
+        setCurrentMapLocation({ longitude, latitude });
+      }}
+      appleLogoInsets={{ top: -100, left: -100, right: 0, bottom: activePin ? -MAP_PADDING : 0 }}
+      legalLabelInsets={{ top: -100, left: -100, right: 0, bottom: activePin ? -MAP_PADDING : 0 }}
+      showsPointsOfInterests={selectingLocation}
+      toolbarEnabled={false}
+      zoomEnabled={activeRestroom === null}
+      scrollEnabled={activeRestroom === null}
+      pitchEnabled={activeRestroom === null}
+      rotateEnabled={activeRestroom === null}
+      onPress={handleMarkerDismiss}>
+      {!selectingLocation &&
+        pointFilter(points, amenitiesApplied).map(restroom => {
+          const handleOpenPin = (e: any) => {
+            e.stopPropagation();
+            setActivePin({ markerId: restroom.restroomId, restroom });
+          };
 
-            return (
-              <Marker
-                ref={e => {
-                  markerRefs.current[restroom.restroomId] = e;
-                }}
-                coordinate={{
-                  latitude: restroom.latitude,
-                  longitude: restroom.longitude,
-                }}
-                // No animation on android for selected pin so we change the color!
-                pinColor={
-                  activePin?.markerId === restroom.restroomId && Platform.OS === 'android'
-                    ? '#ffffff'
-                    : '#009966'
+          return (
+            <Marker
+              ref={e => {
+                markerRefs.current[restroom.restroomId] = e;
+              }}
+              coordinate={{
+                latitude: restroom.latitude,
+                longitude: restroom.longitude,
+              }}
+              // No animation on android for selected pin so we change the color!
+              pinColor={
+                activePin?.markerId === restroom.restroomId && Platform.OS === 'android'
+                  ? '#ffffff'
+                  : '#009966'
+              }
+              zIndex={activePin?.markerId === restroom.restroomId ? 999 : 1}
+              onSelect={handleOpenPin}
+              onPress={handleOpenPin}
+              onDeselect={() => {
+                if (activePin?.markerId === restroom.restroomId) {
+                  handleMarkerDismiss();
                 }
-                zIndex={activePin?.markerId === restroom.restroomId ? 999 : 1}
-                onSelect={handleOpenPin}
-                onPress={handleOpenPin}
-                onDeselect={() => {
-                  if (activePin?.markerId === restroom.restroomId) {
-                    handleMarkerDismiss();
-                  }
-                }}
-                key={restroom.restroomId}
-              />
-            );
-          })}
-      </MapView>
-      {/*<ProgressiveBlur direction="bottom-to-top" style={styles.blur} />*/}
-    </>
+              }}
+              key={restroom.restroomId}
+            />
+          );
+        })}
+    </MapView>
   );
 }
 

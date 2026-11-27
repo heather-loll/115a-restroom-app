@@ -5,7 +5,7 @@ import { Toaster } from 'sonner-native';
 
 import { amenityFilters } from '../components/FilterSheet';
 import Map from '../components/Map';
-import { getUserLocation } from '../utils/location';
+import { DEFAULT_COORDS } from '../utils/location';
 
 import BottomNav from '../components/BottomNav';
 import RestroomInfoSheet from '../components/RestroomInfoSheet';
@@ -24,10 +24,10 @@ export default function Index() {
     babyChangingStation: false,
   });
 
-
   useEffect(() => {
     (async () => {
-      const { longitude, latitude } = await getUserLocation();
+      // const { longitude, latitude } = await getUserLocation();
+      const { longitude, latitude } = DEFAULT_COORDS;
       const data = await API_getRestrooms(longitude, latitude, 5000);
       setRestrooms(data);
     })();
@@ -74,15 +74,13 @@ export default function Index() {
         amenitiesApplied={amenitiesApplied}
       />
 
-      <BottomNav
-        amenitiesApplied={amenitiesApplied}
-        setAmenitiesApplied={setAmenitiesApplied}
-      />
+      <BottomNav amenitiesApplied={amenitiesApplied} setAmenitiesApplied={setAmenitiesApplied} />
 
       <RestroomInfoSheet restroom={activeRestroom} setActiveRestroom={setActiveRestroom} />
 
       <Toaster
         position="bottom-center"
+        theme="dark"
         toastOptions={{
           toastContentStyle: {
             alignItems: 'center', // Vertically centers the icon with the row
