@@ -1,10 +1,11 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Toaster } from 'sonner-native';
 
-import { getUserLocation } from '../utils/location';
+import { amenityFilters } from '../components/FilterSheet';
 import Map from '../components/Map';
+import { getUserLocation } from '../utils/location';
 
 import BottomNav from '../components/BottomNav';
 import RestroomInfoSheet from '../components/RestroomInfoSheet';
@@ -14,6 +15,15 @@ import { API_getRestrooms } from '../utils/api';
 export default function Index() {
   const [activeRestroom, setActiveRestroom] = useState<Restroom | null>(null);
   const [restrooms, setRestrooms] = useState<Restroom[]>([]);
+  const [amenitiesApplied, setAmenitiesApplied] = useState<amenityFilters>({
+    paymentRequired: false,
+    accessible: false,
+    unisex: false,
+    singleOccupancy: false,
+    menstrualProductsAvailible: false,
+    babyChangingStation: false,
+  });
+
 
   useEffect(() => {
     (async () => {
@@ -61,9 +71,13 @@ export default function Index() {
         points={restrooms}
         activeRestroom={activeRestroom}
         setActiveRestroom={setActiveRestroom}
+        amenitiesApplied={amenitiesApplied}
       />
 
-      <BottomNav />
+      <BottomNav
+        amenitiesApplied={amenitiesApplied}
+        setAmenitiesApplied={setAmenitiesApplied}
+      />
 
       <RestroomInfoSheet restroom={activeRestroom} setActiveRestroom={setActiveRestroom} />
 

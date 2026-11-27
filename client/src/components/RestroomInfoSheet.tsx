@@ -1,4 +1,4 @@
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetHandle, BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import {
   Accessibility,
   Baby,
@@ -10,7 +10,7 @@ import {
   X,
   ChevronRight,
 } from 'lucide-react-native';
-import { Dispatch, SetStateAction, useEffect, useRef, useState, useCallback } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, Alert } from 'react-native';
 import { undoToast } from '../utils/toast';
 import { toast } from 'sonner-native';
@@ -111,6 +111,20 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
     setActiveRestroom(null);
   };
 
+  //modifies the actual top bar to contain the back button so that it doesnt get covered up
+  const renderHandle = useCallback(
+    (BottomSheetHandleProp: BottomSheetHandleProps) => (
+      <View>
+        <BottomSheetHandle {...BottomSheetHandleProp} />
+        <Pressable style={styles.closeButton}
+          onPress={() => setActiveRestroom(null)}>
+          <X size={24} color="#85858B"/>
+        </Pressable>
+      </View>
+    ),
+    [setActiveRestroom]
+  );
+    
   const [cleanlinessEditorOpen, setCleanlinessEditorOpen] = useState(false);
   const [cleanScore, setCleanScore] = useState<0 | 1 | 2 | 3>(0);
 
@@ -272,13 +286,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   closeButton: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: '#F2F2F7',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'flex-end',
-    marginBottom: -8,
   },
 });
