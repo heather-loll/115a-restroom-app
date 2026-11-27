@@ -1,11 +1,10 @@
-import { useRef, useState, Dispatch, SetStateAction, useEffect } from 'react';
-import { StyleSheet, Platform } from 'react-native';
-import MapView, { Marker, MapMarker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Haptics from 'expo-haptics';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Platform, StyleSheet } from 'react-native';
+import MapView, { MapMarker, Marker } from 'react-native-maps';
 
-import { useSelectingLocationToCreateStore, useCurrentMapLocationStore } from '../utils/stores';
+import { useCurrentMapLocationStore, useSelectingLocationToCreateStore } from '../utils/stores';
 import { amenityFilters } from './FilterSheet';
-import { ProgressiveBlur } from './ProgressiveBlur';
 
 type PinState = {
   markerId: string | null;
@@ -31,9 +30,10 @@ interface MapProps {
   points: Restroom[];
   activeRestroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
+  amenitiesApplied: amenityFilters;
 }
 
-export default function Map({ points, activeRestroom, setActiveRestroom }: MapProps) {
+export default function Map({ points, activeRestroom, setActiveRestroom, amenitiesApplied}: MapProps) {
   const [selectingLocation] = useSelectingLocationToCreateStore();
   const [currentMapLocation, setCurrentMapLocation] = useCurrentMapLocationStore();
 
