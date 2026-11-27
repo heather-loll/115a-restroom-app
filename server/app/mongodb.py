@@ -507,7 +507,7 @@ def find_nearby_restrooms(latitude, longitude, radius_meters):
             }
         )
         restrooms = []
-        #convert to list all at once since pymongo uses a server pointer internally and dereferencing by iteration is slow
+        # convert to list all at once since pymongo uses a server pointer internally and dereferencing by iteration is slow
         documents = list(documents)
         for document in documents:
             formatted_restroom = format_restroom(document, latitude, longitude)
