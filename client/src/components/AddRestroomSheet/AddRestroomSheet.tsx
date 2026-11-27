@@ -1,6 +1,7 @@
 import { useRef, useState, Dispatch, SetStateAction } from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import * as Haptics from 'expo-haptics';
 import { Pencil } from 'lucide-react-native';
 
 import { useCurrentMapLocationStore } from '../../utils/stores';
@@ -35,6 +36,7 @@ export default function AddRestroomSheet({ setAddRestroomSheetOpen }: AddRestroo
   });
 
   const submit = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     await API_submitRestroom(
       currentMapLocation.longitude,
       currentMapLocation.latitude,
