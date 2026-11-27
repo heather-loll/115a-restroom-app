@@ -1,4 +1,8 @@
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetHandle,
+  BottomSheetHandleProps,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import {
   Accessibility,
   Baby,
@@ -8,9 +12,21 @@ import {
   LucideIcon,
   Transgender,
   X,
+  ChevronRight,
 } from 'lucide-react-native';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { undoToast } from '../utils/toast';
+import { toast } from 'sonner-native';
+
+import RestroomRating from './RestroomRating';
+import CleanlinessRanking from './AddRestroomSheet/CleanlinessRanking';
+
+import { API_rateRestroom } from '../utils/api';
+
+import { useSharedValue, useAnimatedReaction } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
+import FeedbackCard from './FeedbackCard';
 
 interface AmenityItemProps {
   shown: boolean;
@@ -30,6 +46,25 @@ function AmenityItem({ shown, label, icon }: AmenityItemProps) {
   );
 }
 
+const cleanlinessMessage = (score: number) => {
+  switch (true) {
+    case score === 0:
+      return 'This restroom has not been rated yet';
+    case score >= 1 && score < 1.3:
+      return 'Most users say this restroom is filty.';
+    case score >= 1.3 && score < 1.7:
+      return 'Most users say this restroom is dirty.';
+    case score >= 1.7 && score <= 2.3:
+      return 'Most users say this restroom is average in cleanliness.';
+    case score >= 2.3 && score <= 2.7:
+      return 'Most users say this restroom is clean!';
+    case score >= 2.7 && score <= 3:
+      return 'Most users say this restroom is pristine!';
+    default:
+      return 'Out of range';
+  }
+};
+
 interface RestroomInfoSheetProps {
   restroom: Restroom | null;
   setActiveRestroom: Dispatch<SetStateAction<Restroom | null>>;
@@ -42,24 +77,69 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
   useEffect(() => {
     if (restroom !== null) {
       setLocalData(restroom);
-      bottomSheetRef.current?.snapToIndex(2);
+      bottomSheetRef.current?.snapToIndex(0);
     } else {
       bottomSheetRef.current?.close();
     }
   }, [restroom]);
 
-  const handleSheetChange = (index: number) => {
-    if (index === -1) {
-      setActiveRestroom(null);
-    }
+  // Solution to trigger active restroom = null on sheet close always
+  // Previous solutions had a lag and were unreliable
+  const animatedIndex = useSharedValue(-1);
+  const hasTriggeredClose = useSharedValue(false);
+
+  const onImmediateClose = useCallback(() => {
+    setActiveRestroom(null);
+  }, []);
+
+  useAnimatedReaction(
+    () => animatedIndex.value,
+    (currentIndex, previousIndex) => {
+      if (currentIndex > -0.5) {
+        hasTriggeredClose.value = false;
+      }
+
+      if (
+        previousIndex !== null &&
+        previousIndex > -0.5 &&
+        currentIndex <= -0.5 &&
+        !hasTriggeredClose.value
+      ) {
+        hasTriggeredClose.value = true;
+        // 2. Use scheduleOnRN instead of runOnJS
+        scheduleOnRN(onImmediateClose);
+      }
+    },
+  );
+
+  const onEventualClose = () => {
+    setActiveRestroom(null);
   };
+
+  //modifies the actual top bar to contain the back button so that it doesnt get covered up
+  const renderHandle = useCallback(
+    (BottomSheetHandleProp: BottomSheetHandleProps) => (
+      <View>
+        <BottomSheetHandle {...BottomSheetHandleProp} />
+        <Pressable style={styles.closeButton} onPress={() => setActiveRestroom(null)}>
+          <X size={24} color="#85858B" />
+        </Pressable>
+      </View>
+    ),
+    [setActiveRestroom],
+  );
+
+  const [cleanlinessEditorOpen, setCleanlinessEditorOpen] = useState(false);
+  const [cleanScore, setCleanScore] = useState<0 | 1 | 2 | 3>(0);
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      snapPoints={[250, '35%', '93%']}
+      snapPoints={[340, '93%']}
+      enableDynamicSizing={false}
       enablePanDownToClose={true}
-      onChange={handleSheetChange}
+      onClose={onEventualClose}
+      animatedIndex={animatedIndex}
       index={-1}>
       <BottomSheetView style={styles.sheetContainer}>
         <Pressable style={styles.closeButton} onPress={() => setActiveRestroom(null)}>
@@ -67,10 +147,60 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
         </Pressable>
         <Text style={styles.sheetHeader}>{localData?.name}</Text>
         <Text style={styles.sheetAddress}>{localData?.address}</Text>
-        <Text style={styles.sheetSubHeader}>Rate Bathroom</Text>
+
+        <View style={styles.sheetSubHeaderContainer}>
+          <Text style={styles.sheetSubHeader}>Bathroom Rating</Text>
+          <Pressable
+            style={styles.subHeadingButton}
+            onPress={() => {
+              setCleanlinessEditorOpen(!cleanlinessEditorOpen);
+            }}>
+            {cleanlinessEditorOpen ? (
+              <>
+                <Text style={styles.subHeadingButtonText}>Cancel Rating</Text>
+                <X size={18} color="#009966" />
+              </>
+            ) : (
+              <>
+                <Text style={styles.subHeadingButtonText}>Leave A Rating!</Text>
+                <ChevronRight size={18} color="#009966" />
+              </>
+            )}
+          </Pressable>
+        </View>
+
+        {!cleanlinessEditorOpen ? (
+          <>
+            <Text style={styles.sheetHeaderDescription}>
+              {cleanlinessMessage(localData?.amenities?.cleanliness ?? 0)}
+            </Text>
+            <RestroomRating rating={localData?.amenities?.cleanliness ?? 0} />
+          </>
+        ) : (
+          <CleanlinessRanking
+            state={[cleanScore, setCleanScore]}
+            callback={() => {
+              if (!localData) return;
+              setCleanlinessEditorOpen(false);
+              const timeout = setTimeout(async () => {
+                const res = await API_rateRestroom(localData.restroomId, cleanScore);
+                if (!res) {
+                  toast.error('Unable to send restroom rating due to a network error');
+                }
+              }, 4500);
+              setCleanScore(0);
+              undoToast('Rating Submitted!', () => {
+                clearTimeout(timeout);
+              });
+            }}
+          />
+        )}
 
         <Text style={styles.sheetSubHeader}>Amenities</Text>
         <View style={styles.amenityContainer}>
+          {Object.keys(localData?.amenities ?? {}).length === 0 && (
+            <Text>This restroom has no amenities on record.</Text>
+          )}
           <AmenityItem
             shown={localData?.amenities?.paymentRequired === true}
             label="Customers Only"
@@ -102,6 +232,26 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
             icon={Baby}
           />
         </View>
+        <Text style={styles.sheetSubHeader}>Tell us more!</Text>
+        <View>
+          <FeedbackCard
+            question="Does this restroom exist?"
+            yesCallback={() => {}}
+            noCallback={() => {}}
+          />
+
+          <FeedbackCard
+            question="Is this restroom currently busy?"
+            yesCallback={() => {}}
+            noCallback={() => {}}
+          />
+
+          <FeedbackCard
+            question="Does this restroom have broken equipment?"
+            yesCallback={() => {}}
+            noCallback={() => {}}
+          />
+        </View>
       </BottomSheetView>
     </BottomSheet>
   );
@@ -116,21 +266,43 @@ const styles = StyleSheet.create({
   sheetHeader: {
     fontWeight: 800,
     fontSize: 24,
-    marginBottom: 4,
+  },
+  sheetSubHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    //   alignItems: 'center',
   },
   sheetSubHeader: {
     fontSize: 20,
     fontWeight: 700,
     marginBottom: 8,
   },
+  sheetHeaderDescription: {
+    color: 'gray',
+    fontSize: 14,
+    marginTop: -6,
+    marginBottom: 10,
+  },
+  subHeadingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  subHeadingButtonText: {
+    textTransform: 'uppercase',
+    color: '#009966',
+    fontWeight: 700,
+  },
   sheetAddress: {
     color: 'gray',
     fontSize: 14,
+    marginBottom: 20,
   },
   amenityContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginBlockEnd: 18,
   },
   listItem: {
     width: '50%',
@@ -143,13 +315,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   closeButton: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: '#F2F2F7',
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'flex-end',
-    marginBottom: -8,
   },
 });

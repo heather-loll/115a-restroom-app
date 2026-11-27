@@ -6,9 +6,9 @@ import {
   Accuracy,
 } from 'expo-location';
 
-const DEFAULT_COORDS = {
-  latitude: -122.026669,
-  longitude: 36.975188,
+export const DEFAULT_COORDS = {
+  latitude: 36.96918010385222,
+  longitude: -122.02944235425308,
 };
 
 export const getUserLocation = async () => {

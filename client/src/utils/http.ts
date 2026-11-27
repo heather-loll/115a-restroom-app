@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URI = 'http://10.0.0.210:5001/api';
+const BASE_URI = 'https://callielz.pythonanywhere.com/api';
 const HTTP_TIMEOUT_SECONDS = 15;
 
 export const get = async <T = any>(
@@ -34,8 +34,6 @@ export const post = async <T = any>(
     });
     return [response.data, null];
   } catch (err) {
-    console.error(err);
-
     if (err instanceof Error) {
       return [null, err];
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Check, LucideIcon } from 'lucide-react-native';
 
 interface ToggleCardProps {
@@ -21,6 +22,7 @@ export default function ToggleCard({ id, label, icon, updateAmenities }: ToggleC
       onPress={() => {
         updateAmenities(id, !checked);
         setChecked(!checked);
+        Haptics.selectionAsync();
       }}>
       <Icon size={32} style={styles.cardIcon} />
       <Text style={styles.cardLabel}>{label}</Text>

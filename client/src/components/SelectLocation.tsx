@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     pointerEvents: 'none',
+    mixBlendMode: 'difference',
   },
   topAddressContainer: {
     position: 'absolute',
