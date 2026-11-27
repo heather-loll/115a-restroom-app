@@ -9,8 +9,11 @@ import {
   Transgender,
   X,
 } from 'lucide-react-native';
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { useSharedValue, useAnimatedReaction } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 interface AmenityItemProps {
   shown: boolean;
@@ -48,10 +51,37 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
     }
   }, [restroom]);
 
-  const handleSheetChange = (index: number) => {
-    if (index === -1) {
-      setActiveRestroom(null);
-    }
+  // Solution to trigger active restroom = null on sheet close always
+  // Previous solutions had a lag and were unreliable
+  const animatedIndex = useSharedValue(-1);
+  const hasTriggeredClose = useSharedValue(false);
+
+  const onImmediateClose = useCallback(() => {
+    setActiveRestroom(null);
+  }, []);
+
+  useAnimatedReaction(
+    () => animatedIndex.value,
+    (currentIndex, previousIndex) => {
+      if (currentIndex > -0.5) {
+        hasTriggeredClose.value = false;
+      }
+
+      if (
+        previousIndex !== null &&
+        previousIndex > -0.5 &&
+        currentIndex <= -0.5 &&
+        !hasTriggeredClose.value
+      ) {
+        hasTriggeredClose.value = true;
+        // 2. Use scheduleOnRN instead of runOnJS
+        scheduleOnRN(onImmediateClose);
+      }
+    },
+  );
+
+  const onEventualClose = () => {
+    setActiveRestroom(null);
   };
 
   return (
@@ -59,7 +89,8 @@ export default function RestroomInfoSheet({ restroom, setActiveRestroom }: Restr
       ref={bottomSheetRef}
       snapPoints={[250, '35%', '93%']}
       enablePanDownToClose={true}
-      onChange={handleSheetChange}
+      onClose={onEventualClose}
+      animatedIndex={animatedIndex}
       index={-1}>
       <BottomSheetView style={styles.sheetContainer}>
         <Pressable style={styles.closeButton} onPress={() => setActiveRestroom(null)}>
