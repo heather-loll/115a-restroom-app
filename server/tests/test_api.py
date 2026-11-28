@@ -9,6 +9,7 @@ import unittest
 from operator import truediv
 
 import mongomock_ng
+import app.mongodb
 from app import create_app
 from app.limiter import limiter
 
@@ -33,6 +34,7 @@ class RestroomApiTests(unittest.TestCase):
             }
         )
         self.client = self.app.test_client()
+
 
     def test_returns_closest_restroom(self):
         # two database documents at different coordinates verify the nearest search.

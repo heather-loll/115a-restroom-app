@@ -9,6 +9,8 @@ import unittest
 from operator import truediv
 from unittest.mock import patch
 
+
+import app.mongodb
 import mongomock_ng
 from app import create_app
 
@@ -33,7 +35,6 @@ class RestroomRateLimitTests(unittest.TestCase):
             }
         )
         self.client = self.app.test_client()
-
 
     @patch("app.routes.get_remote_addr")
     def test_s_4_us_4_t_2_rate_limiting_reports(self, get_remote_addr_mock):

@@ -2,6 +2,7 @@
 Imports the sample OpenStreetMap restroom GeoJSON data into the local MongoDB
 restrooms collection used during development.
 """
+import os
 
 import geojson
 from pymongo import MongoClient
@@ -57,7 +58,7 @@ def address_from_osm(properties):
         return None
 
 
-client = MongoClient("localhost", 27017)
+client = MongoClient(os.environ.get("MONGODB_URI", "mongodb://localhost:27017"))
 main_json = geojson.load(open("export.geojson"))
 
 # NOTE: Need to manually make a ToiletApp database and add a restrooms collection for this to work

@@ -26,6 +26,17 @@ class MongoDatabaseError(Exception):
     """Raised when MongoDB cannot complete a restroom database operation."""
 
 
+client= None
+
+def get_client():
+    global client
+    if client is None:
+        client = MongoClient(
+            current_app.config["MONGODB_URI"],
+            serverSelectionTimeoutMS=current_app.config["MONGODB_TIMEOUT_MS"],
+        )
+    return client
+
 def distance_in_meters(
     first_latitude,
     first_longitude,
@@ -93,11 +104,8 @@ def get_restrooms_collection():
     if test_collection is not None:
         return test_collection
 
-    client = MongoClient(
-        current_app.config["MONGODB_URI"],
-        serverSelectionTimeoutMS=current_app.config["MONGODB_TIMEOUT_MS"],
-    )
-    database = client[current_app.config["MONGODB_DATABASE"]]
+    my_client = get_client()
+    database = my_client[current_app.config["MONGODB_DATABASE"]]
     return database[current_app.config["MONGODB_RESTROOMS_COLLECTION"]]
 
 
@@ -499,6 +507,8 @@ def find_nearby_restrooms(latitude, longitude, radius_meters):
             }
         )
         restrooms = []
+        # convert to list all at once since pymongo uses a server pointer internally and dereferencing by iteration is slow
+        documents = list(documents)
         for document in documents:
             formatted_restroom = format_restroom(document, latitude, longitude)
             restrooms.append(formatted_restroom)
